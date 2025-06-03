@@ -1,26 +1,234 @@
-@import "tailwindcss";
+@import 'modern-normalize/modern-normalize.css';
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+@layer base {
+  body {
+    @apply bg-gray-50 text-gray-900 antialiased;
+  }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  h1 {
+    @apply text-3xl font-bold text-gray-900;
+  }
+
+  h2 {
+    @apply text-2xl font-semibold text-gray-900;
+  }
+
+  h3 {
+    @apply text-xl font-medium text-gray-900;
+  }
+
+  h4 {
+    @apply text-lg font-medium text-gray-900;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  .btn {
+    @apply px-4 py-2 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2;
+  }
+
+  .btn-primary {
+    @apply bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500;
+  }
+
+  .btn-secondary {
+    @apply bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 focus:ring-gray-500;
+  }
+
+  .input {
+    @apply w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent;
+  }
+
+  .card {
+    @apply bg-white rounded-xl shadow-md p-6;
+  }
+
+  .nav-link {
+    @apply text-gray-600 hover:text-primary-600 transition-colors;
+  }
+
+  .nav-link.active {
+    @apply text-primary-600 font-medium;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  @apply w-2;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-100;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 rounded-full hover:bg-gray-400;
+}
+
+/* Focus styles */
+:focus-visible {
+  @apply outline-none ring-2 ring-primary-500 ring-offset-2;
+}
+
+/* Main content area */
+main {
+  @apply bg-white rounded-2xl shadow-md p-8 mx-auto max-w-7xl;
+}
+
+/* Chat sidebar styles */
+body.chat-expanded main {
+  margin-right: var(--chat-width, 400px);
+  width: calc(100% - var(--chat-width, 400px) - 256px);
+}
+
+/* Chat container */
+.chat-expanded .fixed {
+  @apply z-50 h-screen border-l border-gray-200 bg-white shadow-md;
+}
+
+/* Resize handle */
+.resize-handle {
+  @apply absolute top-0 bottom-0 w-1 cursor-ew-resize bg-transparent transition-colors;
+}
+
+.resize-handle:hover,
+.resize-handle:active {
+  @apply bg-primary-500/50;
+}
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+}
+
+main {
+  background: var(--asu-white);
+  border-radius: 1.5rem;
+  box-shadow: 0 4px 24px 0 rgba(0,0,0,0.06);
+  padding: 2.5rem;
+  margin: 2rem auto;
+  max-width: 1200px;
+}
+
+@layer base {
+  h1 {
+    @apply text-2xl font-bold;
+  }
+  h2 {
+    @apply text-xl font-semibold;
+  }
+  h3 {
+    @apply text-lg font-medium;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply px-4 py-2 rounded-md font-medium transition-colors;
+  }
+  
+  .btn-primary {
+    @apply bg-blue-500 text-white hover:bg-blue-600;
+  }
+  
+  .btn-secondary {
+    @apply bg-gray-200 text-gray-800 hover:bg-gray-300;
+  }
+  
+  .input {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+  }
+  
+  .card {
+    @apply bg-white rounded-lg shadow-md p-6;
+  }
+  
+  .nav-link {
+    @apply text-gray-600 hover:text-gray-900 transition-colors;
+  }
+  
+  .nav-link.active {
+    @apply text-blue-600 font-medium;
+  }
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--asu-black);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+a {
+  color: var(--asu-maroon);
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+a:hover {
+  color: var(--asu-gold);
+}
+
+.card, .panel, .box, .suggestion-card {
+  background: var(--asu-white);
+  border-radius: 1rem;
+  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.04);
+  border: 1px solid var(--asu-gray-200);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+button, .btn {
+  background: var(--asu-gold);
+  color: var(--asu-black);
+  border: none;
+  border-radius: 9999px;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1px 4px 0 rgba(0,0,0,0.04);
+}
+button:hover, .btn:hover {
+  background: var(--asu-maroon);
+  color: var(--asu-gold);
+}
+
+input, textarea, select {
+  background: var(--asu-gray-50);
+  border: 1px solid var(--asu-gray-200);
+  border-radius: 9999px;
+  padding: 0.75rem 1.25rem;
+  font-size: 1rem;
+  color: var(--asu-black);
+  transition: border 0.2s, box-shadow 0.2s;
+}
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--asu-maroon);
+  box-shadow: 0 0 0 2px var(--asu-gold);
+}
+
+/* Utility classes for cards and suggestions */
+.suggestion-card {
+  background: var(--asu-gray-50);
+  border: 1px solid var(--asu-gray-200);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  color: var(--asu-black);
+  box-shadow: 0 1px 4px 0 rgba(0,0,0,0.04);
+  transition: box-shadow 0.2s;
+}
+.suggestion-card:hover {
+  box-shadow: 0 4px 16px 0 rgba(140,29,64,0.10);
+  border-color: var(--asu-maroon);
+}
+
+/* Updated inner container background */
+.inner-container {
+  background: var(--asu-white);
+  /* ... existing styles ... */
 }

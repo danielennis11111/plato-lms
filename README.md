@@ -1,36 +1,136 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Plato - Modern Learning Management System
+
+A standalone web application that provides a comprehensive learning management system with AI-powered assistance, calendar integration, and progress tracking. Built with Next.js 14, React 18, and Tailwind CSS.
+
+## Features
+
+### Core Features
+- **Modern UI/UX**: Clean, responsive interface with collapsible sidebar navigation
+- **AI Learning Assistant**: Context-aware chatbot that adapts to current page content
+- **Smart Calendar**: Assignment tracking, progress milestones, and deadline management
+- **Progress Tracking**: Visual progress indicators and automated progress calculations
+- **Course Management**: Detailed course views with modules, assignments, and learning objectives
+- **Assignment Management**: Kanban-style assignment board with drag-and-drop functionality
+
+### Technical Features
+- **Next.js 14**: App Router and Server Components
+- **React 18**: Latest features and performance improvements
+- **Tailwind CSS**: Modern, utility-first styling
+- **TypeScript**: Type-safe development
+- **Mock API**: Realistic data simulation for development
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Node.js (v18 or higher)
+- npm (v9 or higher)
+
+### Setup
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/plato-lms.git
+   cd plato-lms
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+4. Open [http://localhost:3000](http://localhost:3000) in your browser
+
+## Project Structure
+
+```
+plato-lms/
+├── src/
+│   ├── app/                    # Next.js app directory
+│   │   ├── components/         # Shared components
+│   │   │   ├── Sidebar.tsx     # Collapsible navigation
+│   │   │   └── Chat.tsx        # Context-aware chatbot
+│   │   ├── dashboard/          # Dashboard components
+│   │   ├── courses/           # Course-related pages
+│   │   ├── assignments/       # Assignment management
+│   │   ├── calendar/          # Calendar views
+│   │   ├── layout.tsx         # Root layout
+│   │   └── page.tsx           # Dashboard (homepage)
+│   ├── lib/                    # Utility functions
+│   │   └── mockCanvasApi.ts    # Mock API implementation
+│   └── styles/                 # Global styles
+├── public/                     # Static assets
+├── tailwind.config.js          # Tailwind configuration
+├── postcss.config.js           # PostCSS configuration
+└── next.config.js              # Next.js configuration
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Current Implementation
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Navigation
+- Collapsible left sidebar with icons
+- Main sections: Dashboard, Courses, Calendar, Assignments, Chat
+- Simple "Plato" text logo
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Dashboard (Homepage)
+- Week view calendar
+- Course grid
+- Upcoming assignments
+- Global search/chat input
 
-## Learn More
+### Mock Data
+- Full semester of course data
+- Multiple courses with modules
+- Assignments with due dates
+- Realistic course descriptions and content
 
-To learn more about Next.js, take a look at the following resources:
+### Chat Assistant
+- Context-aware responses
+- Floating chat button
+- Real-time message updates
+- Page-specific assistance
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Development
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Key Dependencies
+```json
+{
+  "dependencies": {
+    "next": "14.1.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "date-fns": "^2.30.0",
+    "lucide-react": "^0.511.0"
+  },
+  "devDependencies": {
+    "typescript": "^5",
+    "tailwindcss": "^3.4.1",
+    "postcss": "^8.4.35",
+    "autoprefixer": "^10.4.17"
+  }
+}
+```
 
-## Deploy on Vercel
+### Future Enhancements
+- Real AI integration for the chatbot
+- Authentication system
+- Real-time notifications
+- Calendar event creation
+- Enhanced course analytics
+- Mobile responsiveness improvements
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Contributing
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
+
+## License
+
+MIT License - see LICENSE file for details 
