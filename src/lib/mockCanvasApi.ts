@@ -1106,68 +1106,226 @@ export const mockCanvasApi = {
 
   // Get context information for chat
   getContextInfo: (type: string, id?: number) => {
-    switch (type) {
-      case 'course':
-        if (id) {
-          const course = courses.find(c => c.id === id);
-          return Promise.resolve(course ? {
-            title: course.name,
-            description: course.description,
-            instructor: course.instructor,
-            modules: course.modules.length,
-            completedModules: course.modules.filter(m => m.is_completed).length,
-            assignments: assignments.filter(a => a.course_id === id).length,
-            upcomingAssignments: assignments.filter(a => a.course_id === id && a.status !== 'graded' && new Date(a.due_at) > currentDate).length
-          } : null);
-        }
-        break;
-        
-      case 'assignment':
-        if (id) {
-          const assignment = assignments.find(a => a.id === id);
-          if (assignment) {
-            const course = courses.find(c => c.id === assignment.course_id);
+    if (type === 'assignment' && id) {
+      return mockCanvasApi.getAssignment(id);
+    } else if (type === 'course' && id) {
+      return mockCanvasApi.getCourse(id);
+    } else if (type === 'dashboard') {
+      return mockCanvasApi.getDashboardData();
+    } else if (type === 'quiz' && id) {
+      // Find quiz in course modules
+      for (const course of courses) {
+        for (const module of course.modules) {
+          const quizItem = module.items.find(item => item.id === id && item.type === 'quiz');
+          if (quizItem) {
             return Promise.resolve({
-              title: assignment.name,
-              description: assignment.description,
-              dueDate: assignment.due_at,
-              points: assignment.points_possible,
-              status: assignment.status,
-              courseName: course?.name,
-              attempts: assignment.attempts,
-              maxAttempts: assignment.max_attempts
+              id: quizItem.id,
+              title: quizItem.title,
+              description: quizItem.content,
+              status: quizItem.status,
+              grade: quizItem.grade,
+              feedback: quizItem.feedback,
+              attempts: quizItem.attempts,
+              max_attempts: quizItem.max_attempts,
+              course_name: course.name,
+              module_name: module.name
             });
           }
         }
-        break;
-        
-      case 'dashboard':
-        return Promise.resolve({
-          title: 'Dashboard Overview',
-          totalCourses: courses.length,
-          totalAssignments: assignments.length,
-          pendingAssignments: assignments.filter(a => a.status === 'not_started' || a.status === 'in_progress').length,
-          upcomingDeadlines: assignments.filter(a => {
-            const dueDate = new Date(a.due_at);
-            const daysDiff = Math.ceil((dueDate.getTime() - currentDate.getTime()) / (1000 * 3600 * 24));
-            return daysDiff >= 0 && daysDiff <= 7;
-          }).length
-        });
-        
-      case 'calendar':
-        return Promise.resolve({
-          title: 'Calendar View',
-          totalEvents: calendarEvents.length,
-          upcomingEvents: calendarEvents.filter(e => new Date(e.start_date) > currentDate).length,
-          thisWeekEvents: calendarEvents.filter(e => {
-            const eventDate = new Date(e.start_date);
-            const daysDiff = Math.ceil((eventDate.getTime() - currentDate.getTime()) / (1000 * 3600 * 24));
-            return daysDiff >= 0 && daysDiff <= 7;
-          }).length
-        });
-        
-      default:
-        return Promise.resolve(null);
+      }
+      return Promise.resolve(null);
+    } else if (type === 'discussion' && id) {
+      return mockCanvasApi.getDiscussion(id);
     }
+    return Promise.resolve(null);
+  },
+
+  // Discussion endpoints
+  getDiscussions: async (courseId: number) => {
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    const discussionPersonalities = [
+      { name: 'Alex Chen', personality: 'intj', traits: 'analytical, direct, strategic' },
+      { name: 'Maria Rodriguez', personality: 'enfp', traits: 'enthusiastic, creative, encouraging' },
+      { name: 'Jordan Kim', personality: 'istj', traits: 'methodical, reliable, structured' },
+      { name: 'Sam Taylor', personality: 'esfj', traits: 'supportive, collaborative, empathetic' },
+      { name: 'Casey Park', personality: 'entp', traits: 'innovative, curious, debate-loving' },
+      { name: 'River Jones', personality: 'infp', traits: 'thoughtful, value-driven, creative' }
+    ];
+    
+    const discussions = [
+      {
+        id: 1,
+        title: "Introduction: Share Your Programming Goals",
+        message: "Welcome everyone! Let's start by sharing what we hope to achieve in this programming course. What projects or career paths are you most excited about?",
+        course_id: courseId,
+        author: "Professor Smith",
+        created_at: "2024-12-01T10:00:00Z",
+        topic: "introductions",
+        replies: [
+          {
+            id: 1,
+            message: "I'm aiming to build efficient algorithms for data analysis. My goal is to work in fintech where performance optimization is crucial. I'm particularly interested in the mathematical foundations of algorithm complexity.",
+            author: discussionPersonalities[0].name,
+            created_at: "2024-12-01T14:30:00Z",
+            personality: discussionPersonalities[0].personality
+          },
+          {
+            id: 2,
+            message: "That's awesome Alex! I'm super excited about web development and creating user-friendly applications! 🎉 I love the creative side of programming - making beautiful interfaces that people actually enjoy using. Maybe we could collaborate on a project sometime!",
+            author: discussionPersonalities[1].name,
+            created_at: "2024-12-01T15:45:00Z",
+            personality: discussionPersonalities[1].personality
+          },
+          {
+            id: 3,
+            message: "My approach is more systematic. I plan to focus on software engineering principles, following best practices, and building maintainable codebases. Proper documentation and testing are my priorities.",
+            author: discussionPersonalities[2].name,
+            created_at: "2024-12-01T16:20:00Z",
+            personality: discussionPersonalities[2].personality
+          }
+        ]
+      },
+      {
+        id: 2,
+        title: "Debugging Strategies Discussion",
+        message: "What debugging techniques have you found most effective? Share your favorite tools and methods for tracking down those tricky bugs!",
+        course_id: courseId,
+        author: "Professor Smith",
+        created_at: "2024-12-02T09:00:00Z",
+        topic: "debugging",
+        replies: [
+          {
+            id: 4,
+            message: "I always start with systematic isolation - binary search through the codebase to narrow down the issue. Print statements at strategic points, then graduate to a proper debugger. Hypothesis-driven debugging is key.",
+            author: discussionPersonalities[0].name,
+            created_at: "2024-12-02T11:15:00Z",
+            personality: discussionPersonalities[0].personality
+          },
+          {
+            id: 5,
+            message: "I love using colorful console.log statements! 🌈 Different colors for different types of data. And rubber duck debugging is amazing - explaining the problem out loud often reveals the solution! Sometimes I talk to my plants instead of a duck 😄",
+            author: discussionPersonalities[1].name,
+            created_at: "2024-12-02T12:30:00Z",
+            personality: discussionPersonalities[1].personality
+          },
+          {
+            id: 6,
+            message: "Step-by-step debugging with proper IDE tools. I maintain a debugging checklist: 1) Reproduce consistently 2) Check recent changes 3) Verify assumptions 4) Use breakpoints methodically 5) Document the solution for future reference.",
+            author: discussionPersonalities[2].name,
+            created_at: "2024-12-02T13:45:00Z",
+            personality: discussionPersonalities[2].personality
+          },
+          {
+            id: 7,
+            message: "I find pair debugging really helpful! Two sets of eyes can spot issues faster, and explaining your thought process to someone else often clarifies the problem. Plus it's less frustrating when you're not stuck alone.",
+            author: discussionPersonalities[3].name,
+            created_at: "2024-12-02T14:10:00Z",
+            personality: discussionPersonalities[3].personality
+          }
+        ]
+      },
+      {
+        id: 3,
+        title: "Best Practices for Code Organization",
+        message: "How do you structure your code projects? What organizational patterns have you found most maintainable?",
+        course_id: courseId,
+        author: "Professor Smith",
+        created_at: "2024-12-03T08:00:00Z",
+        topic: "code-organization",
+        replies: [
+          {
+            id: 8,
+            message: "Clean architecture principles: separate business logic from infrastructure. Use dependency inversion, single responsibility principle. Modular design allows for easier testing and maintenance.",
+            author: discussionPersonalities[0].name,
+            created_at: "2024-12-03T10:20:00Z",
+            personality: discussionPersonalities[0].personality
+          },
+          {
+            id: 9,
+            message: "What if we created visual diagrams of our code structure? 📊 I like to sketch out how different modules connect - it helps me see the big picture! Sometimes I use fun folder names that make me smile when I'm coding late at night ✨",
+            author: discussionPersonalities[1].name,
+            created_at: "2024-12-03T11:35:00Z",
+            personality: discussionPersonalities[1].personality
+          },
+          {
+            id: 10,
+            message: "Consistent folder structure is essential. I follow established conventions: src/, tests/, docs/, config/. Every project should have the same layout. Clear naming conventions and comprehensive README files are non-negotiable.",
+            author: discussionPersonalities[2].name,
+            created_at: "2024-12-03T12:15:00Z",
+            personality: discussionPersonalities[2].personality
+          }
+        ]
+      },
+      {
+        id: 4,
+        title: "Learning Resources and Study Groups",
+        message: "What learning resources have been most helpful for you? Are you interested in forming study groups for this course?",
+        course_id: courseId,
+        author: "Professor Smith",
+        created_at: "2024-12-04T07:30:00Z",
+        topic: "study-groups",
+        replies: [
+          {
+            id: 11,
+            message: "I'm definitely interested in study groups! Learning together makes everything more enjoyable 🤝 I love explaining concepts to others - it helps me understand them better too. Should we set up a Discord server or something?",
+            author: discussionPersonalities[1].name,
+            created_at: "2024-12-04T09:45:00Z",
+            personality: discussionPersonalities[1].personality
+          },
+          {
+            id: 12,
+            message: "A study group sounds beneficial. I suggest we establish regular meeting times, set clear agendas, and rotate leadership responsibilities. We could focus on problem-solving sessions and code reviews.",
+            author: discussionPersonalities[2].name,
+            created_at: "2024-12-04T10:30:00Z",
+            personality: discussionPersonalities[2].personality
+          },
+          {
+            id: 13,
+            message: "I'm happy to help organize! We could create different groups based on schedules and learning styles. Some people prefer morning sessions, others evening. Maybe we could have both collaborative coding sessions and peer mentoring?",
+            author: discussionPersonalities[3].name,
+            created_at: "2024-12-04T11:20:00Z",
+            personality: discussionPersonalities[3].personality
+          }
+        ]
+      }
+    ];
+    
+    return discussions;
+  },
+
+  getDiscussion: async (discussionId: number) => {
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    const allDiscussions = await mockCanvasApi.getDiscussions(1); // Get from course 1 for now
+    return allDiscussions.find(d => d.id === discussionId) || null;
+  },
+
+  // Course management functions
+  deleteCourse: async (courseId: number) => {
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    const index = courses.findIndex(course => course.id === courseId);
+    if (index === -1) {
+      throw new Error('Course not found');
+    }
+    
+    courses.splice(index, 1);
+    return { success: true };
+  },
+
+  addCourse: async (course: Course) => {
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    // Generate a new ID
+    const newId = Math.max(...courses.map(c => c.id)) + 1;
+    const newCourse = { ...course, id: newId };
+    
+    courses.push(newCourse);
+    return { success: true, course: newCourse };
   }
 }; 
