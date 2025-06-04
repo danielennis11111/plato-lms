@@ -8,6 +8,7 @@ import { ArrowLeft, FileText, Clock, Award, Brain, CheckCircle, AlertCircle, Lig
 import Link from 'next/link';
 import { slugify } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
+import { AssignmentSubmissionForm } from '@/components/AssignmentSubmissionForm';
 
 interface Assignment {
   id: number;
@@ -90,6 +91,10 @@ export default function AssignmentPage({
 
     fetchData();
   }, [params.slug, params.assignmentSlug]);
+
+  const handleSubmissionChange = (newSubmission: string) => {
+    setSubmission(newSubmission);
+  };
 
   const handlePreGrade = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -216,50 +221,20 @@ export default function AssignmentPage({
           <div className="text-gray-700 whitespace-pre-wrap">{assignment.description}</div>
         </div>
 
-        {/* Submission Form */}
+        {/* Enhanced Submission Form with Dictation */}
         {assignment.status !== 'graded' && (
-          <div className="mt-8 space-y-6">
-            <form onSubmit={handlePreGrade} className="space-y-4">
-              <div>
-                <label htmlFor="submission" className="block text-sm font-medium text-gray-700 mb-2">
-                  Your Submission
-                </label>
-                <textarea
-                  id="submission"
-                  rows={10}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  value={submission}
-                  onChange={(e) => setSubmission(e.target.value)}
-                  placeholder="Enter your submission here..."
-                  required
-                />
-                <p className="text-sm text-gray-500 mt-1">
-                  Word count: {submission.split(/\s+/).filter(word => word.length > 0).length}
-                </p>
-              </div>
-              
-              <button
-                type="submit"
-                disabled={isGrading || !submission.trim()}
-                className="w-full px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
-              >
-                {isGrading ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
-                    <span>Analyzing Submission...</span>
-                  </>
-                ) : (
-                  <>
-                    <Brain className="w-5 h-5" />
-                    <span>Submit for AI Pre-Grading</span>
-                  </>
-                )}
-              </button>
-            </form>
+          <div className="mt-8">
+            <AssignmentSubmissionForm
+              initialValue={submission}
+              onSubmissionChange={handleSubmissionChange}
+              onSubmit={handlePreGrade}
+              isSubmitting={isGrading}
+              placeholder="Enter your submission here. You can type or use the dictation feature to speak your thoughts..."
+            />
 
             {/* AI Grading Results */}
             {gradingResult && (
-              <div className="bg-gray-50 rounded-lg p-6 space-y-6">
+              <div className="mt-8 bg-gray-50 rounded-lg p-6 space-y-6">
                 <div className="flex items-center space-x-3">
                   <Brain className="w-6 h-6 text-purple-600" />
                   <h3 className="text-lg font-semibold text-gray-900">AI Pre-Grading Results</h3>
