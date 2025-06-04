@@ -80,12 +80,12 @@ const mockChatData: Message[] = [
   }
 ];
 
-export default function ChatHistoryPage() {
+export default function DialogueHistoryPage() {
   const [chatHistory, setChatHistory] = useState<ChatHistory[]>([]);
 
   useEffect(() => {
     const loadChatHistory = () => {
-      console.log('Loading chat history...');
+      console.log('Loading dialogue history...');
       const savedMessages = localStorage.getItem('chatHistory');
       if (savedMessages) {
         const messages: Message[] = JSON.parse(savedMessages).map((msg: any) => ({
@@ -112,7 +112,7 @@ export default function ChatHistoryPage() {
 
         console.log('Grouped messages:', groupedMessages);
 
-        // Create chat history entries
+        // Create dialogue history entries
         const history = Object.entries(groupedMessages).map(([key, messages]) => {
           const lastMessage = messages[messages.length - 1];
           return {
@@ -129,7 +129,7 @@ export default function ChatHistoryPage() {
           a.lastMessage.timestamp.getTime()
         );
 
-        console.log('Final chat history:', history);
+        console.log('Final dialogue history:', history);
         setChatHistory(history);
       }
     };
@@ -143,13 +143,13 @@ export default function ChatHistoryPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Chat History</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Dialogues with Socrates</h1>
         <Link
           href="/chat/new"
           className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
         >
           <Plus className="w-5 h-5" />
-          <span>New Chat</span>
+          <span>New Dialogue</span>
         </Link>
       </div>
 
@@ -191,16 +191,16 @@ export default function ChatHistoryPage() {
       ) : (
         <div className="text-center py-12">
           <MessageSquare className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">No Chat History</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">No Dialogue History</h2>
           <p className="text-gray-600 mb-4">
-            Start a new conversation to see it here.
+            Start a new dialogue with Socrates to see it here.
           </p>
           <Link
             href="/chat/new"
             className="inline-flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
           >
             <Plus className="w-5 h-5" />
-            <span>Start New Chat</span>
+            <span>Start Dialogue</span>
           </Link>
         </div>
       )}

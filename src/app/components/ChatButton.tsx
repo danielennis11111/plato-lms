@@ -13,7 +13,7 @@ export default function ChatButton() {
   const [mounted, setMounted] = useState(false);
   const [pageContext, setPageContext] = useState<ChatContext>({
     type: 'dashboard',
-    title: 'Learning Assistant'
+    title: 'Socrates - Your Learning Guide'
   });
   const pathname = usePathname();
 
@@ -28,7 +28,7 @@ export default function ChatButton() {
       // Default context
       let context: ChatContext = {
         type: 'dashboard',
-        title: 'Learning Assistant'
+        title: 'Socrates - Your Learning Guide'
       };
 
       console.log('ChatButton: Current pathname:', pathname);
@@ -105,14 +105,14 @@ export default function ChatButton() {
       else if (pathname?.includes('/calendar')) {
         context = {
           type: 'calendar',
-          title: 'Calendar Assistant'
+          title: 'Socrates - Time & Learning Guide'
         };
       }
       // Courses list page
       else if (pathname?.includes('/courses')) {
         context = {
           type: 'dashboard',
-          title: 'Courses Assistant'
+          title: 'Socrates - Courses Guide'
         };
       }
 
@@ -137,7 +137,7 @@ export default function ChatButton() {
         style={{
           right: isChatOpen ? `${CHAT_WIDTH + 24}px` : '24px'
         }}
-        aria-label={isChatOpen ? "Close chat" : "Open chat"}
+        aria-label={isChatOpen ? "Close dialogue" : "Open dialogue with Socrates"}
       >
         {isChatOpen ? <X size={24} /> : <MessageSquare size={24} />}
       </button>
@@ -156,16 +156,16 @@ export default function ChatButton() {
                 <MessageCircle size={14} />
               </div>
               <div>
-                <h2 className="text-sm font-semibold text-gray-900">Learning Assistant</h2>
+                <h2 className="text-sm font-semibold text-gray-900">Socrates</h2>
                 <p className="text-xs text-gray-500">
-                  {pageContext?.title ? `${pageContext.title}` : 'Ask any question about your courses'}
+                  {pageContext?.title ? `Dialogue: ${pageContext.title}` : 'Begin a dialogue about your learning'}
                 </p>
               </div>
             </div>
             <button
               onClick={toggleChat}
               className="p-1 text-gray-500 hover:text-gray-700 rounded-full hover:bg-gray-100"
-              aria-label="Close chat"
+              aria-label="Close dialogue"
             >
               <X size={16} />
             </button>
