@@ -34,6 +34,13 @@ export async function createCourseFromPrompt(prompt: string, userId?: string, ap
       return { success: false, error: 'User authentication required' };
     }
 
+    // Ensure test accounts are initialized (for demo purposes)
+    try {
+      UserService.initializeTestAccounts();
+    } catch (error) {
+      console.log('⚠️ Could not initialize test accounts (might be server-side)');
+    }
+
     console.log('🔑 API key provided:', apiKey ? 'YES (length: ' + apiKey.length + ')' : 'NO');
     
     let courseData;
@@ -53,31 +60,61 @@ export async function createCourseFromPrompt(prompt: string, userId?: string, ap
     console.log('📚 Course added to API with ID:', finalCourse.id);
     
     // Enroll the user in the course
-    const userData = UserService.getUserData(userId);
-    if (userData) {
-      // Add course to user's enrollments
-      if (!userData.courseProgress) {
-        userData.courseProgress = {};
-      }
-      
-      userData.courseProgress[finalCourse.id.toString()] = {
-        courseId: finalCourse.id.toString(),
-        enrolledAt: new Date().toISOString(),
-        lastAccessedAt: new Date().toISOString(),
-        completedModules: [],
-        assignmentSubmissions: {},
-        quizAttempts: {},
-        discussionParticipation: {},
-        currentGrade: 0,
-        timeSpent: 0
+    let userData = UserService.getUserData(userId);
+    if (!userData) {
+      console.log('📝 No user data found, creating minimal user data for course enrollment');
+      // Create minimal user data for enrollment
+      userData = {
+        chatHistories: {},
+        settings: {
+          theme: 'system',
+          language: 'en',
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          notifications: {
+            email: true,
+            browser: true,
+            assignments: true,
+            discussions: true,
+            grades: true,
+          },
+          accessibility: {
+            highContrast: false,
+            fontSize: 'medium',
+            reducedMotion: false,
+          },
+          privacy: {
+            profileVisibility: 'private',
+            shareProgress: false,
+            allowAnalytics: true,
+          },
+        },
+        apiKeys: [],
+        personalNotes: {},
+        bookmarks: [],
+        courseProgress: {}
       };
-      
-      UserService.saveUserData(userId, userData);
-      console.log('✅ User enrolled in course:', finalCourse.name, 'with ID:', finalCourse.id);
-      console.log('📝 User now enrolled in courses:', Object.keys(userData.courseProgress));
-    } else {
-      console.log('⚠️ No user data found for enrollment');
     }
+    
+    // Add course to user's enrollments
+    if (!userData.courseProgress) {
+      userData.courseProgress = {};
+    }
+    
+    userData.courseProgress[finalCourse.id.toString()] = {
+      courseId: finalCourse.id.toString(),
+      enrolledAt: new Date().toISOString(),
+      lastAccessedAt: new Date().toISOString(),
+      completedModules: [],
+      assignmentSubmissions: {},
+      quizAttempts: {},
+      discussionParticipation: {},
+      currentGrade: 0,
+      timeSpent: 0
+    };
+    
+    UserService.saveUserData(userId, userData);
+    console.log('✅ User enrolled in course:', finalCourse.name, 'with ID:', finalCourse.id);
+    console.log('📝 User now enrolled in courses:', Object.keys(userData.courseProgress));
     
     revalidatePath('/courses');
     revalidatePath('/');
