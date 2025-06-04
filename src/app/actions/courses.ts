@@ -2,7 +2,7 @@
 
 import { mockCanvasApi } from '@/lib/mockCanvasApi';
 import { revalidatePath } from 'next/cache';
-import { generateCourseFromPrompt } from '@/lib/courseGenerator';
+import { generateCourseFromPrompt, generateEnhancedCourseFromPrompt } from '@/lib/courseGenerator';
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
 import { UserService } from '@/lib/userService';
 import { addDays, addWeeks, format } from 'date-fns';
@@ -89,14 +89,21 @@ async function generateCourseWithGemini(prompt: string, apiKey: string) {
   const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
   
-  const systemPrompt = `You are an expert curriculum designer. Create a comprehensive course based on the user's request.
+  const systemPrompt = `You are an expert curriculum designer and course data parser. Analyze the provided course information and create a comprehensive course structure.
+
+The user may provide:
+1. Raw course catalog text (like university course descriptions)
+2. Simple course requests
+3. Mixed format course information
+
+Your task is to extract key information and create a well-structured academic course.
 
 IMPORTANT: Return ONLY a valid JSON object with this exact structure:
 {
   "name": "Course Name",
   "course_code": "CODE123", 
-  "description": "Detailed course description",
-  "instructor": "Instructor Name",
+  "description": "Detailed course description (expand from original if needed)",
+  "instructor": "Instructor Name(s)",
   "term": "Summer 2025",
   "start_date": "2025-06-03",
   "end_date": "2025-08-15",
@@ -104,46 +111,83 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure:
   "modules": [
     {
       "id": 1,
-      "name": "Module 1: Introduction",
+      "name": "Module 1: Introduction and Foundations",
       "description": "Module description",
       "is_completed": false,
       "items": [
         {
           "id": 101,
-          "title": "Welcome to the Course",
+          "title": "Course Introduction",
           "type": "page",
           "content": "Detailed content here",
-          "due_date": "2025-06-10",
+          "due_date": "2025-06-10T23:59:59Z",
           "status": "not_started",
           "points_possible": 0
         },
         {
           "id": 102,
-          "title": "Assignment 1",
+          "title": "Assignment Name",
           "type": "assignment", 
           "content": "Assignment description",
-          "due_date": "2025-06-12",
+          "due_date": "2025-06-15T23:59:59Z",
           "status": "not_started",
           "points_possible": 100,
           "submissions": 0,
           "attempts": 0,
           "max_attempts": 3
+        },
+        {
+          "id": 103,
+          "title": "Knowledge Check Quiz",
+          "type": "quiz",
+          "content": "Quiz description",
+          "due_date": "2025-06-18T23:59:59Z",
+          "status": "not_started",
+          "points_possible": 50,
+          "submissions": 0,
+          "attempts": 0,
+          "max_attempts": 2
+        },
+        {
+          "id": 104,
+          "title": "Discussion Topic",
+          "type": "discussion",
+          "content": "Discussion prompt",
+          "due_date": "2025-06-20T23:59:59Z",
+          "status": "not_started",
+          "points_possible": 25,
+          "submissions": 0,
+          "attempts": 0
         }
       ]
     }
   ]
 }
 
-Guidelines:
-- Create 6-8 modules for a full course
+Guidelines for course creation:
+- Create 6-8 modules for a full course (adjust based on course duration)
 - Each module should have 3-4 items: page, assignment, quiz, discussion
-- Use realistic due dates spread over the term (June 3 - Aug 15, 2025)
-- Make content specific to the subject matter
+- For Applied Project/Capstone courses: focus on project milestones, proposals, progress reports
+- For technical courses: include coding assignments, labs, implementations
+- For humanities: include essays, analysis papers, creative projects
+- Use realistic due dates spread over the term (June 3 - Aug 15, 2025 for summer)
+- Make content specific to the subject matter and course type
 - Total points should add up to around 1000
-- Include varied assignment types and point values
-- Make module names descriptive and progressive
+- Include varied assignment types and appropriate point values
+- Make module names descriptive and show progression
+- Extract actual instructor names, course codes, descriptions from the input when available
+- For course duration: parse actual dates if provided, otherwise use summer 2025 defaults
+- For prerequisites/requirements: incorporate into course description
 
-User request: "${prompt}"`;
+Special handling for course types:
+- Applied Project: Focus on proposal, literature review, methodology, implementation, presentation
+- Technical/Programming: Include coding assignments, projects, debugging exercises
+- Literature/Writing: Include essays, analysis papers, creative writing, peer reviews
+- Science: Include labs, experiments, data analysis, research papers
+
+Parse the following course information and create a comprehensive course structure:
+
+"${prompt}"`;
 
   try {
     const result = await model.generateContent({
@@ -204,9 +248,9 @@ User request: "${prompt}"`;
     
   } catch (error) {
     console.error('❌ Gemini API error:', error);
-    // Fallback to basic generation
-    console.log('🔄 Falling back to basic generation');
-    return generateCourseFromPrompt(prompt);
+    // Fallback to enhanced basic generation
+    console.log('🔄 Falling back to enhanced parsing');
+    return generateEnhancedCourseFromPrompt(prompt);
   }
 }
 
