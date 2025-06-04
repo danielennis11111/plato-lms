@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, addDays, addMonths, subMonths, isSameDay } from 'date-fns';
+import { useAuth } from '@/contexts/AuthContext';
 import { mockCanvasApi, CalendarEvent } from '@/lib/mockCanvasApi';
 import { Calendar as CalendarIcon, List, Grid } from 'lucide-react';
 import Link from 'next/link';
@@ -10,13 +11,23 @@ import { slugify } from '@/lib/utils';
 type ViewMode = 'month' | 'week' | 'list';
 
 export default function Calendar() {
+  const { user, getUserData } = useAuth();
   const [currentDate, setCurrentDate] = useState(new Date('2025-06-03')); // Set to June 3, 2025
   const [viewMode, setViewMode] = useState<ViewMode>('month');
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [courses, setCourses] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   // Fetch events and courses for the current view
   const fetchData = async () => {
+    if (!user) return;
+    
+    setLoading(true);
+    
+    // Get user enrollments from their courseProgress keys
+    const userData = getUserData();
+    const userEnrollments = userData?.courseProgress ? Object.keys(userData.courseProgress) : [];
+    
     let startDate: Date;
     let endDate: Date;
 
@@ -40,17 +51,25 @@ export default function Calendar() {
         format(startDate, 'yyyy-MM-dd'),
         format(endDate, 'yyyy-MM-dd')
       ),
-      mockCanvasApi.getCourses()
+      mockCanvasApi.getCourses(userEnrollments)
     ]);
     
-    setEvents(fetchedEvents);
+    // Filter events to only those from enrolled courses
+    const filteredEvents = fetchedEvents.filter(event => 
+      fetchedCourses.some(course => course.id === event.course_id) || event.course_id === 0 // Keep university events
+    );
+    
+    setEvents(filteredEvents);
     setCourses(fetchedCourses);
+    setLoading(false);
   };
 
   // Fetch events when component mounts or when view mode/date changes
   useEffect(() => {
-    fetchData();
-  }, [currentDate, viewMode]);
+    if (user) {
+      fetchData();
+    }
+  }, [currentDate, viewMode, user, getUserData]);
 
   // Helper function to get the correct URL for an event
   const getEventUrl = (event: CalendarEvent) => {
@@ -226,6 +245,16 @@ export default function Calendar() {
       </div>
     );
   };
+
+  if (loading || !user) {
+    return (
+      <div className="bg-white rounded-xl shadow-soft p-6">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white rounded-xl shadow-soft">
