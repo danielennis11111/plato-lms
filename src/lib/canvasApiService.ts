@@ -463,7 +463,7 @@ export class GeminiKeyService {
     // Add new key
     const newKey: UserGeminiKey = {
       userId,
-      keyHash: btoa(apiKey + 'gemini_salt_2024'), // Simple encryption
+      keyHash: btoa(apiKey + 'gemini_salt_2025'), // Simple encryption
       name,
       isActive: true,
       createdAt: new Date().toISOString(),
@@ -482,7 +482,7 @@ export class GeminiKeyService {
     try {
       // Simple decryption
       const decoded = atob(activeKey.keyHash);
-      return decoded.replace('gemini_salt_2024', '');
+      return decoded.replace('gemini_salt_2025', '');
     } catch {
       return null;
     }

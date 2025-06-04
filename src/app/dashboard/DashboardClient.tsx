@@ -90,14 +90,6 @@ export default function DashboardClient({ courses: initialCourses, assignments: 
         <p className="text-gray-600 mt-2">
           You have {assignments.filter(a => a.status === 'not_started').length} upcoming assignments
         </p>
-        {courses.length > 0 && courses[0].name.includes('[SAMPLE]') && (
-          <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-blue-800 text-sm">
-              🧪 <strong>Testing Mode:</strong> You're viewing sample courses to explore the platform. 
-              Try the AI chat features and course navigation!
-            </p>
-          </div>
-        )}
       </div>
 
       {/* Week View Calendar */}

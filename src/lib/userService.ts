@@ -11,7 +11,7 @@ import {
 } from '@/types/user';
 
 // Simple encryption for API keys (in production, use proper encryption)
-const ENCRYPTION_KEY = 'plato-lms-key-2024';
+const ENCRYPTION_KEY = 'plato-lms-key-2025';
 
 const simpleEncrypt = (text: string): string => {
   return btoa(text + ENCRYPTION_KEY);
@@ -33,7 +33,7 @@ const generateToken = (): string => {
 
 // Hash password (in production, use bcrypt or similar)
 const hashPassword = (password: string): string => {
-  return btoa(password + 'salt_2024');
+  return btoa(password + 'salt_2025');
 };
 
 const verifyPassword = (password: string, hash: string): boolean => {
