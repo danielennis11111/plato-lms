@@ -13,6 +13,7 @@ import { useRouter } from 'next/navigation';
 import { Message, ChatContext } from '@/types/chat';
 import { findSimilarConversations, debounce, isAskingForDirectAnswer, getLearningObjectives } from '@/lib/chatUtils';
 import { useAuth, useAPIKey } from '@/contexts/AuthContext';
+import { UserService } from '@/lib/userService';
 
 interface ChatProps {
   context?: ChatContext;
@@ -319,7 +320,13 @@ export default function Chat({ context, isFullScreen = false }: ChatProps) {
 
   // Test API key function
   const testApiKey = async () => {
-    console.log('Testing API key:', apiKey ? 'Present' : 'Missing');
+    console.log('🔍 Testing API key...');
+    console.log('📊 Debug - API key present:', !!apiKey);
+    console.log('📊 Debug - API key length:', apiKey ? apiKey.length : 0);
+    console.log('📊 Debug - API key first 10 chars:', apiKey ? apiKey.substring(0, 10) + '...' : 'none');
+    console.log('📊 Debug - User ID:', user?.id);
+    console.log('📊 Debug - User name:', user?.name);
+    console.log('📊 Debug - Is authenticated:', isAuthenticated);
     
     if (!apiKey) {
       setDebugInfo('No API key found. Please set your Gemini API key in Settings.');
@@ -327,9 +334,11 @@ export default function Chat({ context, isFullScreen = false }: ChatProps) {
     }
     
     try {
+      console.log('🤖 Initializing Gemini with API key...');
       const genAI = new GoogleGenerativeAI(apiKey);
       const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
       
+      console.log('📤 Sending test request to Gemini...');
       const result = await model.generateContent({
         contents: [
           {
@@ -350,10 +359,13 @@ export default function Chat({ context, isFullScreen = false }: ChatProps) {
       });
       
       const text = result.response.text();
-      console.log('API test successful:', text);
+      console.log('✅ API test successful:', text);
       setDebugInfo(`API Test: SUCCESS - ${text.substring(0, 50)}...`);
     } catch (error) {
-      console.error('API test failed:', error);
+      console.error('❌ API test failed:', error);
+      console.error('❌ Error type:', error?.constructor?.name);
+      console.error('❌ Error message:', error instanceof Error ? error.message : 'Unknown error');
+      console.error('❌ Error stack:', error instanceof Error ? error.stack : 'No stack');
       setDebugInfo(`API Test Failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
@@ -361,17 +373,27 @@ export default function Chat({ context, isFullScreen = false }: ChatProps) {
   // Test API key when it becomes available
   useEffect(() => {
     if (apiKey) {
+      console.log('🔄 API key detected, running test...');
       testApiKey();
     } else {
+      console.log('⚠️ No API key available');
       setDebugInfo('No API key available. Please set your Gemini API key in Settings.');
     }
   }, [apiKey]);
 
   // Check for API key on mount and when chat opens
   useEffect(() => {
-    console.log('API key status:', apiKey ? 'Found' : 'Missing');
-    console.log('User:', user ? user.name : 'Not authenticated');
-    console.log('Is authenticated:', isAuthenticated);
+    console.log('📝 Chat component state check:');
+    console.log('  - API key status:', apiKey ? 'Found' : 'Missing');
+    console.log('  - User:', user ? user.name : 'Not authenticated');
+    console.log('  - Is authenticated:', isAuthenticated);
+    
+    // Also manually check the UserService
+    if (user && isAuthenticated) {
+      const manualApiKey = UserService.getActiveAPIKey(user.id, 'gemini');
+      console.log('  - Manual API key check:', manualApiKey ? 'Found' : 'Not found');
+      console.log('  - Manual vs hook match:', (manualApiKey === apiKey));
+    }
   }, [apiKey, user, isAuthenticated]);
 
   const generateContextAwareResponse = async (userMessage: string): Promise<string> => {
