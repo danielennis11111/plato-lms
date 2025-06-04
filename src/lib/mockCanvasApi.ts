@@ -822,6 +822,398 @@ const courses: Course[] = [
         ]
       }
     ]
+  },
+  {
+    id: 5,
+    name: 'Introduction to Literature',
+    course_code: 'ENG101',
+    description: 'Foundation course exploring diverse literary genres, critical reading skills, and analysis techniques. Students will engage with poetry, fiction, drama, and essays from various time periods and cultures.',
+    instructor: 'Dr. Margaret Thompson',
+    term: 'Fall 2024',
+    total_points: 1000,
+    current_grade: 0,
+    start_date: '2024-08-15',
+    end_date: '2024-12-15',
+    syllabus: 'This introductory course develops critical reading and analytical writing skills through close examination of literary texts. Students will learn to identify themes, literary devices, and cultural contexts while developing their own interpretive voice.',
+    modules: [
+      {
+        id: 1,
+        name: 'Introduction to Literary Analysis',
+        description: 'Fundamentals of close reading and literary terminology',
+        is_completed: false,
+        items: [
+          {
+            id: 101,
+            title: 'What is Literature? Discussion',
+            type: 'discussion',
+            content: 'Introduce yourself and share your definition of literature. What makes a text "literary"? Discuss with examples from your reading experience.',
+            due_date: '2024-08-25T23:59:59Z',
+            status: 'not_started',
+            points_possible: 25,
+            submissions: 0,
+            attempts: 0
+          },
+          {
+            id: 102,
+            title: 'Literary Terms Quiz',
+            type: 'quiz',
+            content: 'Test your knowledge of basic literary terms and devices including metaphor, symbolism, irony, and narrative perspective.',
+            due_date: '2024-09-01T23:59:59Z',
+            status: 'not_started',
+            points_possible: 50,
+            attempts: 0,
+            max_attempts: 2
+          }
+        ]
+      },
+      {
+        id: 2,
+        name: 'Poetry and Form',
+        description: 'Exploring poetic devices, meter, and diverse poetic traditions',
+        is_completed: false,
+        items: [
+          {
+            id: 103,
+            title: 'Poetry Analysis Essay',
+            type: 'assignment',
+            content: 'Write a 750-word analysis of either Emily Dickinson\'s "Because I could not stop for Death" or Robert Frost\'s "The Road Not Taken." Focus on how poetic devices create meaning.',
+            due_date: '2024-09-15T23:59:59Z',
+            status: 'not_started',
+            points_possible: 100,
+            submissions: 0,
+            attempts: 0,
+            max_attempts: 2
+          },
+          {
+            id: 104,
+            title: 'Modern Poetry Discussion',
+            type: 'discussion',
+            content: 'Compare traditional and contemporary poetry. Choose one poem from our anthology and one contemporary poem (2000+) and discuss how they handle similar themes.',
+            due_date: '2024-09-22T23:59:59Z',
+            status: 'not_started',
+            points_possible: 30,
+            submissions: 0,
+            attempts: 0
+          }
+        ]
+      },
+      {
+        id: 3,
+        name: 'Short Fiction Analysis',
+        description: 'Elements of storytelling: character, plot, setting, and theme',
+        is_completed: false,
+        items: [
+          {
+            id: 105,
+            title: 'Character Development Essay',
+            type: 'assignment',
+            content: 'Analyze character development in either Alice Walker\'s "Everyday Use" or James Joyce\'s "Araby." How does the author reveal character through action, dialogue, and internal conflict?',
+            due_date: '2024-10-06T23:59:59Z',
+            status: 'not_started',
+            points_possible: 125,
+            submissions: 0,
+            attempts: 0,
+            max_attempts: 2
+          },
+          {
+            id: 106,
+            title: 'Symbolism in Short Fiction Quiz',
+            type: 'quiz',
+            content: 'Identify and interpret symbolic elements in the short stories we\'ve read. Focus on how symbols contribute to theme and meaning.',
+            due_date: '2024-10-13T23:59:59Z',
+            status: 'not_started',
+            points_possible: 60,
+            attempts: 0,
+            max_attempts: 2
+          }
+        ]
+      },
+      {
+        id: 4,
+        name: 'Drama and Performance',
+        description: 'Understanding theatrical elements and dramatic interpretation',
+        is_completed: false,
+        items: [
+          {
+            id: 107,
+            title: 'Scene Performance Project',
+            type: 'assignment',
+            content: 'In groups of 2-3, perform a scene from either Shakespeare\'s "Romeo and Juliet" or Lorraine Hansberry\'s "A Raisin in the Sun." Include a written reflection on your interpretation choices.',
+            due_date: '2024-11-03T23:59:59Z',
+            status: 'not_started',
+            points_possible: 150,
+            submissions: 0,
+            attempts: 0,
+            max_attempts: 1
+          },
+          {
+            id: 108,
+            title: 'Dramatic Techniques Discussion',
+            type: 'discussion',
+            content: 'How do playwrights use stage directions, dialogue, and dramatic irony differently than fiction writers? Use specific examples from our readings.',
+            due_date: '2024-11-10T23:59:59Z',
+            status: 'not_started',
+            points_possible: 35,
+            submissions: 0,
+            attempts: 0
+          }
+        ]
+      },
+      {
+        id: 5,
+        name: 'Cultural Contexts and Perspectives',
+        description: 'Literature as reflection of society, culture, and historical moment',
+        is_completed: false,
+        items: [
+          {
+            id: 109,
+            title: 'Cultural Context Research Paper',
+            type: 'assignment',
+            content: 'Choose one text from our course and research its historical/cultural context. Write a 1000-word paper explaining how understanding this context enriches interpretation of the work.',
+            due_date: '2024-11-24T23:59:59Z',
+            status: 'not_started',
+            points_possible: 175,
+            submissions: 0,
+            attempts: 0,
+            max_attempts: 2
+          },
+          {
+            id: 110,
+            title: 'Diverse Voices Discussion',
+            type: 'discussion',
+            content: 'Reflect on how authors from different backgrounds (race, gender, class, nationality) bring unique perspectives to universal themes. Choose two authors to compare.',
+            due_date: '2024-12-01T23:59:59Z',
+            status: 'not_started',
+            points_possible: 40,
+            submissions: 0,
+            attempts: 0
+          }
+        ]
+      },
+      {
+        id: 6,
+        name: 'Final Projects and Reflection',
+        description: 'Synthesis of learning and personal literary analysis',
+        is_completed: false,
+        items: [
+          {
+            id: 111,
+            title: 'Portfolio Reflection Essay',
+            type: 'assignment',
+            content: 'Write a reflective essay analyzing your growth as a reader and writer this semester. Include examples from your work and discuss how your understanding of literature has evolved.',
+            due_date: '2024-12-08T23:59:59Z',
+            status: 'not_started',
+            points_possible: 100,
+            submissions: 0,
+            attempts: 0,
+            max_attempts: 2
+          },
+          {
+            id: 112,
+            title: 'Final Comprehensive Analysis',
+            type: 'assignment',
+            content: 'Choose any text from our course for an in-depth 1200-word analysis incorporating multiple critical approaches (historical, feminist, formalist, etc.). Demonstrate mastery of analytical skills.',
+            due_date: '2024-12-15T23:59:59Z',
+            status: 'not_started',
+            points_possible: 200,
+            submissions: 0,
+            attempts: 0,
+            max_attempts: 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: 6,
+    name: 'Composition and Rhetoric',
+    course_code: 'ENG102',
+    description: 'Advanced writing course focusing on argumentation, research methods, and rhetorical analysis. Students develop skills in critical thinking, academic writing, and multimedia composition.',
+    instructor: 'Prof. David Martinez',
+    term: 'Fall 2024',
+    total_points: 1000,
+    current_grade: 0,
+    start_date: '2024-08-15',
+    end_date: '2024-12-15',
+    syllabus: 'This course emphasizes the writing process, from invention to revision, while introducing students to academic research and citation. Students will compose various forms of academic and public writing.',
+    modules: [
+      {
+        id: 1,
+        name: 'Foundations of Academic Writing',
+        description: 'Writing process, thesis development, and paragraph structure',
+        is_completed: false,
+        items: [
+          {
+            id: 201,
+            title: 'Personal Narrative Essay',
+            type: 'assignment',
+            content: 'Write a 500-word personal narrative that demonstrates your relationship with writing. Use concrete details and reflection to show how your writing has developed.',
+            due_date: '2024-08-29T23:59:59Z',
+            status: 'not_started',
+            points_possible: 75,
+            submissions: 0,
+            attempts: 0,
+            max_attempts: 2
+          },
+          {
+            id: 202,
+            title: 'Thesis Statement Workshop',
+            type: 'discussion',
+            content: 'Post three potential thesis statements for different essay types (argumentative, analytical, expository) and provide feedback on classmates\' thesis statements.',
+            due_date: '2024-09-05T23:59:59Z',
+            status: 'not_started',
+            points_possible: 25,
+            submissions: 0,
+            attempts: 0
+          }
+        ]
+      },
+      {
+        id: 2,
+        name: 'Rhetorical Analysis',
+        description: 'Understanding audience, purpose, and persuasive strategies',
+        is_completed: false,
+        items: [
+          {
+            id: 203,
+            title: 'Rhetorical Analysis Essay',
+            type: 'assignment',
+            content: 'Analyze the rhetorical strategies in a speech, advertisement, or article of your choice. Examine how the author uses ethos, pathos, and logos to persuade their audience. 750 words.',
+            due_date: '2024-09-19T23:59:59Z',
+            status: 'not_started',
+            points_possible: 125,
+            submissions: 0,
+            attempts: 0,
+            max_attempts: 2
+          },
+          {
+            id: 204,
+            title: 'Visual Rhetoric Analysis',
+            type: 'assignment',
+            content: 'Analyze how a visual text (infographic, poster, meme, etc.) uses design elements to convey meaning and persuade viewers. Include the image and 400-word analysis.',
+            due_date: '2024-09-26T23:59:59Z',
+            status: 'not_started',
+            points_possible: 100,
+            submissions: 0,
+            attempts: 0,
+            max_attempts: 2
+          }
+        ]
+      },
+      {
+        id: 3,
+        name: 'Research and Documentation',
+        description: 'Information literacy, source evaluation, and citation practices',
+        is_completed: false,
+        items: [
+          {
+            id: 205,
+            title: 'Source Evaluation Exercise',
+            type: 'assignment',
+            content: 'Find 5 sources on a controversial topic. Evaluate each source\'s credibility, bias, and usefulness. Explain your evaluation criteria in a 600-word analysis.',
+            due_date: '2024-10-10T23:59:59Z',
+            status: 'not_started',
+            points_possible: 100,
+            submissions: 0,
+            attempts: 0,
+            max_attempts: 2
+          },
+          {
+            id: 206,
+            title: 'MLA Citation Quiz',
+            type: 'quiz',
+            content: 'Test your knowledge of MLA citation format for various source types including books, articles, websites, and multimedia sources.',
+            due_date: '2024-10-17T23:59:59Z',
+            status: 'not_started',
+            points_possible: 50,
+            attempts: 0,
+            max_attempts: 3
+          }
+        ]
+      },
+      {
+        id: 4,
+        name: 'Argumentative Writing',
+        description: 'Constructing logical arguments and addressing counterarguments',
+        is_completed: false,
+        items: [
+          {
+            id: 207,
+            title: 'Position Paper',
+            type: 'assignment',
+            content: 'Write a 1000-word argumentative essay on a current social issue. Use at least 4 credible sources and address potential counterarguments. Focus on logical reasoning and evidence.',
+            due_date: '2024-11-07T23:59:59Z',
+            status: 'not_started',
+            points_possible: 175,
+            submissions: 0,
+            attempts: 0,
+            max_attempts: 2
+          },
+          {
+            id: 208,
+            title: 'Peer Review Workshop',
+            type: 'discussion',
+            content: 'Review two classmates\' position paper drafts using our peer review criteria. Provide constructive feedback on argument structure, evidence, and counterargument handling.',
+            due_date: '2024-11-14T23:59:59Z',
+            status: 'not_started',
+            points_possible: 40,
+            submissions: 0,
+            attempts: 0
+          }
+        ]
+      },
+      {
+        id: 5,
+        name: 'Multimodal Composition',
+        description: 'Digital literacy and multimedia writing projects',
+        is_completed: false,
+        items: [
+          {
+            id: 209,
+            title: 'Digital Story Project',
+            type: 'assignment',
+            content: 'Create a 3-5 minute digital story combining text, images, audio, and/or video to argue for a solution to a local community problem. Include a 500-word reflection on your design choices.',
+            due_date: '2024-11-28T23:59:59Z',
+            status: 'not_started',
+            points_possible: 150,
+            submissions: 0,
+            attempts: 0,
+            max_attempts: 2
+          }
+        ]
+      },
+      {
+        id: 6,
+        name: 'Portfolio and Reflection',
+        description: 'Assembling and reflecting on semester\'s writing development',
+        is_completed: false,
+        items: [
+          {
+            id: 210,
+            title: 'Writing Portfolio',
+            type: 'assignment',
+            content: 'Compile a portfolio of your best revised work from the semester. Include a 750-word reflective introduction analyzing your growth as a writer and the choices you made in revision.',
+            due_date: '2024-12-12T23:59:59Z',
+            status: 'not_started',
+            points_possible: 125,
+            submissions: 0,
+            attempts: 0,
+            max_attempts: 2
+          },
+          {
+            id: 211,
+            title: 'Final Reflection Discussion',
+            type: 'discussion',
+            content: 'Share one key insight about writing you\'ve gained this semester and one goal for your continued development as a writer. Respond thoughtfully to classmates\' reflections.',
+            due_date: '2024-12-15T23:59:59Z',
+            status: 'not_started',
+            points_possible: 30,
+            submissions: 0,
+            attempts: 0
+          }
+        ]
+      }
+    ]
   }
 ];
 

@@ -148,35 +148,45 @@ export default function Sidebar() {
                 </button>
               </div>
             ) : (
-              <div className="space-y-2">
-                {/* Login Button */}
+              <div className="space-y-3">
+                {/* Sign In Button - Primary CTA */}
                 <button
                   onClick={() => {
                     setAuthModalMode('login');
                     setAuthModalOpen(true);
                   }}
-                  className={`w-full flex items-center ${isSidebarCollapsed ? 'justify-center' : 'justify-start'} p-2 text-sm text-primary-600 hover:bg-primary-50 rounded-lg transition-colors`}
+                  className={`w-full flex items-center ${isSidebarCollapsed ? 'justify-center' : 'justify-center'} p-3 bg-primary-600 text-white hover:bg-primary-700 rounded-lg transition-colors font-medium text-sm shadow-sm`}
                 >
-                  <div className="w-4 h-4 rounded-full border-2 border-primary-600 flex-shrink-0" />
-                  {!isSidebarCollapsed && <span className="ml-2 hidden md:block">Sign In</span>}
+                  {!isSidebarCollapsed && <span className="hidden md:block">Sign In</span>}
+                  {isSidebarCollapsed && (
+                    <div className="w-4 h-4 rounded-full border-2 border-white flex-shrink-0" />
+                  )}
                 </button>
                 
-                {/* Register Button */}
+                {/* Sign Up Button - Secondary CTA */}
                 <button
                   onClick={() => {
                     setAuthModalMode('register');
                     setAuthModalOpen(true);
                   }}
-                  className={`w-full flex items-center ${isSidebarCollapsed ? 'justify-center' : 'justify-start'} p-2 text-sm text-gray-600 hover:text-primary-600 hover:bg-gray-50 rounded-lg transition-colors`}
+                  className={`w-full flex items-center ${isSidebarCollapsed ? 'justify-center' : 'justify-center'} p-3 border border-primary-200 text-primary-600 hover:bg-primary-50 hover:border-primary-300 rounded-lg transition-colors font-medium text-sm`}
                 >
-                  <div className="w-4 h-4 rounded-full bg-primary-600 flex-shrink-0" />
-                  {!isSidebarCollapsed && <span className="ml-2 hidden md:block">Sign Up</span>}
+                  {!isSidebarCollapsed && <span className="hidden md:block">Create Account</span>}
+                  {isSidebarCollapsed && (
+                    <div className="w-4 h-4 rounded-full bg-primary-600 flex-shrink-0" />
+                  )}
                 </button>
                 
+                {/* Demo Mode Notice */}
                 {!isSidebarCollapsed && (
-                  <p className="text-xs text-gray-500 text-center hidden md:block">
-                    Or continue as guest
-                  </p>
+                  <div className="text-center hidden md:block">
+                    <p className="text-xs text-gray-500 mb-1">
+                      Exploring in demo mode
+                    </p>
+                    <p className="text-xs text-primary-600 font-medium">
+                      Sign up to save your progress
+                    </p>
+                  </div>
                 )}
               </div>
             )}

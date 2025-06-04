@@ -399,4 +399,333 @@ export class UserService {
 
     this.saveUserData(userId, userData);
   }
+
+  // Initialize test accounts with predefined data
+  static initializeTestAccounts(): void {
+    const existingUsers = this.getUsers();
+    
+    // Test Account 1: Student with enrolled courses and progress
+    const testStudent1Id = 'test_student_1';
+    if (!existingUsers.find(u => u.id === testStudent1Id)) {
+      const testStudent1: User = {
+        id: testStudent1Id,
+        email: 'student@plato.edu',
+        name: 'Alex Chen',
+        profile: {
+          firstName: 'Alex',
+          lastName: 'Chen',
+          bio: 'Computer Science student passionate about web development and machine learning.',
+          avatar: '',
+          learningGoals: ['Master React and Next.js', 'Learn machine learning fundamentals', 'Build full-stack applications'],
+          academicLevel: 'undergraduate',
+          subjectInterests: ['Web Development', 'Machine Learning', 'Database Systems'],
+          preferredLearningStyle: 'visual'
+        },
+        preferences: {
+          theme: 'light',
+          language: 'en',
+          timezone: 'America/New_York',
+          notifications: {
+            email: true,
+            browser: true,
+            assignments: true,
+            discussions: true,
+            grades: true
+          },
+          accessibility: {
+            highContrast: false,
+            fontSize: 'medium',
+            reducedMotion: false
+          },
+          privacy: {
+            profileVisibility: 'public',
+            shareProgress: true,
+            allowAnalytics: true
+          }
+        },
+        createdAt: new Date().toISOString(),
+        lastLoginAt: new Date().toISOString()
+      };
+
+      // Add password hash (store as property on the object, not in type)
+      (testStudent1 as any).passwordHash = hashPassword('Student123!');
+      existingUsers.push(testStudent1);
+
+      // Create user data with course progress
+      const testStudent1Data: UserData = {
+        chatHistories: {},
+        settings: testStudent1.preferences,
+        apiKeys: [],
+        personalNotes: {
+          'course-1': 'Need to focus more on React hooks and state management patterns.',
+          'course-2': 'Great progress on ML algorithms. Consider exploring deep learning next.',
+          'assignment-5': 'REST API project - remember to implement proper error handling'
+        },
+        bookmarks: [
+          {
+            id: 'bookmark_1',
+            userId: testStudent1Id,
+            title: 'React Hooks Documentation',
+            url: '/courses/1/modules/1/items/1',
+            type: 'page',
+            itemId: '1',
+            createdAt: new Date().toISOString(),
+            tags: ['react', 'hooks', 'documentation']
+          },
+          {
+            id: 'bookmark_2',
+            userId: testStudent1Id,
+            title: 'Machine Learning Cheat Sheet',
+            url: '/courses/2/modules/2',
+            type: 'course',
+            itemId: '2',
+            createdAt: new Date().toISOString(),
+            tags: ['machine-learning', 'reference']
+          }
+        ],
+        courseProgress: {
+          '1': { // Advanced Web Development
+            courseId: '1',
+            enrolledAt: new Date().toISOString(),
+            lastAccessedAt: new Date().toISOString(),
+            completedModules: ['1', '2'],
+            assignmentSubmissions: {
+              '2': { grade: 92, submittedAt: new Date().toISOString() },
+              '3': { grade: 88, submittedAt: new Date().toISOString() }
+            },
+            quizAttempts: {
+              '2': [{ score: 92, attemptedAt: new Date().toISOString() }]
+            },
+            discussionParticipation: {},
+            currentGrade: 90,
+            timeSpent: 450
+          },
+          '2': { // Machine Learning Fundamentals  
+            courseId: '2',
+            enrolledAt: new Date().toISOString(),
+            lastAccessedAt: new Date().toISOString(),
+            completedModules: ['1'],
+            assignmentSubmissions: {
+              '11': { grade: 95, submittedAt: new Date().toISOString() },
+              '12': { grade: 89, submittedAt: new Date().toISOString() }
+            },
+            quizAttempts: {},
+            discussionParticipation: {},
+            currentGrade: 92,
+            timeSpent: 380
+          },
+          '3': { // Database Systems Architecture
+            courseId: '3',
+            enrolledAt: new Date().toISOString(),
+            lastAccessedAt: new Date().toISOString(),
+            completedModules: ['1'],
+            assignmentSubmissions: {},
+            quizAttempts: {
+              '19': [{ score: 78, attemptedAt: new Date().toISOString() }]
+            },
+            discussionParticipation: {},
+            currentGrade: 78,
+            timeSpent: 120
+          }
+        }
+      };
+
+      this.saveUserData(testStudent1Id, testStudent1Data);
+    }
+
+    // Test Account 2: New student with blank slate
+    const testStudent2Id = 'test_student_2';
+    if (!existingUsers.find(u => u.id === testStudent2Id)) {
+      const testStudent2: User = {
+        id: testStudent2Id,
+        email: 'newstudent@plato.edu',
+        name: 'Jordan Smith',
+        profile: {
+          firstName: 'Jordan',
+          lastName: 'Smith', 
+          bio: 'New to programming, excited to learn!',
+          avatar: '',
+          learningGoals: ['Learn programming fundamentals', 'Build my first web app'],
+          academicLevel: 'undergraduate',
+          subjectInterests: ['Programming', 'Web Development'],
+          preferredLearningStyle: 'kinesthetic'
+        },
+        preferences: {
+          theme: 'light',
+          language: 'en',
+          timezone: 'America/Los_Angeles',
+          notifications: {
+            email: true,
+            browser: false,
+            assignments: true,
+            discussions: false,
+            grades: true
+          },
+          accessibility: {
+            highContrast: false,
+            fontSize: 'medium',
+            reducedMotion: false
+          },
+          privacy: {
+            profileVisibility: 'private',
+            shareProgress: false,
+            allowAnalytics: true
+          }
+        },
+        createdAt: new Date().toISOString(),
+        lastLoginAt: new Date().toISOString()
+      };
+
+      // Add password hash (store as property on the object, not in type)
+      (testStudent2 as any).passwordHash = hashPassword('NewStudent123!');
+      existingUsers.push(testStudent2);
+
+      // Create user data with minimal progress (blank slate)
+      const testStudent2Data: UserData = {
+        chatHistories: {},
+        settings: testStudent2.preferences,
+        apiKeys: [],
+        personalNotes: {},
+        bookmarks: [],
+        courseProgress: {}
+      };
+
+      this.saveUserData(testStudent2Id, testStudent2Data);
+    }
+
+    // Test Account 3: English Freshman
+    const testStudent3Id = 'test_student_3';
+    if (!existingUsers.find(u => u.id === testStudent3Id)) {
+      const testStudent3: User = {
+        id: testStudent3Id,
+        email: 'english.freshman@plato.edu',
+        name: 'Taylor Johnson',
+        profile: {
+          firstName: 'Taylor',
+          lastName: 'Johnson', 
+          bio: 'English major freshman passionate about literature and creative writing. Looking forward to exploring different literary periods and developing my analytical writing skills.',
+          avatar: '',
+          learningGoals: ['Develop strong analytical writing skills', 'Explore diverse literary traditions', 'Improve close reading abilities', 'Build research and citation skills'],
+          academicLevel: 'undergraduate',
+          subjectInterests: ['Literature', 'Creative Writing', 'Rhetoric', 'Cultural Studies'],
+          preferredLearningStyle: 'reading'
+        },
+        preferences: {
+          theme: 'light',
+          language: 'en',
+          timezone: 'America/Chicago',
+          notifications: {
+            email: true,
+            browser: true,
+            assignments: true,
+            discussions: true,
+            grades: true
+          },
+          accessibility: {
+            highContrast: false,
+            fontSize: 'medium',
+            reducedMotion: false
+          },
+          privacy: {
+            profileVisibility: 'public',
+            shareProgress: true,
+            allowAnalytics: true
+          }
+        },
+        createdAt: new Date().toISOString(),
+        lastLoginAt: new Date().toISOString()
+      };
+
+      // Add password hash (store as property on the object, not in type)
+      (testStudent3 as any).passwordHash = hashPassword('EnglishFresh123!');
+      existingUsers.push(testStudent3);
+
+      // Create user data for English freshman with enrolled courses
+      const testStudent3Data: UserData = {
+        chatHistories: {},
+        settings: testStudent3.preferences,
+        apiKeys: [],
+        personalNotes: {
+          'course-5': 'Excited to dive deep into literary analysis! Need to work on thesis statement clarity.',
+          'course-6': 'Writing course is challenging but helpful. Focus on stronger evidence integration.',
+          'assignment-101': 'First discussion post - be confident in my interpretations!',
+          'assignment-103': 'Poetry analysis - remember to connect devices to meaning, not just identify them.'
+        },
+        bookmarks: [
+          {
+            id: 'bookmark_3',
+            userId: testStudent3Id,
+            title: 'Literary Terms Reference',
+            url: '/courses/5/modules/1/items/102',
+            type: 'quiz',
+            itemId: '102',
+            notes: 'Great review of key terms before assignments',
+            createdAt: new Date().toISOString(),
+            tags: ['literary-terms', 'reference', 'study-guide']
+          },
+          {
+            id: 'bookmark_4',
+            userId: testStudent3Id,
+            title: 'MLA Citation Guide',
+            url: '/courses/6/modules/3/items/206',
+            type: 'quiz',
+            itemId: '206',
+            notes: 'Essential for all research papers',
+            createdAt: new Date().toISOString(),
+            tags: ['mla', 'citation', 'writing', 'reference']
+          }
+        ],
+        courseProgress: {
+          '5': { // Introduction to Literature
+            courseId: '5',
+            enrolledAt: new Date().toISOString(),
+            lastAccessedAt: new Date().toISOString(),
+            completedModules: [],
+            assignmentSubmissions: {},
+            quizAttempts: {},
+            discussionParticipation: {},
+            currentGrade: 0,
+            timeSpent: 25
+          },
+          '6': { // Composition and Rhetoric
+            courseId: '6',
+            enrolledAt: new Date().toISOString(),
+            lastAccessedAt: new Date().toISOString(),
+            completedModules: [],
+            assignmentSubmissions: {},
+            quizAttempts: {},
+            discussionParticipation: {},
+            currentGrade: 0,
+            timeSpent: 15
+          }
+        }
+      };
+
+      this.saveUserData(testStudent3Id, testStudent3Data);
+    }
+
+    // Save all users
+    this.saveUsers(existingUsers);
+  }
+
+  // Method to get test account credentials
+  static getTestAccounts(): Array<{ email: string; password: string; description: string }> {
+    return [
+      {
+        email: 'student@plato.edu',
+        password: 'Student123!',
+        description: 'Test student with enrolled courses and progress'
+      },
+      {
+        email: 'newstudent@plato.edu', 
+        password: 'NewStudent123!',
+        description: 'New student with blank slate for course creation'
+      },
+      {
+        email: 'english.freshman@plato.edu',
+        password: 'EnglishFresh123!',
+        description: 'English freshman with Literature & Composition courses'
+      }
+    ];
+  }
 } 
