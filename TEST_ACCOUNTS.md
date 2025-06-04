@@ -1,12 +1,12 @@
 # Test Accounts for Plato LMS 2.0
 
-This document provides login credentials for pre-configured test accounts in the Plato LMS demo system.
+This document provides information about pre-configured test accounts in the Plato LMS demo system.
 
 ## Available Test Accounts
 
 ### 1. Alex Chen (Experienced Student)
 - **Email:** `student@plato.edu`
-- **Password:** `Student123!`
+- **Password:** *[Use "Show Test Accounts" button on login page]*
 - **Description:** Student with enrolled courses and progress
 
 **Profile:**
@@ -31,7 +31,7 @@ This document provides login credentials for pre-configured test accounts in the
 
 ### 2. Jordan Smith (New Student)
 - **Email:** `newstudent@plato.edu`
-- **Password:** `NewStudent123!`
+- **Password:** *[Use "Show Test Accounts" button on login page]*
 - **Description:** New student with blank slate for course creation
 
 **Profile:**
@@ -51,7 +51,7 @@ This document provides login credentials for pre-configured test accounts in the
 
 ### 3. Taylor Johnson (English Freshman)
 - **Email:** `english.freshman@plato.edu`
-- **Password:** `EnglishFresh123!`
+- **Password:** *[Use "Show Test Accounts" button on login page]*
 - **Description:** English freshman with Literature & Composition courses
 
 **Profile:**
@@ -79,16 +79,20 @@ This document provides login credentials for pre-configured test accounts in the
 ### Option 1: Quick Login (Recommended)
 1. Click the "Sign In" button in the sidebar
 2. Click "Show Test Accounts" 
-3. Click on either test account to login automatically
+3. Click on any test account to login automatically (passwords are handled automatically)
 
 ### Option 2: Manual Login
 1. Click the "Sign In" button in the sidebar
-2. Enter the email and password from above
+2. Use the "Show Test Accounts" button to see available credentials
 3. Click "Sign In"
 
 ### Option 3: Demo Mode
 - Continue as a guest user to explore without logging in
 - Limited functionality but good for initial exploration
+
+## Security Note
+
+Test account passwords are managed securely within the application and are not exposed in this documentation. Use the "Show Test Accounts" button on the login page to access these accounts.
 
 ## Test Account Features
 
