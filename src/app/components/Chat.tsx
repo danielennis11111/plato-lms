@@ -240,23 +240,23 @@ export default function Chat({ context, isFullScreen = false }: ChatProps) {
     if (enhancedContext && isInitialized && messages.length === 0) {
       const getWelcomeMessage = () => {
         if (enhancedContext.type === 'course') {
-          return `Hi! How can I help you learn ${enhancedContext.title || 'this course'}?`;
+          return `Hello there, how can I help you explore ${enhancedContext.title || 'this course'}?`;
         } else if (enhancedContext.type === 'assignment') {
-          return `Hi! How can I help you with this assignment?`;
+          return `Hello again, how can I help you work through this assignment?`;
         } else if (enhancedContext.type === 'quiz') {          
           if (enhancedContext.state === 'completed') {
-            return `Hi! How did that quiz go? What can I help clarify?`;
+            return `Hello there, how did that quiz go? What can we review together?`;
           } else {
-            return `Hi! How can I help you prepare for this quiz?`;
+            return `Hi there, let's go through this quiz together, but I can't actually give you any answers. Is that okay?`;
           }
         } else if (enhancedContext.type === 'discussion') {
-          return `Hi! How can I help you with this discussion?`;
+          return `Hello there, how can I help you think through this discussion?`;
         } else if (enhancedContext.type === 'calendar') {
-          return `Hi! How can I help you plan your studies?`;
+          return `Hello again, how can I help you organize your studies?`;
         } else if (enhancedContext.type === 'dashboard') {
-          return `Hi! How can I help you learn today?`;
+          return `Hello there, what would you like to work on today?`;
         }
-        return `Hi! How can I help you learn?`;
+        return `Hello there, how can I help?`;
       };
 
       const initialMessage: Message = {
@@ -512,6 +512,7 @@ PERSONALITY:
 - Use simple language, not flowery or verbose 
 - Act curious but practical: "How did you approach this?" not "I find myself wondering about the philosophical nature of..."
 - Shield your intelligence - sound helpful, not pretentious
+- Use exclamation points sparingly - only for genuine celebration or emphasis
 
 APPROACH:
 - Ask simple questions that reveal gaps in understanding
