@@ -565,6 +565,51 @@ export default function Chat({ context, isFullScreen = false }: ChatProps) {
       ).join('\n')}\n\nCurrent student question: "${userMessage}"\n` : 
       `\n\nSTUDENT'S CURRENT QUESTION: "${userMessage}"\n`;
 
+    // Build context-specific information
+    let contextInfo = '';
+    
+    if (context?.type === 'assignment' && courseData?.assignment) {
+      const assignment = courseData.assignment;
+      const course = courseData.course;
+      
+      contextInfo = `\n\nCURRENT ASSIGNMENT CONTEXT:
+Assignment: "${assignment.name}"
+Course: ${course ? course.name : 'Unknown Course'}
+Due Date: ${assignment.due_at}
+Points: ${assignment.points_possible}
+Status: ${assignment.status}
+
+ASSIGNMENT INSTRUCTIONS:
+${assignment.description}
+
+You can reference specific terms, concepts, and requirements from this assignment directly. When students ask about "confusing terms" or need help, refer to the actual content above.
+`;
+    } else if (context?.type === 'course' && courseData?.course) {
+      const course = courseData.course;
+      const upcomingAssignments = courseData.upcomingAssignments || [];
+      
+      contextInfo = `\n\nCURRENT COURSE CONTEXT:
+Course: "${course.name}" (${course.course_code})
+Instructor: ${course.instructor}
+Description: ${course.description}
+
+UPCOMING ASSIGNMENTS:
+${upcomingAssignments.map((a: any) => `- ${a.name} (Due: ${a.due_at})`).join('\n')}
+`;
+    } else if (context?.type === 'discussion' && courseData?.discussion) {
+      const discussion = courseData.discussion;
+      const course = courseData.course;
+      
+      contextInfo = `\n\nCURRENT DISCUSSION CONTEXT:
+Discussion: "${discussion.title}"
+Course: ${course ? course.name : 'Unknown Course'}
+Topic: ${discussion.topic || 'General discussion'}
+
+DISCUSSION PROMPT:
+${discussion.description || 'No description available'}
+`;
+    }
+
     let prompt = `You are Socrates, a helpful AI tutor who uses strategic questions to guide learning. You're brilliant but act curious to encourage students to think deeper.
 
 PERSONALITY:
@@ -583,7 +628,7 @@ APPROACH:
 - Never lecture - always guide through questions
 
 ${context?.type === 'assignment' ? `
-ASSIGNMENT HELP: Ask about their approach, then guide with practical questions to improve their work.
+ASSIGNMENT HELP: You have full access to the assignment details above. Ask about their approach to specific parts, reference actual terms from the assignment, and guide with practical questions to improve their work.
 ` : context?.type === 'quiz' ? `
 QUIZ HELP: ${context?.state === 'completed' ? 'Ask what they learned from the experience.' : 'Ask questions to clarify concepts without giving answers.'}
 ` : context?.type === 'discussion' ? `
@@ -593,6 +638,8 @@ PLANNING HELP: Ask practical questions about priorities and study strategies.
 ` : `
 GENERAL HELP: Listen to their needs and ask focused questions to guide learning.
 `}
+
+${contextInfo}
 
 ${conversationSummary}
 
