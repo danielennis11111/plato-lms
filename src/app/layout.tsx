@@ -5,6 +5,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import ChatButton from './components/ChatButton';
 import MainLayout from './components/MainLayout';
 import { LayoutProvider } from './contexts/LayoutContext';
+import { AuthProvider } from '../contexts/AuthContext';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -26,15 +27,17 @@ export default function RootLayout({
       </head>
       <body className={inter.className} suppressHydrationWarning>
         <ErrorBoundary>
-          <LayoutProvider>
-            <div className="flex min-h-screen bg-gray-50 relative">
-              <Sidebar />
-              <MainLayout>
-                {children}
-              </MainLayout>
-              <ChatButton />
-            </div>
-          </LayoutProvider>
+          <AuthProvider>
+            <LayoutProvider>
+              <div className="flex min-h-screen bg-gray-50 relative">
+                <Sidebar />
+                <MainLayout>
+                  {children}
+                </MainLayout>
+                <ChatButton />
+              </div>
+            </LayoutProvider>
+          </AuthProvider>
         </ErrorBoundary>
       </body>
     </html>

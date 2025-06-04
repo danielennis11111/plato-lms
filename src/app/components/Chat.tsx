@@ -12,6 +12,7 @@ import type { Components } from 'react-markdown';
 import { useRouter } from 'next/navigation';
 import { Message, ChatContext } from '@/types/chat';
 import { findSimilarConversations, debounce, isAskingForDirectAnswer, getLearningObjectives } from '@/lib/chatUtils';
+import { useAuth, useAPIKey } from '@/contexts/AuthContext';
 
 interface ChatProps {
   context?: ChatContext;
@@ -40,6 +41,8 @@ const components: Components = {
 
 export default function Chat({ context, isFullScreen = false }: ChatProps) {
   const router = useRouter();
+  const { user, isAuthenticated, getUserData, updateUserData } = useAuth();
+  const apiKey = useAPIKey('gemini');
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -319,11 +322,10 @@ export default function Chat({ context, isFullScreen = false }: ChatProps) {
 
   // Test API key function
   const testApiKey = async () => {
-    const apiKey = localStorage.getItem('geminiApiKey');
     console.log('Testing API key:', apiKey ? 'Present' : 'Missing');
     
     if (!apiKey) {
-      setDebugInfo('No API key found in localStorage. Please set your Gemini API key in Settings.');
+      setDebugInfo('No API key found in context. Please set your Gemini API key in Settings.');
       return;
     }
     
@@ -367,8 +369,6 @@ export default function Chat({ context, isFullScreen = false }: ChatProps) {
 
   // Check for API key on mount and when chat opens
   useEffect(() => {
-    const apiKey = localStorage.getItem('geminiApiKey');
-    setHasApiKey(!!apiKey);
     console.log('API key status:', apiKey ? 'Found' : 'Missing');
   }, []);
 
@@ -384,7 +384,6 @@ export default function Chat({ context, isFullScreen = false }: ChatProps) {
       console.log('📊 Context data loaded:', { courseData, enhancedContext });
       
       // Check for API key
-      const apiKey = localStorage.getItem('geminiApiKey');
       console.log('🔑 API Key check:', apiKey ? 'Found' : 'Missing');
         
       if (!apiKey) {
@@ -769,7 +768,7 @@ Respond with genuine curiosity and strategic questioning to continue our dialogu
                 <summary className="cursor-pointer text-xs">Debug Info</summary>
                 <pre className="whitespace-pre-wrap mt-1 text-xs">
                   {debugInfo || 'Initializing...'}
-                  {'\n'}API Key: {localStorage.getItem('geminiApiKey') ? 'Set' : 'Missing'}
+                  {'\n'}API Key: {apiKey ? 'Set' : 'Missing'}
                   {'\n'}Context: {JSON.stringify(enhancedContext, null, 2)}
                 </pre>
               </details>

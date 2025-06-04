@@ -16,12 +16,18 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { useLayout } from '../contexts/LayoutContext';
+import { useAuth } from '@/contexts/AuthContext';
+import AuthModal from './auth/AuthModal';
 
 export default function Sidebar() {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { isSidebarCollapsed, toggleSidebar } = useLayout();
   const [mounted, setMounted] = useState(false);
+
+  const { user, isAuthenticated, logout } = useAuth();
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [authModalMode, setAuthModalMode] = useState<'login' | 'register'>('login');
 
   // Handle hydration mismatch
   useEffect(() => {
@@ -109,6 +115,73 @@ export default function Sidebar() {
             </ul>
           </nav>
 
+          {/* User Section */}
+          <div className="p-4 border-t border-gray-200">
+            {isAuthenticated ? (
+              <div className="space-y-3">
+                {/* User Profile */}
+                <div className={`flex items-center ${isSidebarCollapsed ? 'justify-center' : 'space-x-3'}`}>
+                  <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
+                    <span className="text-primary-600 font-medium text-sm">
+                      {user?.profile.firstName.charAt(0)}{user?.profile.lastName.charAt(0)}
+                    </span>
+                  </div>
+                  {!isSidebarCollapsed && (
+                    <div className="flex-1 min-w-0 hidden md:block">
+                      <p className="text-sm font-medium text-gray-900 truncate">
+                        {user?.name}
+                      </p>
+                      <p className="text-xs text-gray-500 truncate">
+                        {user?.email}
+                      </p>
+                    </div>
+                  )}
+                </div>
+                
+                {/* Logout Button */}
+                <button
+                  onClick={logout}
+                  className={`w-full flex items-center ${isSidebarCollapsed ? 'justify-center' : 'justify-start'} p-2 text-sm text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors`}
+                >
+                  <X size={16} className="flex-shrink-0" />
+                  {!isSidebarCollapsed && <span className="ml-2 hidden md:block">Sign Out</span>}
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {/* Login Button */}
+                <button
+                  onClick={() => {
+                    setAuthModalMode('login');
+                    setAuthModalOpen(true);
+                  }}
+                  className={`w-full flex items-center ${isSidebarCollapsed ? 'justify-center' : 'justify-start'} p-2 text-sm text-primary-600 hover:bg-primary-50 rounded-lg transition-colors`}
+                >
+                  <div className="w-4 h-4 rounded-full border-2 border-primary-600 flex-shrink-0" />
+                  {!isSidebarCollapsed && <span className="ml-2 hidden md:block">Sign In</span>}
+                </button>
+                
+                {/* Register Button */}
+                <button
+                  onClick={() => {
+                    setAuthModalMode('register');
+                    setAuthModalOpen(true);
+                  }}
+                  className={`w-full flex items-center ${isSidebarCollapsed ? 'justify-center' : 'justify-start'} p-2 text-sm text-gray-600 hover:text-primary-600 hover:bg-gray-50 rounded-lg transition-colors`}
+                >
+                  <div className="w-4 h-4 rounded-full bg-primary-600 flex-shrink-0" />
+                  {!isSidebarCollapsed && <span className="ml-2 hidden md:block">Sign Up</span>}
+                </button>
+                
+                {!isSidebarCollapsed && (
+                  <p className="text-xs text-gray-500 text-center hidden md:block">
+                    Or continue as guest
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+
           {/* Collapse/Expand button */}
           <div className="p-4 border-t border-gray-200 flex justify-center">
             <button
@@ -129,6 +202,13 @@ export default function Sidebar() {
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
+
+      {/* Authentication Modal */}
+      <AuthModal 
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+        defaultMode={authModalMode}
+      />
     </>
   );
 } 
