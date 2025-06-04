@@ -2,6 +2,27 @@
 
 ## Branch: feature/user-management-and-discussions
 
+### 🚀 Development Setup
+
+**Prerequisites:**
+- Node.js 18+ and npm installed
+- Git for version control
+
+**Quick Start:**
+```bash
+# Clone the repository
+git clone https://github.com/danielennis11111/plato-lms.git
+cd plato-lms
+
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Open browser to http://localhost:3000
+```
+
 ### 🎯 Primary Objectives
 
 #### 1. Multi-User Account System
