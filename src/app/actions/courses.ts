@@ -27,6 +27,7 @@ export async function createCourseFromPrompt(prompt: string, userId?: string) {
     if (!userId) {
       const session = UserService.getCurrentSession();
       userId = session?.user.id;
+      console.log('📋 Retrieved user ID from session:', userId);
     }
     
     if (!userId) {
@@ -34,8 +35,22 @@ export async function createCourseFromPrompt(prompt: string, userId?: string) {
       return { success: false, error: 'User authentication required' };
     }
 
-    // Get user's API key for Gemini
+    // Get user's API key for Gemini with detailed debugging
+    console.log('🔍 Checking for user API key...');
+    const userData = UserService.getUserData(userId);
+    console.log('📊 User data exists:', !!userData);
+    console.log('🔑 API keys available:', userData?.apiKeys?.length || 0);
+    
     const apiKey = UserService.getActiveAPIKey(userId, 'gemini');
+    console.log('🎯 Active Gemini API key found:', !!apiKey);
+    
+    if (apiKey) {
+      console.log('✨ API key length:', apiKey.length);
+      console.log('🔐 API key prefix:', apiKey.substring(0, 8) + '...');
+    } else {
+      console.log('⚠️ No Gemini API key found. User can add one in Settings page.');
+      console.log('💡 Available API keys for this user:', userData?.apiKeys?.map(k => ({ provider: k.provider, isActive: k.isActive, name: k.name })));
+    }
     
     let courseData;
     
@@ -43,15 +58,14 @@ export async function createCourseFromPrompt(prompt: string, userId?: string) {
       console.log('🤖 Using Gemini API for intelligent course generation');
       courseData = await generateCourseWithGemini(prompt, apiKey);
     } else {
-      console.log('📝 Using basic prompt parsing (no API key)');
-      courseData = generateCourseFromPrompt(prompt);
+      console.log('📝 Using enhanced local parsing (no API key - user can add one in Settings)');
+      courseData = generateEnhancedCourseFromPrompt(prompt);
     }
     
     // Add course to global course list
     await mockCanvasApi.addCourse(courseData);
     
     // Enroll the user in the course
-    const userData = UserService.getUserData(userId);
     if (userData) {
       // Add course to user's enrollments
       if (!userData.courseProgress) {
@@ -78,7 +92,7 @@ export async function createCourseFromPrompt(prompt: string, userId?: string) {
     revalidatePath('/');
     return { success: true, course: courseData };
   } catch (error) {
-    console.error('Error creating course:', error);
+    console.error('❌ Error creating course:', error);
     return { success: false, error: 'Failed to create course' };
   }
 }
