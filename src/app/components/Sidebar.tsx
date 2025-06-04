@@ -16,18 +16,13 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { useLayout } from '../contexts/LayoutContext';
-import { useAuth } from '@/contexts/AuthContext';
-import AuthModal from './auth/AuthModal';
+import ProfileSwitcher from '../../components/ProfileSwitcher';
 
 export default function Sidebar() {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { isSidebarCollapsed, toggleSidebar } = useLayout();
   const [mounted, setMounted] = useState(false);
-
-  const { user, isAuthenticated, logout } = useAuth();
-  const [authModalOpen, setAuthModalOpen] = useState(false);
-  const [authModalMode, setAuthModalMode] = useState<'login' | 'register'>('login');
 
   // Handle hydration mismatch
   useEffect(() => {
@@ -81,6 +76,13 @@ export default function Sidebar() {
             </Link>
           </div>
 
+          {/* Profile Switcher */}
+          {!isSidebarCollapsed && (
+            <div className="p-4 border-b border-gray-200">
+              <ProfileSwitcher />
+            </div>
+          )}
+
           {/* Navigation */}
           <nav className="flex-1 py-6 overflow-y-auto overflow-x-hidden">
             <ul className="space-y-1 px-2">
@@ -115,83 +117,6 @@ export default function Sidebar() {
             </ul>
           </nav>
 
-          {/* User Section */}
-          <div className="p-4 border-t border-gray-200">
-            {isAuthenticated ? (
-              <div className="space-y-3">
-                {/* User Profile */}
-                <div className={`flex items-center ${isSidebarCollapsed ? 'justify-center' : 'space-x-3'}`}>
-                  <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
-                    <span className="text-primary-600 font-medium text-sm">
-                      {user?.profile.firstName.charAt(0)}{user?.profile.lastName.charAt(0)}
-                    </span>
-                  </div>
-                  {!isSidebarCollapsed && (
-                    <div className="flex-1 min-w-0 hidden md:block">
-                      <p className="text-sm font-medium text-gray-900 truncate">
-                        {user?.name}
-                      </p>
-                      <p className="text-xs text-gray-500 truncate">
-                        {user?.email}
-                      </p>
-                    </div>
-                  )}
-                </div>
-                
-                {/* Logout Button */}
-                <button
-                  onClick={logout}
-                  className={`w-full flex items-center ${isSidebarCollapsed ? 'justify-center' : 'justify-start'} p-2 text-sm text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors`}
-                >
-                  <X size={16} className="flex-shrink-0" />
-                  {!isSidebarCollapsed && <span className="ml-2 hidden md:block">Sign Out</span>}
-                </button>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {/* Sign In Button - Primary CTA */}
-                <button
-                  onClick={() => {
-                    setAuthModalMode('login');
-                    setAuthModalOpen(true);
-                  }}
-                  className={`w-full flex items-center ${isSidebarCollapsed ? 'justify-center' : 'justify-center'} p-3 bg-primary-600 text-white hover:bg-primary-700 rounded-lg transition-colors font-medium text-sm shadow-sm`}
-                >
-                  {!isSidebarCollapsed && <span className="hidden md:block">Sign In</span>}
-                  {isSidebarCollapsed && (
-                    <div className="w-4 h-4 rounded-full border-2 border-white flex-shrink-0" />
-                  )}
-                </button>
-                
-                {/* Sign Up Button - Secondary CTA */}
-                <button
-                  onClick={() => {
-                    setAuthModalMode('register');
-                    setAuthModalOpen(true);
-                  }}
-                  className={`w-full flex items-center ${isSidebarCollapsed ? 'justify-center' : 'justify-center'} p-3 border border-primary-200 text-primary-600 hover:bg-primary-50 hover:border-primary-300 rounded-lg transition-colors font-medium text-sm`}
-                >
-                  {!isSidebarCollapsed && <span className="hidden md:block">Create Account</span>}
-                  {isSidebarCollapsed && (
-                    <div className="w-4 h-4 rounded-full bg-primary-600 flex-shrink-0" />
-                  )}
-                </button>
-                
-                {/* Demo Mode Notice */}
-                {!isSidebarCollapsed && (
-                  <div className="text-center hidden md:block">
-                    <p className="text-xs text-gray-500 mb-1">
-                      Exploring in demo mode
-                    </p>
-                    <p className="text-xs text-primary-600 font-medium">
-                      Sign up to save your progress
-                    </p>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-
           {/* Collapse/Expand button */}
           <div className="p-4 border-t border-gray-200 flex justify-center">
             <button
@@ -199,26 +124,19 @@ export default function Sidebar() {
               className="p-2 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
               aria-label={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
             >
-              {isSidebarCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+              {isSidebarCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
             </button>
           </div>
         </div>
       </div>
 
-      {/* Backdrop for mobile */}
+      {/* Overlay for mobile */}
       {isMobileMenuOpen && (
         <div 
           className="fixed inset-0 bg-black bg-opacity-50 z-20 md:hidden"
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
-
-      {/* Authentication Modal */}
-      <AuthModal 
-        isOpen={authModalOpen}
-        onClose={() => setAuthModalOpen(false)}
-        defaultMode={authModalMode}
-      />
     </>
   );
 } 

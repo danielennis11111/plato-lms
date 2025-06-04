@@ -10,6 +10,7 @@ import {
   AuthContextType 
 } from '@/types/user';
 import { UserService } from '@/lib/userService';
+import { debugUtils } from '@/lib/debugUtils';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -32,33 +33,29 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       setIsLoading(true);
       
-      // Clear any stored API keys to prevent sharing between users, but preserve session data
-      localStorage.removeItem('geminiApiKey');
-      localStorage.removeItem('openaiApiKey');
-      localStorage.removeItem('anthropicApiKey');
+      console.log('🔄 Initializing auth...');
       
       // Initialize test accounts on first load
       UserService.initializeTestAccounts();
       
-      // Check for existing session
+      // Check for existing session first
       const currentSession = UserService.getCurrentSession();
-      
       if (currentSession && currentSession.isAuthenticated) {
+        console.log('✅ Found existing session:', currentSession.user.email);
         setSession(currentSession);
         setUser(currentSession.user);
         setIsAuthenticated(true);
-        
-        // Initialize demo data for users
         UserService.initializeDemoData(currentSession.user.id);
-      } else {
-        // Force user to login - no guest session
-        setSession(null);
-        setUser(null);
-        setIsAuthenticated(false);
+        return;
       }
+      
+      // No auto-login - let user choose their account
+      console.log('ℹ️ No existing session found, user needs to log in');
+      setSession(null);
+      setUser(null);
+      setIsAuthenticated(false);
     } catch (error) {
       console.error('Auth initialization error:', error);
-      // Force login instead of guest session
       setSession(null);
       setUser(null);
       setIsAuthenticated(false);

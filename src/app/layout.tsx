@@ -1,12 +1,9 @@
 import './globals.css';
 import { Inter } from 'next/font/google';
-import Sidebar from './components/Sidebar';
 import ErrorBoundary from './components/ErrorBoundary';
-import ChatButton from './components/ChatButton';
-import MainLayout from './components/MainLayout';
-import { LayoutProvider } from './contexts/LayoutContext';
 import { AuthProvider } from '../contexts/AuthContext';
 import { CanvasProvider } from '../contexts/CanvasContext';
+import LayoutWrapper from './components/LayoutWrapper';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -30,15 +27,9 @@ export default function RootLayout({
         <ErrorBoundary>
           <AuthProvider>
             <CanvasProvider>
-              <LayoutProvider>
-                <div className="flex min-h-screen bg-gray-50 relative">
-                  <Sidebar />
-                  <MainLayout>
-                    {children}
-                  </MainLayout>
-                  <ChatButton />
-                </div>
-              </LayoutProvider>
+              <LayoutWrapper>
+                {children}
+              </LayoutWrapper>
             </CanvasProvider>
           </AuthProvider>
         </ErrorBoundary>

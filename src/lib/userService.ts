@@ -223,7 +223,11 @@ export class UserService {
       }
 
       const users = this.getUsers();
+      console.log('🔍 Available users during login:', users.map(u => ({ id: u.id, email: u.email, name: u.name })));
+      console.log('🔍 Looking for email:', credentials.email);
+      
       const user = users.find(u => u.email.toLowerCase() === credentials.email.toLowerCase());
+      console.log('🔍 Found user:', user ? { id: user.id, email: user.email, name: user.name } : 'NOT FOUND');
 
       if (!user) {
         return { success: false, error: 'Invalid email or password' };
@@ -231,7 +235,11 @@ export class UserService {
 
       // Verify password
       const userWithPassword = user as any;
-      if (!verifyPassword(credentials.password, userWithPassword.passwordHash)) {
+      console.log('🔍 Checking password for user:', user.email);
+      const passwordValid = verifyPassword(credentials.password, userWithPassword.passwordHash);
+      console.log('🔍 Password valid:', passwordValid);
+      
+      if (!passwordValid) {
         return { success: false, error: 'Invalid email or password' };
       }
 
@@ -402,11 +410,14 @@ export class UserService {
 
   // Initialize test accounts with predefined data
   static initializeTestAccounts(): void {
+    console.log('🏗️ Starting test account initialization...');
     const existingUsers = this.getUsers();
+    console.log('👥 Existing users:', existingUsers.map(u => ({ id: u.id, email: u.email })));
     
     // Test Account 1: Student with enrolled courses and progress
     const testStudent1Id = 'test_student_1';
     if (!existingUsers.find(u => u.id === testStudent1Id)) {
+      console.log('🆕 Creating test student 1 (student@plato.edu)...');
       const testStudent1: User = {
         id: testStudent1Id,
         email: 'student@plato.edu',
@@ -449,6 +460,7 @@ export class UserService {
 
       // Add password hash (store as property on the object, not in type)
       (testStudent1 as any).passwordHash = hashPassword('Student123!');
+      console.log('🔐 Password hash for student@plato.edu:', (testStudent1 as any).passwordHash);
       existingUsers.push(testStudent1);
 
       // Create user data with course progress
@@ -531,11 +543,15 @@ export class UserService {
       };
 
       this.saveUserData(testStudent1Id, testStudent1Data);
+      console.log('✅ Test student 1 created and data saved');
+    } else {
+      console.log('ℹ️ Test student 1 already exists');
     }
 
     // Test Account 2: New student with blank slate
     const testStudent2Id = 'test_student_2';
     if (!existingUsers.find(u => u.id === testStudent2Id)) {
+      console.log('🆕 Creating test student 2 (newstudent@plato.edu)...');
       const testStudent2: User = {
         id: testStudent2Id,
         email: 'newstudent@plato.edu',
@@ -578,6 +594,7 @@ export class UserService {
 
       // Add password hash (store as property on the object, not in type)
       (testStudent2 as any).passwordHash = hashPassword('NewStudent123!');
+      console.log('🔐 Password hash for newstudent@plato.edu:', (testStudent2 as any).passwordHash);
       existingUsers.push(testStudent2);
 
       // Create user data with minimal progress (blank slate)
@@ -591,11 +608,15 @@ export class UserService {
       };
 
       this.saveUserData(testStudent2Id, testStudent2Data);
+      console.log('✅ Test student 2 created and data saved');
+    } else {
+      console.log('ℹ️ Test student 2 already exists');
     }
 
     // Test Account 3: English Freshman
     const testStudent3Id = 'test_student_3';
     if (!existingUsers.find(u => u.id === testStudent3Id)) {
+      console.log('🆕 Creating test student 3 (english.freshman@plato.edu)...');
       const testStudent3: User = {
         id: testStudent3Id,
         email: 'english.freshman@plato.edu',
@@ -638,6 +659,7 @@ export class UserService {
 
       // Add password hash (store as property on the object, not in type)
       (testStudent3 as any).passwordHash = hashPassword('EnglishFresh123!');
+      console.log('🔐 Password hash for english.freshman@plato.edu:', (testStudent3 as any).passwordHash);
       existingUsers.push(testStudent3);
 
       // Create user data for English freshman with enrolled courses
@@ -702,10 +724,15 @@ export class UserService {
       };
 
       this.saveUserData(testStudent3Id, testStudent3Data);
+      console.log('✅ Test student 3 created and data saved');
+    } else {
+      console.log('ℹ️ Test student 3 already exists');
     }
 
     // Save all users
+    console.log('💾 Saving all users to localStorage...');
     this.saveUsers(existingUsers);
+    console.log('✅ All test accounts initialized. Final user count:', existingUsers.length);
   }
 
   // Method to get test account credentials

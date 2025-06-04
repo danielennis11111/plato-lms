@@ -1,24 +1,29 @@
 'use client';
 
 import { ReactNode, useEffect } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import { LayoutProvider } from '../contexts/LayoutContext';
+import Sidebar from './Sidebar';
+import MainLayout from './MainLayout';
+import ChatButton from './ChatButton';
 
-interface AuthGuardProps {
+interface LayoutWrapperProps {
   children: ReactNode;
 }
 
 const publicRoutes = ['/auth/login', '/auth/register', '/auth/forgot-password'];
 
-export default function AuthGuard({ children }: AuthGuardProps) {
+export default function LayoutWrapper({ children }: LayoutWrapperProps) {
   const { isAuthenticated, isLoading } = useAuth();
-  const router = useRouter();
   const pathname = usePathname();
+  const router = useRouter();
+  
+  const isPublicRoute = publicRoutes.includes(pathname);
 
+  // Handle redirects for authentication
   useEffect(() => {
     if (!isLoading) {
-      const isPublicRoute = publicRoutes.includes(pathname);
-      
       if (!isAuthenticated && !isPublicRoute) {
         // User is not authenticated and trying to access a protected route
         console.log('🚫 Access denied, redirecting to login...');
@@ -29,9 +34,9 @@ export default function AuthGuard({ children }: AuthGuardProps) {
         router.push('/dashboard');
       }
     }
-  }, [isAuthenticated, isLoading, pathname, router]);
+  }, [isAuthenticated, isLoading, pathname, router, isPublicRoute]);
 
-  // Show loading spinner while checking authentication
+  // Show loading screen
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -43,18 +48,31 @@ export default function AuthGuard({ children }: AuthGuardProps) {
     );
   }
 
-  // For public routes, always render children
-  const isPublicRoute = publicRoutes.includes(pathname);
+  // For public routes (like login), show minimal layout
   if (isPublicRoute) {
-    return <>{children}</>;
+    return (
+      <div className="min-h-screen bg-gray-50">
+        {children}
+      </div>
+    );
   }
 
-  // For protected routes, only render if authenticated
+  // For authenticated users, show full layout with sidebar
   if (isAuthenticated) {
-    return <>{children}</>;
+    return (
+      <LayoutProvider>
+        <div className="flex min-h-screen bg-gray-50 relative">
+          <Sidebar />
+          <MainLayout>
+            {children}
+          </MainLayout>
+          <ChatButton />
+        </div>
+      </LayoutProvider>
+    );
   }
 
-  // Authentication required but user is not authenticated
+  // For unauthenticated users trying to access protected routes
   // The useEffect above will handle the redirect
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
