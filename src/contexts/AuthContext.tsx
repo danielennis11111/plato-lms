@@ -40,6 +40,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
       // Initialize test accounts on first load
       UserService.initializeTestAccounts();
       
+      // Ensure all test accounts have proper user data initialized
+      const testAccounts = UserService.getTestAccounts();
+      testAccounts.forEach(account => {
+        const userData = UserService.getUserData(`test_student_${account.email.includes('student@') ? '1' : account.email.includes('newstudent@') ? '2' : '3'}`);
+        if (!userData) {
+          console.log('🔧 Initializing missing user data for test account:', account.email);
+          UserService.initializeDemoData(`test_student_${account.email.includes('student@') ? '1' : account.email.includes('newstudent@') ? '2' : '3'}`);
+        }
+      });
+      
       // Check for existing session
       const currentSession = UserService.getCurrentSession();
       

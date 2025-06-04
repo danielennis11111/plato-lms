@@ -388,16 +388,61 @@ export class UserService {
 
   // Initialize demo data for new users
   static initializeDemoData(userId: string): void {
-    const userData = this.getUserData(userId);
-    if (!userData) return;
+    let userData = this.getUserData(userId);
+    
+    // If no user data exists, create initial structure
+    if (!userData) {
+      console.log('🔧 Creating initial user data for:', userId);
+      userData = {
+        chatHistories: {},
+        courseProgress: {},
+        settings: {
+          theme: 'system' as const,
+          language: 'en',
+          timezone: 'America/New_York',
+          notifications: {
+            email: true,
+            browser: true,
+            assignments: true,
+            discussions: true,
+            grades: true,
+          },
+          accessibility: {
+            highContrast: false,
+            fontSize: 'medium' as const,
+            reducedMotion: false,
+          },
+          privacy: {
+            profileVisibility: 'private' as const,
+            shareProgress: false,
+            allowAnalytics: true,
+          },
+        },
+        apiKeys: [],
+        personalNotes: {},
+        bookmarks: [],
+      };
+    }
 
-    // Initialize with empty but structured data
-    if (Object.keys(userData.courseProgress).length === 0) {
-      // User can discover courses through the app
+    // Initialize with empty but structured data if needed
+    if (!userData.courseProgress) {
       userData.courseProgress = {};
+    }
+    
+    if (!userData.apiKeys) {
+      userData.apiKeys = [];
+    }
+    
+    if (!userData.personalNotes) {
+      userData.personalNotes = {};
+    }
+    
+    if (!userData.bookmarks) {
+      userData.bookmarks = [];
     }
 
     this.saveUserData(userId, userData);
+    console.log('✅ User data initialized for:', userId, 'with courseProgress keys:', Object.keys(userData.courseProgress));
   }
 
   // Initialize test accounts with predefined data

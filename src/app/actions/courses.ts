@@ -37,8 +37,47 @@ export async function createCourseFromPrompt(prompt: string, userId?: string) {
 
     // Get user's API key for Gemini with detailed debugging
     console.log('🔍 Checking for user API key...');
-    const userData = UserService.getUserData(userId);
+    let userData = UserService.getUserData(userId);
     console.log('📊 User data exists:', !!userData);
+    
+    // If user data doesn't exist, initialize it
+    if (!userData) {
+      console.log('🔧 Initializing user data for:', userId);
+      const initialUserData = {
+        chatHistories: {},
+        courseProgress: {},
+        settings: {
+          theme: 'system' as const,
+          language: 'en',
+          timezone: 'America/New_York',
+          notifications: {
+            email: true,
+            browser: true,
+            assignments: true,
+            discussions: true,
+            grades: true,
+          },
+          accessibility: {
+            highContrast: false,
+            fontSize: 'medium' as const,
+            reducedMotion: false,
+          },
+          privacy: {
+            profileVisibility: 'private' as const,
+            shareProgress: false,
+            allowAnalytics: true,
+          },
+        },
+        apiKeys: [],
+        personalNotes: {},
+        bookmarks: [],
+      };
+      
+      UserService.saveUserData(userId, initialUserData);
+      userData = UserService.getUserData(userId);
+      console.log('✅ User data initialized and verified:', !!userData);
+    }
+    
     console.log('🔑 API keys available:', userData?.apiKeys?.length || 0);
     
     const apiKey = UserService.getActiveAPIKey(userId, 'gemini');
@@ -62,8 +101,16 @@ export async function createCourseFromPrompt(prompt: string, userId?: string) {
       courseData = generateEnhancedCourseFromPrompt(prompt);
     }
     
+    console.log('📚 Generated course:', {
+      id: courseData.id,
+      name: courseData.name,
+      course_code: courseData.course_code,
+      instructor: courseData.instructor
+    });
+    
     // Add course to global course list
     await mockCanvasApi.addCourse(courseData);
+    console.log('✅ Course added to global course list');
     
     // Enroll the user in the course
     if (userData) {
@@ -72,8 +119,9 @@ export async function createCourseFromPrompt(prompt: string, userId?: string) {
         userData.courseProgress = {};
       }
       
-      userData.courseProgress[courseData.id.toString()] = {
-        courseId: courseData.id.toString(),
+      const courseId = courseData.id.toString();
+      userData.courseProgress[courseId] = {
+        courseId: courseId,
         enrolledAt: new Date().toISOString(),
         lastAccessedAt: new Date().toISOString(),
         completedModules: [],
@@ -86,6 +134,14 @@ export async function createCourseFromPrompt(prompt: string, userId?: string) {
       
       UserService.saveUserData(userId, userData);
       console.log('✅ User enrolled in course:', courseData.name);
+      console.log('📈 Total enrolled courses for user:', Object.keys(userData.courseProgress).length);
+      
+      // Verify enrollment was saved
+      const verifyUserData = UserService.getUserData(userId);
+      const isEnrolled = verifyUserData?.courseProgress?.[courseId];
+      console.log('🔍 Enrollment verification:', !!isEnrolled);
+    } else {
+      console.log('❌ Could not enroll user - userData still null');
     }
     
     revalidatePath('/courses');
