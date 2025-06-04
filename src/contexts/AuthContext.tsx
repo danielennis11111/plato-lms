@@ -32,6 +32,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       setIsLoading(true);
       
+      // Clear any stored API keys to prevent sharing between users, but preserve session data
+      localStorage.removeItem('geminiApiKey');
+      localStorage.removeItem('openaiApiKey');
+      localStorage.removeItem('anthropicApiKey');
+      
       // Initialize test accounts on first load
       UserService.initializeTestAccounts();
       
@@ -43,21 +48,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setUser(currentSession.user);
         setIsAuthenticated(true);
         
-        // Initialize demo data for new users
+        // Initialize demo data for users
         UserService.initializeDemoData(currentSession.user.id);
       } else {
-        // Create guest session for demo experience
-        const guestSession = UserService.createGuestSession();
-        setSession(guestSession);
-        setUser(guestSession.user);
+        // Force user to login - no guest session
+        setSession(null);
+        setUser(null);
         setIsAuthenticated(false);
       }
     } catch (error) {
       console.error('Auth initialization error:', error);
-      // Fallback to guest session
-      const guestSession = UserService.createGuestSession();
-      setSession(guestSession);
-      setUser(guestSession.user);
+      // Force login instead of guest session
+      setSession(null);
+      setUser(null);
       setIsAuthenticated(false);
     } finally {
       setIsLoading(false);
@@ -134,10 +137,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       UserService.logout();
       
-      // Switch to guest session
-      const guestSession = UserService.createGuestSession();
-      setSession(guestSession);
-      setUser(guestSession.user);
+      // Clear session-related data and API keys, but preserve other localStorage data
+      localStorage.removeItem('geminiApiKey');
+      localStorage.removeItem('openaiApiKey');
+      localStorage.removeItem('anthropicApiKey');
+      
+      setSession(null);
+      setUser(null);
       setIsAuthenticated(false);
     } catch (error) {
       console.error('Logout error:', error);

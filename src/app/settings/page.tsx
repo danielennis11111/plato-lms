@@ -3,22 +3,20 @@
 import { useState, useEffect } from 'react';
 import { Save, ExternalLink } from 'lucide-react';
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
+import { useAuth, useAPIKey, useSaveAPIKey } from '@/contexts/AuthContext';
 
 export default function SettingsPage() {
   const [apiKey, setApiKey] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [message, setMessage] = useState('');
-  const [savedKey, setSavedKey] = useState('');
+  
+  const { user, isAuthenticated } = useAuth();
+  const currentApiKey = useAPIKey('gemini'); // Get user's current API key
+  const saveAPIKey = useSaveAPIKey(); // Get the save function
 
-  // Load existing API key from localStorage on mount
-  useEffect(() => {
-    const existingKey = localStorage.getItem('geminiApiKey');
-    if (existingKey) {
-      setSavedKey(existingKey);
-      // Don't set the input field for security reasons
-    }
-  }, []);
+  // Track if user has a saved key
+  const hasSavedKey = !!currentApiKey;
 
   const validateApiKey = async (key: string): Promise<boolean> => {
     if (!key.trim()) {
@@ -91,15 +89,8 @@ export default function SettingsPage() {
 
     try {
       // If there's already a saved key and the input is empty, don't try to validate
-      if (savedKey && !apiKey.trim()) {
+      if (hasSavedKey && !apiKey.trim()) {
         setMessage('API key is already saved. Enter a new key only if you want to change it.');
-        setIsSaving(false);
-        return;
-      }
-
-      // If the input matches the saved key, don't try to validate again
-      if (savedKey === apiKey) {
-        setMessage('This is the same API key that is already saved.');
         setIsSaving(false);
         return;
       }
@@ -112,15 +103,20 @@ export default function SettingsPage() {
         return; // Message is already set in validateApiKey
       }
 
-      // Store the API key in localStorage
-      localStorage.setItem('geminiApiKey', apiKey);
-      setSavedKey(apiKey);
-      setMessage('API key saved successfully!');
+      // Save the API key using the user-specific storage system
+      const keyName = `Gemini API Key (${new Date().toLocaleDateString()})`;
+      const result = await saveAPIKey(apiKey, keyName, 'gemini');
       
-      // Clear the input field for security
-      setTimeout(() => {
-        setApiKey('');
-      }, 1500);
+      if (result.success) {
+        setMessage('API key saved successfully!');
+        
+        // Clear the input field for security
+        setTimeout(() => {
+          setApiKey('');
+        }, 1500);
+      } else {
+        setMessage(result.error || 'Failed to save API key. Please try again.');
+      }
     } catch (error) {
       console.error('Error saving API key:', error);
       setMessage('Failed to save API key. Please try again.');
@@ -133,16 +129,14 @@ export default function SettingsPage() {
     setIsVerifying(true);
     setMessage('');
     
-    const storedKey = localStorage.getItem('geminiApiKey');
-    
-    if (!storedKey) {
+    if (!currentApiKey) {
       setMessage('No API key is currently stored. Please enter and save a key.');
       setIsVerifying(false);
       return;
     }
     
     try {
-      const isValid = await validateApiKey(storedKey);
+      const isValid = await validateApiKey(currentApiKey);
       if (isValid) {
         setMessage('The stored API key is valid and working correctly!');
       }
@@ -154,6 +148,18 @@ export default function SettingsPage() {
     }
   };
 
+  // Show a message if user is not authenticated
+  if (!isAuthenticated || !user) {
+    return (
+      <div className="max-w-2xl mx-auto p-6">
+        <h1 className="text-2xl font-bold mb-6">Settings</h1>
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+          <p className="text-yellow-800">Please log in to manage your API key settings.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-2xl mx-auto p-6">
       <h1 className="text-2xl font-bold mb-6">Settings</h1>
@@ -161,10 +167,15 @@ export default function SettingsPage() {
       <div className="bg-gray-50 rounded-lg p-6">
         <h2 className="text-xl font-semibold mb-4">AI Assistant Settings</h2>
         
+        <div className="mb-4 text-sm text-gray-600">
+          <p>Logged in as: <span className="font-medium">{user.name}</span> ({user.email})</p>
+          <p className="text-xs mt-1">Your API key is stored securely and privately for your account only.</p>
+        </div>
+        
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="apiKey" className="block text-sm font-medium mb-2">
-              Gemini API Key {savedKey && <span className="text-green-600 ml-2">(Saved)</span>}
+              Gemini API Key {hasSavedKey && <span className="text-green-600 ml-2">(Saved)</span>}
             </label>
             <div className="flex space-x-2">
               <input
@@ -172,7 +183,7 @@ export default function SettingsPage() {
                 id="apiKey"
                 value={apiKey}
                 onChange={(e) => setApiKey(e.target.value)}
-                placeholder="Enter your Gemini API key"
+                placeholder={hasSavedKey ? "Enter new key to replace existing" : "Enter your Gemini API key"}
                 className="flex-1 bg-white border border-gray-300 text-gray-900 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
                 required
               />
@@ -182,7 +193,7 @@ export default function SettingsPage() {
                 className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
               >
                 <Save className="w-5 h-5" />
-                <span>{isSaving ? 'Saving...' : 'Save'}</span>
+                <span>{isSaving ? 'Saving...' : hasSavedKey ? 'Update' : 'Save'}</span>
               </button>
             </div>
             {message && (
@@ -190,7 +201,7 @@ export default function SettingsPage() {
                 {message}
               </p>
             )}
-            {savedKey && (
+            {hasSavedKey && (
               <div className="mt-2">
                 <button
                   type="button"
