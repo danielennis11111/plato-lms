@@ -75,19 +75,25 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
   };
 
   const handleTestLogin = async (email: string, password: string) => {
+    console.log('🔍 Test login attempt:', { email, password: '***' });
     setFormData({ email, password });
     setIsSubmitting(true);
     setErrors({});
 
     try {
+      console.log('🔄 Calling login with credentials...');
       const result = await login({ email, password });
+      console.log('📋 Login result:', result);
       
       if (result.success) {
+        console.log('✅ Login successful, calling onSuccess');
         onSuccess?.();
       } else {
+        console.log('❌ Login failed:', result.error);
         setErrors({ general: result.error || 'Login failed' });
       }
     } catch (error) {
+      console.log('💥 Login exception:', error);
       setErrors({ general: 'An unexpected error occurred' });
     } finally {
       setIsSubmitting(false);

@@ -21,16 +21,26 @@ export default function Home() {
         const userData = getUserData();
         const userEnrollments = userData?.courseProgress ? Object.keys(userData.courseProgress) : [];
         
+        console.log('📚 Dashboard Debug Info:');
+        console.log('Current user:', user?.name, user?.id);
+        console.log('User enrollments:', userEnrollments);
+        console.log('User courseProgress:', userData?.courseProgress);
+        
         const [coursesData, allAssignments] = await Promise.all([
           mockCanvasApi.getCourses(userEnrollments),
           mockCanvasApi.getAssignments(),
         ]);
+
+        console.log('Available courses for user:', coursesData);
+        console.log('Total assignments:', allAssignments.length);
 
         // Filter assignments to only include those from user's enrolled courses
         const enrolledCourseIds = coursesData.map(course => course.id);
         const userAssignments = allAssignments.filter(assignment => 
           enrolledCourseIds.includes(assignment.course_id)
         );
+
+        console.log('Filtered assignments for user:', userAssignments.length);
 
         setCourses(coursesData);
         setAssignments(userAssignments);

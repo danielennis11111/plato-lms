@@ -12,14 +12,15 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // DEMO MODE - Skip authentication check
   // Check if user is authenticated
-  const user = request.cookies.get('user');
-  if (!user) {
-    // Redirect to login if not authenticated
-    const url = new URL('/auth/login', request.url);
-    url.searchParams.set('from', pathname);
-    return NextResponse.redirect(url);
-  }
+  // const user = request.cookies.get('user');
+  // if (!user) {
+  //   // Redirect to login if not authenticated
+  //   const url = new URL('/auth/login', request.url);
+  //   url.searchParams.set('from', pathname);
+  //   return NextResponse.redirect(url);
+  // }
 
   return NextResponse.next();
 }
