@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { format } from 'date-fns';
 import { FileText, Calendar, Award, Filter, List, Grid, Columns } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 import { mockCanvasApi, type Assignment } from '@/lib/mockCanvasApi';
 import Link from 'next/link';
 import { slugify } from '@/lib/utils';
@@ -108,6 +109,7 @@ const KanbanColumn = ({
 );
 
 export default function AssignmentsPage() {
+  const { user, getUserData } = useAuth();
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [courses, setCourses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -116,12 +118,26 @@ export default function AssignmentsPage() {
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!user) return;
+      
       try {
+        setLoading(true);
+        
+        // Get user enrollments from their courseProgress keys
+        const userData = getUserData();
+        const userEnrollments = userData?.courseProgress ? Object.keys(userData.courseProgress) : [];
+        
         const [assignmentsData, coursesData] = await Promise.all([
           mockCanvasApi.getAssignments(),
-          mockCanvasApi.getCourses()
+          mockCanvasApi.getCourses(userEnrollments)
         ]);
-        setAssignments(assignmentsData);
+        
+        // Filter assignments to only those from enrolled courses
+        const filteredAssignments = assignmentsData.filter(assignment => 
+          coursesData.some(course => course.id === assignment.course_id)
+        );
+        
+        setAssignments(filteredAssignments);
         setCourses(coursesData);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -131,7 +147,7 @@ export default function AssignmentsPage() {
     };
 
     fetchData();
-  }, []);
+  }, [user, getUserData]);
 
   const getCourseName = useCallback((courseId: number) => {
     return courses.find(course => course.id === courseId)?.name || 'Unknown Course';
@@ -195,7 +211,7 @@ export default function AssignmentsPage() {
     }
   };
 
-  if (loading) {
+  if (loading || !user) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
