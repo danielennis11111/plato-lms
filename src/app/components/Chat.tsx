@@ -322,15 +322,14 @@ export default function Chat({ context, isFullScreen = false }: ChatProps) {
     console.log('Testing API key:', apiKey ? 'Present' : 'Missing');
     
     if (!apiKey) {
-      setDebugInfo('No API key found in context. Please set your Gemini API key in Settings.');
+      setDebugInfo('No API key found. Please set your Gemini API key in Settings.');
       return;
     }
     
     try {
       const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" }); // Match settings page
+      const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
       
-      // Use same API call format as settings page
       const result = await model.generateContent({
         contents: [
           {
@@ -351,23 +350,29 @@ export default function Chat({ context, isFullScreen = false }: ChatProps) {
       });
       
       const text = result.response.text();
-      console.log('API test result:', text);
-      setDebugInfo(`API Test: ${text}`);
+      console.log('API test successful:', text);
+      setDebugInfo(`API Test: SUCCESS - ${text.substring(0, 50)}...`);
     } catch (error) {
       console.error('API test failed:', error);
       setDebugInfo(`API Test Failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
   
-  // Test API key on component mount
+  // Test API key when it becomes available
   useEffect(() => {
-    testApiKey();
-  }, []);
+    if (apiKey) {
+      testApiKey();
+    } else {
+      setDebugInfo('No API key available. Please set your Gemini API key in Settings.');
+    }
+  }, [apiKey]);
 
   // Check for API key on mount and when chat opens
   useEffect(() => {
     console.log('API key status:', apiKey ? 'Found' : 'Missing');
-  }, []);
+    console.log('User:', user ? user.name : 'Not authenticated');
+    console.log('Is authenticated:', isAuthenticated);
+  }, [apiKey, user, isAuthenticated]);
 
   const generateContextAwareResponse = async (userMessage: string): Promise<string> => {
     console.log('🚀 generateContextAwareResponse called with:', userMessage);
@@ -491,6 +496,12 @@ export default function Chat({ context, isFullScreen = false }: ChatProps) {
       const text = response.text();
 
       console.log('✅ Gemini response received:', text.substring(0, 100) + '...');
+      
+      if (!text || text.trim().length === 0) {
+        console.log('⚠️ Empty response from Gemini');
+        return "I received an empty response. Could you try asking your question differently?";
+      }
+      
       return text;
       
     } catch (error) {
@@ -500,8 +511,23 @@ export default function Chat({ context, isFullScreen = false }: ChatProps) {
         stack: error instanceof Error ? error.stack : undefined
       });
       
+      let userFriendlyMessage = "I'm having trouble processing your request right now. Could you try rephrasing your question?";
+      
+      if (error instanceof Error) {
+        const errorMessage = error.message.toLowerCase();
+        if (errorMessage.includes('api key')) {
+          userFriendlyMessage = "There seems to be an issue with the API key. Please check your settings.";
+        } else if (errorMessage.includes('quota') || errorMessage.includes('rate')) {
+          userFriendlyMessage = "API usage limit reached. Please try again in a moment.";
+        } else if (errorMessage.includes('network') || errorMessage.includes('connection')) {
+          userFriendlyMessage = "Network connection issue. Please check your internet and try again.";
+        } else if (errorMessage.includes('safety') || errorMessage.includes('blocked')) {
+          userFriendlyMessage = "Your question was blocked by safety filters. Could you rephrase it?";
+        }
+      }
+      
       setDebugInfo(`Gemini API Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
-      return "I'm having trouble processing your request right now. Could you try rephrasing your question?";
+      return userFriendlyMessage;
     } finally {
       setIsLoading(false);
     }
