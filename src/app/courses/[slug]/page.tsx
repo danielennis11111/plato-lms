@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { mockCanvasApi } from '@/lib/mockCanvasApi';
 import { format } from 'date-fns';
-import { Book, Calendar, FileText, MessageSquare, Award, Clock, ArrowLeft } from 'lucide-react';
+import { Book, Calendar, FileText, MessageSquare, Award, Clock, ArrowLeft, Info } from 'lucide-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { slugify } from '@/lib/utils';
@@ -21,6 +21,7 @@ interface ModuleItem {
 interface Module {
   id: number;
   name: string;
+  description: string;
   is_completed?: boolean;
   items: ModuleItem[];
 }
@@ -28,6 +29,8 @@ interface Module {
 interface Course {
   id: number;
   name: string;
+  course_code: string;
+  instructor: string;
   description: string;
   syllabus?: string;
   current_grade?: number;
@@ -45,6 +48,7 @@ interface CoursePageProps {
 
 export default function CoursePage({ params }: CoursePageProps) {
   const [course, setCourse] = useState<Course | null>(null);
+  const [activeTab, setActiveTab] = useState<'modules' | 'syllabus'>('modules');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [moduleItems, setModuleItems] = useState<Record<number, ModuleItem>>({});
@@ -153,17 +157,45 @@ export default function CoursePage({ params }: CoursePageProps) {
           >
             <ArrowLeft className="w-5 h-5" />
           </Link>
-          <h1 className="text-2xl font-bold text-gray-900">{course.name}</h1>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">{course.name}</h1>
+            <p className="text-gray-600 text-sm">{course.course_code} • {course.instructor}</p>
+          </div>
+        </div>
+
+        {/* Course Description */}
+        <div className="mb-6 p-4 bg-blue-50 rounded-lg">
+          <div className="flex items-start space-x-2">
+            <Info className="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0" />
+            <div>
+              <h3 className="font-medium text-blue-900 mb-1">Course Description</h3>
+              <p className="text-blue-800 text-sm leading-relaxed">{course.description}</p>
+            </div>
+          </div>
         </div>
 
         {/* Course Navigation */}
         <div className="flex space-x-1 mb-6 border-b border-gray-200">
-          <Link
-            href={`/courses/${slugify(course.name)}`}
-            className="px-4 py-2 text-sm font-medium text-blue-600 border-b-2 border-blue-600 bg-blue-50"
+          <button
+            onClick={() => setActiveTab('modules')}
+            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+              activeTab === 'modules'
+                ? 'text-blue-600 border-blue-600 bg-blue-50'
+                : 'text-gray-600 border-transparent hover:text-blue-600 hover:bg-gray-50'
+            }`}
           >
             Modules
-          </Link>
+          </button>
+          <button
+            onClick={() => setActiveTab('syllabus')}
+            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+              activeTab === 'syllabus'
+                ? 'text-blue-600 border-blue-600 bg-blue-50'
+                : 'text-gray-600 border-transparent hover:text-blue-600 hover:bg-gray-50'
+            }`}
+          >
+            Syllabus
+          </button>
           <Link
             href={`/courses/${slugify(course.name)}/discussions`}
             className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-gray-50 border-b-2 border-transparent"
@@ -225,44 +257,70 @@ export default function CoursePage({ params }: CoursePageProps) {
         </div>
       </div>
 
-      {/* Course Modules */}
-      <div className="space-y-6">
-        {course.modules.map((module) => (
-          <div key={module.id} className="bg-white rounded-lg p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">{module.name}</h2>
-            <div className="space-y-4">
-              {module.items.map((item) => (
-                <Link
-                  key={item.id}
-                  href={getItemUrl(item)}
-                  className="block p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      {item.type === 'assignment' && <FileText className="w-5 h-5 text-blue-500" />}
-                      {item.type === 'discussion' && <MessageSquare className="w-5 h-5 text-green-500" />}
-                      {item.type === 'quiz' && <Award className="w-5 h-5 text-purple-500" />}
-                      <div>
-                        <h3 className="font-medium text-gray-900">{item.title}</h3>
-                        {item.due_date && (
-                          <p className="text-sm text-gray-500">
-                            Due: {format(new Date(item.due_date), 'MMM d, yyyy')}
-                          </p>
-                        )}
+      {/* Tab Content */}
+      {activeTab === 'modules' && (
+        <div className="space-y-6">
+          {course.modules.map((module) => (
+            <div key={module.id} className="bg-white rounded-lg p-6">
+              <div className="mb-4">
+                <h2 className="text-xl font-semibold text-gray-900">{module.name}</h2>
+                {module.description && (
+                  <p className="text-gray-600 text-sm mt-1">{module.description}</p>
+                )}
+              </div>
+              <div className="space-y-4">
+                {module.items.map((item) => (
+                  <Link
+                    key={item.id}
+                    href={getItemUrl(item)}
+                    className="block p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        {item.type === 'assignment' && <FileText className="w-5 h-5 text-blue-500" />}
+                        {item.type === 'discussion' && <MessageSquare className="w-5 h-5 text-green-500" />}
+                        {item.type === 'quiz' && <Award className="w-5 h-5 text-purple-500" />}
+                        {item.type === 'page' && <Book className="w-5 h-5 text-gray-500" />}
+                        <div>
+                          <h3 className="font-medium text-gray-900">{item.title}</h3>
+                          {item.due_date && (
+                            <p className="text-sm text-gray-500">
+                              Due: {format(new Date(item.due_date), 'MMM d, yyyy')}
+                            </p>
+                          )}
+                        </div>
                       </div>
+                      {item.points_possible && (
+                        <span className="text-sm font-medium text-gray-600">
+                          {item.points_possible} points
+                        </span>
+                      )}
                     </div>
-                    {item.points_possible && (
-                      <span className="text-sm font-medium text-gray-600">
-                        {item.points_possible} points
-                      </span>
-                    )}
-                  </div>
-                </Link>
-              ))}
+                  </Link>
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
+
+      {activeTab === 'syllabus' && (
+        <div className="bg-white rounded-lg p-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Course Syllabus</h2>
+          {course.syllabus ? (
+            <div className="prose prose-gray max-w-none">
+              <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+                {course.syllabus}
+              </p>
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <Book className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-500">Syllabus information is not yet available for this course.</p>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 } 

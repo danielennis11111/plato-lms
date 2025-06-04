@@ -20,13 +20,22 @@ export function CourseGeneratorForm({ onCourseGenerated }: CourseGeneratorFormPr
   const apiKey = useAPIKey('gemini');
 
   const enrollUserInCourse = (courseId: number) => {
-    if (!user) return;
+    console.log('📝 enrollUserInCourse called with courseId:', courseId);
+    console.log('👤 Current user:', user ? { id: user.id, name: user.name } : 'No user');
+    
+    if (!user) {
+      console.log('❌ No user found, cannot enroll');
+      return;
+    }
 
     try {
       console.log('📝 Enrolling user in course client-side, course ID:', courseId);
       
       // Get or create user data
+      console.log('📂 Getting user data for user ID:', user.id);
       let userData = UserService.getUserData(user.id);
+      console.log('📂 User data retrieved:', userData ? 'Found existing data' : 'No data found');
+      
       if (!userData) {
         console.log('📝 Creating new user data for enrollment');
         userData = {
@@ -58,11 +67,22 @@ export function CourseGeneratorForm({ onCourseGenerated }: CourseGeneratorFormPr
           bookmarks: [],
           courseProgress: {}
         };
+        console.log('📝 Created new user data structure');
       }
       
       // Add course to user's enrollments
       if (!userData.courseProgress) {
         userData.courseProgress = {};
+        console.log('📝 Initialized courseProgress object');
+      }
+      
+      console.log('📝 Current enrolled courses before adding:', Object.keys(userData.courseProgress));
+      console.log('📝 Detailed enrollments before:', userData.courseProgress);
+      
+      // Check if already enrolled
+      if (userData.courseProgress[courseId.toString()]) {
+        console.log('⚠️ User is already enrolled in course', courseId, '- skipping duplicate enrollment');
+        return;
       }
       
       userData.courseProgress[courseId.toString()] = {
@@ -77,11 +97,22 @@ export function CourseGeneratorForm({ onCourseGenerated }: CourseGeneratorFormPr
         timeSpent: 0
       };
       
+      console.log('📝 Added course to courseProgress, new enrolled courses:', Object.keys(userData.courseProgress));
+      console.log('📝 Detailed enrollments after:', userData.courseProgress);
+      
+      console.log('💾 Saving user data to localStorage...');
       UserService.saveUserData(user.id, userData);
       console.log('✅ User enrolled in course client-side, course ID:', courseId);
       console.log('📝 User now enrolled in courses:', Object.keys(userData.courseProgress));
+      
+      // Verify the data was saved
+      const verifyData = UserService.getUserData(user.id);
+      console.log('✅ Verification - data saved successfully:', verifyData ? 'YES' : 'NO');
+      if (verifyData) {
+        console.log('✅ Verification - enrolled courses:', Object.keys(verifyData.courseProgress));
+      }
     } catch (error) {
-      console.error('Error enrolling user in course:', error);
+      console.error('❌ Error enrolling user in course:', error);
     }
   };
 
@@ -94,29 +125,43 @@ export function CourseGeneratorForm({ onCourseGenerated }: CourseGeneratorFormPr
       console.log('🔑 Client-side API key result:', apiKey ? 'FOUND' : 'NOT FOUND');
       console.log('🔑 API key length:', apiKey?.length || 0);
 
+      console.log('📤 Calling server action...');
       const result = await createCourseFromPrompt(prompt, user?.id, apiKey || undefined);
+      console.log('📥 Server action result:', result);
+      
       if (result.success && result.course) {
-        setPrompt('');
         console.log('✅ Course created successfully:', result.course.name);
+        console.log('📋 Course details:', { id: result.course.id, name: result.course.name });
+        
+        setPrompt('');
         
         // Enroll user in the course client-side
+        console.log('🔄 Starting client-side enrollment...');
         enrollUserInCourse(result.course.id);
         
         // Call the callback to refresh the courses list
+        console.log('🔄 Calling onCourseGenerated callback...');
         if (onCourseGenerated) {
           onCourseGenerated();
+        } else {
+          console.log('⚠️ No onCourseGenerated callback provided');
         }
         
         // Also trigger Next.js revalidation
+        console.log('🔄 Triggering router refresh...');
         router.refresh();
+        
+        console.log('✅ Course creation and enrollment process completed');
       } else {
+        console.error('❌ Course creation failed:', result);
         alert(result.error || 'Failed to create course');
       }
     } catch (error) {
-      console.error('Error:', error);
+      console.error('❌ Error in handleSubmit:', error);
       alert('An error occurred while creating the course');
     } finally {
       setIsLoading(false);
+      console.log('🏁 Course creation process finished, loading state reset');
     }
   };
 

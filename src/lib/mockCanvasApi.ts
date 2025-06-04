@@ -433,7 +433,7 @@ const courses: Course[] = [
     current_grade: 91,
     start_date: '2025-05-15',
     end_date: '2025-08-08',
-    syllabus: 'Comprehensive introduction to machine learning covering supervised and unsupervised learning, neural networks, deep learning basics, and real-world applications.',
+    syllabus: 'This comprehensive course introduces students to the fundamental concepts and practical applications of machine learning. Students will learn to implement and evaluate supervised and unsupervised learning algorithms, understand data preprocessing techniques, and develop predictive models for real-world applications. The course emphasizes both theoretical understanding and practical implementation using Python, scikit-learn, TensorFlow, and other industry-standard tools. Topics include linear and logistic regression, decision trees, neural networks, clustering algorithms, dimensionality reduction, and model evaluation techniques. Students will complete hands-on projects involving data analysis, feature engineering, model training, and deployment. Prerequisites: CS250 (Data Structures), MATH200 (Statistics), and MATH180 (Linear Algebra). Assessment includes programming assignments, quizzes, midterm exam, and a capstone machine learning project.',
     modules: [
       {
         id: 1,
@@ -588,7 +588,7 @@ const courses: Course[] = [
     current_grade: 83,
     start_date: '2025-05-15',
     end_date: '2025-08-08',
-    syllabus: 'Deep dive into database systems covering relational theory, query processing, transaction management, distributed databases, and emerging NoSQL technologies.',
+    syllabus: 'This advanced course provides an in-depth exploration of database systems architecture and modern data management technologies. Students will gain comprehensive understanding of relational database theory, query optimization techniques, transaction processing, concurrency control, and distributed database systems. The course covers both traditional SQL databases and modern NoSQL solutions, with hands-on experience in performance tuning, system design, and real-world database administration. Students will work on projects involving database design, optimization, and implementation of distributed systems. Prerequisites: CS250 (Data Structures) and CS350 (Algorithms). Course includes weekly labs, midterm exam, final project, and practical assignments using PostgreSQL, MongoDB, and cloud database services.',
     modules: [
       {
         id: 1,
@@ -709,7 +709,7 @@ const courses: Course[] = [
     current_grade: 94,
     start_date: '2025-05-15',
     end_date: '2025-08-08',
-    syllabus: 'Team-based capstone project incorporating software engineering principles, project management, version control, testing, and deployment in a real-world development environment.',
+    syllabus: 'The Software Engineering Capstone course serves as the culminating experience for computer science students, integrating knowledge from multiple courses into a comprehensive team-based software development project. Students work in teams of 4-6 to design, develop, test, and deploy a substantial software system that addresses a real-world problem. The course emphasizes industry best practices including agile development methodologies, version control, continuous integration/deployment, code review processes, and project management. Teams will follow the complete software development lifecycle from requirements gathering and system design to implementation, testing, and deployment. Students will present their work to industry professionals and faculty. Prerequisites: CS380 (Advanced Web Development), CS350 (Algorithms), CS370 (Software Engineering), and senior standing. Assessment based on project deliverables, individual contributions, team collaboration, presentations, and final deployed system. Course includes weekly standup meetings, sprint reviews, and mentorship from industry professionals.',
     modules: [
       {
         id: 1,
@@ -1281,6 +1281,9 @@ const calendarEvents: CalendarEvent[] = [
     )
   )
 ];
+
+// Global course ID counter to prevent race conditions
+let nextCourseId = 7; // Start from 7 since we have courses 1, 2, 4, 5, 6
 
 // API Functions
 export const mockCanvasApi = {
@@ -2009,11 +2012,25 @@ export const mockCanvasApi = {
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 300));
     
-    // Generate a new ID
-    const newId = Math.max(...courses.map(c => c.id)) + 1;
+    // Check for duplicate course names to prevent multiple courses with same content
+    const existingCourse = courses.find(c => 
+      c.name.toLowerCase() === course.name.toLowerCase() || 
+      c.course_code === course.course_code
+    );
+    
+    if (existingCourse) {
+      console.log('⚠️ Course already exists with name or code:', course.name, course.course_code);
+      return { success: true, course: existingCourse }; // Return existing course instead of creating duplicate
+    }
+    
+    // Use global counter for ID assignment to prevent race conditions
+    const newId = nextCourseId++;
     const newCourse = { ...course, id: newId };
     
+    console.log('➕ Adding new course with ID:', newId, 'Name:', course.name);
     courses.push(newCourse);
+    console.log('📚 Total courses after adding:', courses.length);
+    
     return { success: true, course: newCourse };
   }
 }; 
