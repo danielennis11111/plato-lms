@@ -6,6 +6,7 @@ import ChatButton from './components/ChatButton';
 import MainLayout from './components/MainLayout';
 import { LayoutProvider } from './contexts/LayoutContext';
 import { AuthProvider } from '../contexts/AuthContext';
+import { CanvasProvider } from '../contexts/CanvasContext';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -28,15 +29,17 @@ export default function RootLayout({
       <body className={inter.className} suppressHydrationWarning>
         <ErrorBoundary>
           <AuthProvider>
-            <LayoutProvider>
-              <div className="flex min-h-screen bg-gray-50 relative">
-                <Sidebar />
-                <MainLayout>
-                  {children}
-                </MainLayout>
-                <ChatButton />
-              </div>
-            </LayoutProvider>
+            <CanvasProvider>
+              <LayoutProvider>
+                <div className="flex min-h-screen bg-gray-50 relative">
+                  <Sidebar />
+                  <MainLayout>
+                    {children}
+                  </MainLayout>
+                  <ChatButton />
+                </div>
+              </LayoutProvider>
+            </CanvasProvider>
           </AuthProvider>
         </ErrorBoundary>
       </body>

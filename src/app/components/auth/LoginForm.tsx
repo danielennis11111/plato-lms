@@ -1,9 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { Eye, EyeOff, Mail, Lock, LogIn } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, LogIn, User, Users } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { validateEmail } from '@/types/user';
+import { UserService } from '@/lib/userService';
 
 interface LoginFormProps {
   onSuccess?: () => void;
@@ -19,6 +20,9 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showTestAccounts, setShowTestAccounts] = useState(false);
+
+  const testAccounts = UserService.getTestAccounts();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -57,6 +61,26 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
 
     try {
       const result = await login(formData);
+      
+      if (result.success) {
+        onSuccess?.();
+      } else {
+        setErrors({ general: result.error || 'Login failed' });
+      }
+    } catch (error) {
+      setErrors({ general: 'An unexpected error occurred' });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleTestLogin = async (email: string, password: string) => {
+    setFormData({ email, password });
+    setIsSubmitting(true);
+    setErrors({});
+
+    try {
+      const result = await login({ email, password });
       
       if (result.success) {
         onSuccess?.();
@@ -195,6 +219,46 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
             Sign up here
           </button>
         </p>
+      </div>
+
+      {/* Test Accounts Section */}
+      <div className="mt-6 border-t border-gray-200 pt-6">
+        <button
+          type="button"
+          onClick={() => setShowTestAccounts(!showTestAccounts)}
+          disabled={isFormDisabled}
+          className="w-full flex items-center justify-center text-sm text-gray-600 hover:text-gray-800 focus:outline-none focus:text-gray-800"
+        >
+          <Users className="w-4 h-4 mr-2" />
+          {showTestAccounts ? 'Hide Test Accounts' : 'Show Test Accounts'}
+        </button>
+        
+        {showTestAccounts && (
+          <div className="mt-4 space-y-3">
+            <p className="text-xs text-gray-500 text-center mb-3">
+              Click to login with pre-configured test accounts
+            </p>
+            {testAccounts.map((account, index) => (
+              <button
+                key={index}
+                type="button"
+                onClick={() => handleTestLogin(account.email, account.password)}
+                disabled={isFormDisabled}
+                className="w-full p-3 border border-gray-200 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors text-left"
+              >
+                <div className="flex items-center">
+                  <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center mr-3">
+                    <User className="w-4 h-4 text-primary-600" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-gray-900">{account.email}</p>
+                    <p className="text-xs text-gray-500">{account.description}</p>
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="mt-4 text-center">

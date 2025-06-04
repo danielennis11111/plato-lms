@@ -32,6 +32,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       setIsLoading(true);
       
+      // Initialize test accounts on first load
+      UserService.initializeTestAccounts();
+      
       // Check for existing session
       const currentSession = UserService.getCurrentSession();
       
@@ -72,6 +75,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setUser(result.session.user);
         setIsAuthenticated(true);
         
+        // Clear any global API key to prevent sharing between users
+        localStorage.removeItem('geminiApiKey');
+        
         // Initialize demo data for returning users
         UserService.initializeDemoData(result.session.user.id);
         
@@ -104,6 +110,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
           setSession(loginResult.session);
           setUser(loginResult.session.user);
           setIsAuthenticated(true);
+          
+          // Clear any global API key to prevent sharing between users
+          localStorage.removeItem('geminiApiKey');
           
           // Initialize demo data for new users
           UserService.initializeDemoData(loginResult.session.user.id);
@@ -242,10 +251,11 @@ export function useAPIKey(provider: 'gemini' | 'openai' | 'anthropic' = 'gemini'
   const { user, isAuthenticated } = useAuth();
   
   if (!user || !isAuthenticated) {
-    // For guest users, check the old global storage
+    // Only for true guest users (not authenticated), check global storage for backwards compatibility
     return localStorage.getItem('geminiApiKey') || null;
   }
   
+  // For authenticated users, only return their personal API key (no fallback to global storage)
   return UserService.getActiveAPIKey(user.id, provider);
 }
 
