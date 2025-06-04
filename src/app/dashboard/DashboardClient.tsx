@@ -6,6 +6,7 @@ import { format, startOfWeek, addDays, subDays, isSameDay } from 'date-fns';
 import { mockCanvasApi, type Assignment } from '@/lib/mockCanvasApi';
 import { Book, Calendar, FileText, MessageSquare, ChevronLeft, ChevronRight } from 'lucide-react';
 import { slugify } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface Course {
   id: number;
@@ -26,18 +27,30 @@ export default function DashboardClient({ courses: initialCourses, assignments: 
   const [assignments, setAssignments] = useState<Assignment[]>(initialAssignments || []);
   const [loading, setLoading] = useState(!initialCourses || !initialAssignments);
   const [currentWeekStart, setCurrentWeekStart] = useState(startOfWeek(new Date()));
+  const { getUserData } = useAuth();
 
   useEffect(() => {
     // Only fetch if no initial data was provided
     if (!initialCourses || !initialAssignments) {
       const fetchData = async () => {
         try {
-          const [coursesData, assignmentsData] = await Promise.all([
-            mockCanvasApi.getCourses(),
+          // Get user enrollments from their courseProgress keys
+          const userData = getUserData();
+          const userEnrollments = userData?.courseProgress ? Object.keys(userData.courseProgress) : [];
+          
+          const [coursesData, allAssignments] = await Promise.all([
+            mockCanvasApi.getCourses(userEnrollments),
             mockCanvasApi.getAssignments()
           ]);
+          
+          // Filter assignments to only include those from user's enrolled courses
+          const enrolledCourseIds = coursesData.map(course => course.id);
+          const userAssignments = allAssignments.filter(assignment => 
+            enrolledCourseIds.includes(assignment.course_id)
+          );
+          
           setCourses(coursesData);
-          setAssignments(assignmentsData);
+          setAssignments(userAssignments);
         } catch (error) {
           console.error('Error fetching dashboard data:', error);
         } finally {
@@ -49,7 +62,7 @@ export default function DashboardClient({ courses: initialCourses, assignments: 
     } else {
       setLoading(false);
     }
-  }, [initialCourses, initialAssignments]);
+  }, [initialCourses, initialAssignments, getUserData]);
 
   if (loading) {
     return (

@@ -21,13 +21,19 @@ export default function Home() {
         const userData = getUserData();
         const userEnrollments = userData?.courseProgress ? Object.keys(userData.courseProgress) : [];
         
-        const [coursesData, assignmentsData] = await Promise.all([
+        const [coursesData, allAssignments] = await Promise.all([
           mockCanvasApi.getCourses(userEnrollments),
           mockCanvasApi.getAssignments(),
         ]);
 
+        // Filter assignments to only include those from user's enrolled courses
+        const enrolledCourseIds = coursesData.map(course => course.id);
+        const userAssignments = allAssignments.filter(assignment => 
+          enrolledCourseIds.includes(assignment.course_id)
+        );
+
         setCourses(coursesData);
-        setAssignments(assignmentsData);
+        setAssignments(userAssignments);
       } catch (error) {
         console.error('Error loading dashboard data:', error);
         setError('Failed to load dashboard data');
