@@ -5,20 +5,25 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { createCourseFromPrompt } from '@/app/actions/courses';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth, useAPIKey } from '@/contexts/AuthContext';
 
 export function CourseGeneratorForm() {
   const [prompt, setPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { user } = useAuth();
+  const apiKey = useAPIKey('gemini');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      const result = await createCourseFromPrompt(prompt, user?.id);
+      console.log('🔑 Client-side API key check for user:', user?.id);
+      console.log('🔑 Client-side API key result:', apiKey ? 'FOUND' : 'NOT FOUND');
+      console.log('🔑 API key length:', apiKey?.length || 0);
+
+      const result = await createCourseFromPrompt(prompt, user?.id, apiKey || undefined);
       if (result.success) {
         setPrompt('');
         router.refresh();
@@ -66,6 +71,14 @@ The AI will generate a complete course structure with modules, assignments, and 
           required
         />
       </div>
+      
+      <div className="text-xs text-gray-500">
+        {apiKey 
+          ? '🤖 Using your Gemini API key for intelligent course generation'
+          : '📝 Set your Gemini API key in Settings for AI-powered course generation (will use basic generation)'
+        }
+      </div>
+      
       <Button type="submit" disabled={isLoading}>
         {isLoading ? 'Creating Course...' : 'Create Course with AI'}
       </Button>

@@ -18,7 +18,7 @@ export async function deleteCourse(courseId: number) {
   }
 }
 
-export async function createCourseFromPrompt(prompt: string, userId?: string) {
+export async function createCourseFromPrompt(prompt: string, userId?: string, apiKey?: string) {
   try {
     console.log('🎓 Creating course from prompt:', prompt.substring(0, 100) + '...');
     console.log('👤 User ID:', userId);
@@ -34,8 +34,7 @@ export async function createCourseFromPrompt(prompt: string, userId?: string) {
       return { success: false, error: 'User authentication required' };
     }
 
-    // Get user's API key for Gemini
-    const apiKey = UserService.getActiveAPIKey(userId, 'gemini');
+    console.log('🔑 API key provided:', apiKey ? 'YES (length: ' + apiKey.length + ')' : 'NO');
     
     let courseData;
     

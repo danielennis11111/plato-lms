@@ -3,8 +3,7 @@
 import { useState } from 'react';
 import { mockCanvasApi, type Course } from '@/lib/mockCanvasApi';
 import { createCourseFromPrompt } from '@/app/actions/courses';
-import { useAuth } from '@/contexts/AuthContext';
-import { UserService } from '@/lib/userService';
+import { useAuth, useAPIKey } from '@/contexts/AuthContext';
 
 interface CourseGeneratorProps {
   onCourseGenerated: () => void;
@@ -15,6 +14,7 @@ export default function CourseGenerator({ onCourseGenerated }: CourseGeneratorPr
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
+  const apiKey = useAPIKey('gemini');
 
   const generateCourse = async () => {
     try {
@@ -26,8 +26,12 @@ export default function CourseGenerator({ onCourseGenerated }: CourseGeneratorPr
         return;
       }
 
+      console.log('🔑 Client-side API key check for user:', user.id);
+      console.log('🔑 Client-side API key result:', apiKey ? 'FOUND' : 'NOT FOUND');
+      console.log('🔑 API key length:', apiKey?.length || 0);
+
       // Use the new server action that integrates with Gemini API
-      const result = await createCourseFromPrompt(input, user.id);
+      const result = await createCourseFromPrompt(input, user.id, apiKey || undefined);
       
       if (result.success) {
         // Clear input and notify parent
@@ -97,10 +101,7 @@ The AI will generate a complete course with modules, assignments, quizzes, and s
         
         {user && (
           <div className="text-xs text-gray-500 mt-2">
-            {UserService.getActiveAPIKey(user.id, 'gemini') 
-              ? '🤖 Using your Gemini API key for intelligent course generation'
-              : '📝 Set your Gemini API key in Settings for AI-powered course generation'
-            }
+            {apiKey ? '🤖 Using your Gemini API key for intelligent course generation' : '📝 Set your Gemini API key in Settings for AI-powered course generation'}
           </div>
         )}
       </div>
