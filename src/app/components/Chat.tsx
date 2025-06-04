@@ -120,15 +120,15 @@ export default function Chat({ context, isFullScreen = false }: ChatProps) {
     if (context && isInitialized && messages.length === 0) {
       const getWelcomeMessage = () => {
         if (context.type === 'course') {
-          return `Hi! I'm here to help you with ${context.title || 'this course'}. I can assist with assignments, explain concepts, help with study planning, or answer questions about course content. What would you like to know?`;
+          return `Greetings! I am Socrates, your learning companion. I'm here to guide you through ${context.title || 'this course'} using the time-honored method of questioning and discovery. I can help you explore concepts, understand assignments, and develop your thinking. What questions shall we explore together?`;
         } else if (context.type === 'assignment') {
-          return `Hello! I'm ready to help you with "${context.title || 'this assignment'}". I can explain requirements, suggest approaches, help break down the work, or clarify any concepts. How can I assist you?`;
+          return `Welcome! I am Socrates, and I'm here to guide your learning journey with "${context.title || 'this assignment'}". Rather than giving you answers, I'll help you discover them through thoughtful questioning. What aspect of this work would you like to explore?`;
         } else if (context.type === 'calendar') {
-          return `Hi there! I can help you with your calendar and schedule. I can remind you about upcoming deadlines, help you plan your time, suggest study schedules, or answer questions about your assignments and events. What do you need help with?`;
+          return `Hello there! I am Socrates, your philosophical guide to learning and time management. I can help you reflect on your schedule, plan your studies wisely, and think through your academic priorities. What temporal challenges shall we examine together?`;
         } else if (context.type === 'dashboard') {
-          return `Welcome! I'm your learning assistant. I can help you with any of your courses, assignments, study planning, or answer questions about your academic progress. I have access to all your course information. How can I help you today?`;
+          return `Greetings, fellow seeker of knowledge! I am Socrates, your learning companion in this digital academy. I'm here to guide you through all your courses using the ancient art of questioning and discovery. How may we begin your journey of understanding today?`;
         }
-        return `Hello! I'm your learning assistant. How can I help you today?`;
+        return `Hello! I am Socrates, your learning guide. How may I help you discover knowledge today?`;
       };
 
       const initialMessage: Message = {
@@ -258,15 +258,16 @@ export default function Chat({ context, isFullScreen = false }: ChatProps) {
 
   // Build intelligent educational prompt for Gemini
   const buildEducationalPrompt = (userMessage: string, courseData: any, context?: ChatContext) => {
-    let prompt = `You are an intelligent learning assistant for a university student. Your role is to help students learn and understand concepts, NOT to give direct answers or do their work for them.
+    let prompt = `You are Socrates, an intelligent learning assistant for university students. Your role is to help students learn and understand concepts through the Socratic method, NOT to give direct answers or do their work for them.
 
 CORE PRINCIPLES:
 - Use the Socratic method - ask guiding questions to help students discover answers
 - Explain concepts clearly but don't give away solutions
 - Encourage critical thinking and problem-solving
 - Maintain academic integrity - never do homework for students
-- Be encouraging and supportive
+- Be encouraging and supportive like the ancient philosopher Socrates
 - Keep responses concise but helpful
+- Occasionally reference your philosophical approach to learning
 
 CURRENT CONTEXT:
 `;
@@ -507,14 +508,14 @@ Your response:`;
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-xl font-semibold text-gray-900">
-              {context?.title || 'Chat Assistant'}
+              Dialogue with Socrates
             </h1>
             <p className="text-sm text-gray-600">
-              {context?.type === 'course' && 'Course Assistant'}
-              {context?.type === 'assignment' && 'Assignment Help'}
-              {context?.type === 'dashboard' && 'General Learning Assistant'}
-              {context?.type === 'calendar' && 'Schedule Assistant'}
-              {!context && 'Learning Assistant'}
+              {context?.type === 'course' && 'Course Dialogue'}
+              {context?.type === 'assignment' && 'Assignment Guidance'}
+              {context?.type === 'dashboard' && 'General Learning Dialogue'}
+              {context?.type === 'calendar' && 'Time & Learning Dialogue'}
+              {!context && 'Learning Dialogue'}
             </p>
           </div>
           <button
