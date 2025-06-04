@@ -240,26 +240,23 @@ export default function Chat({ context, isFullScreen = false }: ChatProps) {
     if (enhancedContext && isInitialized && messages.length === 0) {
       const getWelcomeMessage = () => {
         if (enhancedContext.type === 'course') {
-          return `Hello! I'm Socrates, and I have to admit - I'm quite curious about your understanding of ${enhancedContext.title || 'this course'}. I find myself wondering: what aspects of this subject intrigue you most? And what, if anything, seems puzzling or unclear? I'm eager to explore these ideas together and discover what we can learn from each other.`;
+          return `Hi! How can I help you learn ${enhancedContext.title || 'this course'}?`;
         } else if (enhancedContext.type === 'assignment') {
-          const assignmentTitle = enhancedContext.title || 'this assignment';
-          return `Greetings! I'm Socrates, and I'm genuinely curious about your approach to "${assignmentTitle}". I confess, I'm trying to understand how different students think about these kinds of challenges. Could you help me understand what your initial thoughts are? What seems most interesting or puzzling about this assignment to you?`;
-        } else if (enhancedContext.type === 'quiz') {
-          const quizTitle = enhancedContext.title || 'this quiz';
-          
+          return `Hi! How can I help you with this assignment?`;
+        } else if (enhancedContext.type === 'quiz') {          
           if (enhancedContext.state === 'completed') {
-            return `Welcome back! I'm Socrates, and I'm fascinated by learning experiences. You've just completed "${quizTitle}", and I'm curious - what surprised you most about it? I find myself wondering: if you could observe your past self taking this quiz, what would be most interesting to notice? Help me understand what this experience revealed to you.`;
+            return `Hi! How did that quiz go? What can I help clarify?`;
           } else {
-            return `Hello! I'm Socrates, and I'm quite intrigued by "${quizTitle}". I have to confess, I'm always curious about how people think through these concepts. What aspects of this topic seem clearest to you right now? And what, if anything, feels a bit mysterious or confusing? I'd love to explore these ideas together - not to give you answers, but to discover what we can uncover through questioning.`;
+            return `Hi! How can I help you prepare for this quiz?`;
           }
         } else if (enhancedContext.type === 'discussion') {
-          return `Greetings! I'm Socrates, and discussions absolutely fascinate me. I'm curious about "${enhancedContext.title || 'this topic'}" - there seem to be so many different ways people think about these ideas. I'm wondering: what perspective do you bring to this discussion? And what viewpoints from others have made you think differently? Help me understand the various ways people see this issue.`;
+          return `Hi! How can I help you with this discussion?`;
         } else if (enhancedContext.type === 'calendar') {
-          return `Hello! I'm Socrates, and I find myself curious about how people approach their learning journey. Looking at your schedule and commitments, I'm wondering - what patterns do you notice in how you organize your time? What seems to work well for you, and what feels challenging? I'm eager to understand your approach to learning and time management.`;
+          return `Hi! How can I help you plan your studies?`;
         } else if (enhancedContext.type === 'dashboard') {
-          return `Welcome! I'm Socrates, and I'm genuinely curious about your learning journey. Looking at all these courses and activities, I find myself wondering: what connections do you see between your different subjects? What excites you most about your current studies? And what, if anything, seems puzzling or challenging right now? I'm here to explore these questions with you.`;
+          return `Hi! How can I help you learn today?`;
         }
-        return `Hello! I'm Socrates, and I have to admit - I'm endlessly curious about learning and thinking. I find myself wondering: what's on your mind today? What questions or ideas are you grappling with? I'm here not to lecture, but to explore and discover alongside you. What shall we investigate together?`;
+        return `Hi! How can I help you learn?`;
       };
 
       const initialMessage: Message = {
