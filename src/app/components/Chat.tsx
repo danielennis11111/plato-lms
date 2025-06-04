@@ -255,7 +255,7 @@ export default function Chat({ context, isFullScreen = false }: ChatProps) {
         } else if (enhancedContext.type === 'calendar') {
           return `Hello again, how can I help you organize your studies?`;
         } else if (enhancedContext.type === 'dashboard') {
-          return `Hello there, what would you like to work on today?`;
+          return `Hello there, I can help you plan your academic priorities and manage your time effectively. What's on your mind?`;
         }
         return `Hello there, how can I help?`;
       };
@@ -608,6 +608,48 @@ Topic: ${discussion.topic || 'General discussion'}
 DISCUSSION PROMPT:
 ${discussion.description || 'No description available'}
 `;
+    } else if (context?.type === 'dashboard' && courseData?.dashboard) {
+      const dashboard = courseData.dashboard;
+      const currentDate = new Date().toLocaleDateString();
+      
+      // Calculate workload metrics
+      const totalUpcoming = dashboard.upcomingAssignments?.length || 0;
+      const thisWeek = dashboard.upcomingAssignments?.filter((a: any) => {
+        const dueDate = new Date(a.due_at);
+        const today = new Date();
+        const weekFromNow = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
+        return dueDate >= today && dueDate <= weekFromNow;
+      }).length || 0;
+      
+      contextInfo = `\n\nSTUDENT'S CURRENT ACADEMIC DASHBOARD:
+Date: ${currentDate}
+Enrolled Courses: ${dashboard.courses?.length || 0}
+Total Upcoming Assignments: ${totalUpcoming}
+Due This Week: ${thisWeek}
+
+COURSES & WORKLOAD:
+${dashboard.courses?.map((c: any) => `- ${c.name} (${c.course_code}) - Progress: ${c.progress || 0}%`).join('\n') || 'No courses enrolled'}
+
+UPCOMING DEADLINES (Next 2 weeks):
+${dashboard.upcomingAssignments?.slice(0, 6).map((a: any) => 
+  `- ${a.name} (Due: ${new Date(a.due_at).toLocaleDateString()}) - ${a.points_possible} pts`
+).join('\n') || 'No upcoming assignments'}
+
+RECENT CALENDAR EVENTS:
+${dashboard.recentEvents?.slice(0, 4).map((e: any) => 
+  `- ${e.title} (${new Date(e.start_date).toLocaleDateString()}) - ${e.course_name}`
+).join('\n') || 'No recent events'}
+
+Your role is to help this student plan their academic priorities, manage time effectively, and create realistic study schedules based on their actual workload.
+`;
+    } else {
+      // For general context, get user's enrolled courses
+      const userData = getUserData();
+      const userEnrollments = userData?.courseProgress ? Object.keys(userData.courseProgress) : [];
+      contextInfo = `\n\nGENERAL COURSE CONTEXT:
+User: ${user?.name || 'Unknown User'}
+Enrolled Courses: ${userEnrollments.length > 0 ? userEnrollments.join(', ') : 'No courses enrolled'}
+`;
     }
 
     let prompt = `You are Socrates, a helpful AI tutor who uses strategic questions to guide learning. You're brilliant but act curious to encourage students to think deeper.
@@ -633,8 +675,17 @@ ASSIGNMENT HELP: You have full access to the assignment details above. Ask about
 QUIZ HELP: ${context?.state === 'completed' ? 'Ask what they learned from the experience.' : 'Ask questions to clarify concepts without giving answers.'}
 ` : context?.type === 'discussion' ? `
 DISCUSSION HELP: Ask questions that encourage different perspectives and deeper thinking.
-` : context?.type === 'calendar' || context?.type === 'dashboard' ? `
-PLANNING HELP: Ask practical questions about priorities and study strategies.
+` : context?.type === 'dashboard' ? `
+PRIORITY PLANNING HELP: You have access to the student's complete academic overview above. Help them:
+- Prioritize assignments by due dates and point values
+- Plan realistic study schedules around their workload
+- Balance multiple courses effectively
+- Identify potential scheduling conflicts
+- Suggest time management strategies
+- Break down overwhelming weeks into manageable tasks
+Ask practical questions about their study habits, available time, and preferences to create personalized plans.
+` : context?.type === 'calendar' ? `
+CALENDAR HELP: Ask practical questions about time management and study scheduling.
 ` : `
 GENERAL HELP: Listen to their needs and ask focused questions to guide learning.
 `}
