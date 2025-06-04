@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, addDays, addMonths, subMonths, isSameDay } from 'date-fns';
 import { useAuth } from '@/contexts/AuthContext';
 import { mockCanvasApi, CalendarEvent } from '@/lib/mockCanvasApi';
-import { Calendar as CalendarIcon, List, Grid } from 'lucide-react';
+import { Calendar as CalendarIcon, List, Grid, ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { slugify } from '@/lib/utils';
 
@@ -17,6 +17,7 @@ export default function Calendar() {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [courses, setCourses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [eventTypeFilter, setEventTypeFilter] = useState<string>('all');
 
   // Fetch events and courses for the current view
   const fetchData = async () => {
@@ -96,11 +97,35 @@ export default function Calendar() {
       return `/courses/${courseSlug}/quizzes/${eventSlug}`;
     } else if (event.type === 'discussion') {
       return `/courses/${courseSlug}/discussions/${eventSlug}`;
-    } else if (event.type === 'module') {
-      return `/courses/${courseSlug}`;
     }
     
     return `/courses/${courseSlug}`;
+  };
+
+  // Helper function to get event styling
+  const getEventStyling = (event: CalendarEvent) => {
+    const baseClasses = "block text-xs p-1 rounded hover:opacity-80 transition-opacity";
+    
+    switch (event.type) {
+      case 'assignment':
+        return `${baseClasses} bg-blue-100 text-blue-800 border-l-2 border-blue-500`;
+      case 'quiz':
+        return `${baseClasses} bg-purple-100 text-purple-800 border-l-2 border-purple-500`;
+      case 'discussion':
+        return `${baseClasses} bg-green-100 text-green-800 border-l-2 border-green-500`;
+      default:
+        return `${baseClasses} bg-gray-100 text-gray-800`;
+    }
+  };
+
+  // Helper function to get event icon
+  const getEventIcon = (event: CalendarEvent) => {
+    switch (event.type) {
+      case 'assignment': return '';
+      case 'quiz': return '';
+      case 'discussion': return '';
+      default: return '';
+    }
   };
 
   // Navigation handlers
@@ -127,7 +152,7 @@ export default function Calendar() {
     let day = startDate;
 
     while (day <= endDate) {
-      const dayEvents = events.filter(event => 
+      const dayEvents = filteredEvents.filter(event => 
         isSameDay(new Date(event.start_date), day)
       );
 
@@ -146,14 +171,15 @@ export default function Calendar() {
               <Link
                 key={event.id}
                 href={getEventUrl(event)}
-                className={`block text-xs p-1 rounded hover:opacity-80 transition-opacity ${
-                  event.type === 'assignment' ? 'bg-blue-100 text-blue-800' :
-                  event.type === 'quiz' ? 'bg-purple-100 text-purple-800' :
-                  event.type === 'discussion' ? 'bg-green-100 text-green-800' :
-                  'bg-gray-100 text-gray-800'
-                }`}
+                className={getEventStyling(event)}
+                title={`${event.title} - ${event.course_name}${event.start_time ? ` at ${event.start_time}` : ''}${event.location ? ` (${event.location})` : ''}`}
               >
-                {event.title}
+                <span className="truncate">{event.title}</span>
+                {event.start_time && (
+                  <div className="text-xs opacity-75 mt-1">
+                    {event.start_time}
+                  </div>
+                )}
               </Link>
             ))}
           </div>
@@ -181,7 +207,7 @@ export default function Calendar() {
 
     for (let i = 0; i < 7; i++) {
       const day = addDays(weekStart, i);
-      const dayEvents = events.filter(event => 
+      const dayEvents = filteredEvents.filter(event => 
         isSameDay(new Date(event.start_date), day)
       );
 
@@ -200,15 +226,26 @@ export default function Calendar() {
               <Link
                 key={event.id}
                 href={getEventUrl(event)}
-                className={`block text-xs p-1 rounded hover:opacity-80 transition-opacity ${
-                  event.type === 'assignment' ? 'bg-blue-100 text-blue-800' :
-                  event.type === 'quiz' ? 'bg-purple-100 text-purple-800' :
-                  event.type === 'discussion' ? 'bg-green-100 text-green-800' :
-                  'bg-gray-100 text-gray-800'
-                }`}
+                className={getEventStyling(event)}
+                title={`${event.title} - ${event.course_name}${event.start_time ? ` at ${event.start_time}` : ''}${event.location ? ` (${event.location})` : ''}`}
               >
-                <div className="font-medium">{event.title}</div>
-                <div className="text-gray-500">{event.course_name}</div>
+                <div className="flex items-center gap-1">
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium truncate">{event.title}</div>
+                    <div className="text-gray-500 text-xs truncate">{event.course_name}</div>
+                  </div>
+                  {event.priority === 'high' && <span className="text-red-500 font-bold">!</span>}
+                </div>
+                {event.start_time && (
+                  <div className="text-xs opacity-75 mt-1">
+                    {event.start_time}{event.end_time && ` - ${event.end_time}`}
+                  </div>
+                )}
+                {event.location && (
+                  <div className="text-xs opacity-75 truncate">
+                    {event.location}
+                  </div>
+                )}
               </Link>
             ))}
           </div>
@@ -224,7 +261,7 @@ export default function Calendar() {
   };
 
   const renderListView = () => {
-    if (events.length === 0) {
+    if (filteredEvents.length === 0) {
       return (
         <div className="text-center py-12">
           <CalendarIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
@@ -239,30 +276,68 @@ export default function Calendar() {
 
     return (
       <div className="space-y-4">
-        {events.map(event => (
+        {filteredEvents.map(event => (
           <Link
             key={event.id}
             href={getEventUrl(event)}
-            className={`block p-4 rounded-lg hover:opacity-80 transition-opacity ${
-              event.type === 'assignment' ? 'bg-blue-100 text-blue-800' :
-              event.type === 'quiz' ? 'bg-purple-100 text-purple-800' :
-              event.type === 'discussion' ? 'bg-green-100 text-green-800' :
-              'bg-gray-100 text-gray-800'
-            }`}
+            className="block p-4 rounded-lg bg-white shadow-sm border hover:shadow-md transition-shadow"
           >
-            <div className="flex justify-between items-start">
-              <div>
-                <h3 className="font-medium">{event.title}</h3>
-                <p className="text-sm text-gray-500">{event.course_name}</p>
+            <div className="flex justify-between items-start mb-3">
+              <div className="flex items-center gap-2">
+                <div>
+                  <h3 className="font-medium text-gray-900 flex items-center gap-2">
+                    {event.title}
+                    {event.priority === 'high' && (
+                      <span className="px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full">
+                        High Priority
+                      </span>
+                    )}
+                    {event.priority === 'medium' && (
+                      <span className="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full">
+                        Medium Priority
+                      </span>
+                    )}
+                  </h3>
+                  <p className="text-sm text-gray-600">{event.course_name}</p>
+                </div>
               </div>
-              <div className="text-sm text-gray-500">
-                {format(new Date(event.start_date), 'MMM d, yyyy')}
+              <div className="text-right">
+                <div className="text-sm text-gray-500">
+                  {format(new Date(event.start_date), 'MMM d, yyyy')}
+                </div>
+                {event.start_time && (
+                  <div className="text-xs text-gray-400">
+                    {event.start_time}{event.end_time && ` - ${event.end_time}`}
+                  </div>
+                )}
               </div>
             </div>
-            {event.points_possible && (
-              <div className="text-sm text-gray-500 mt-2">
-                Points: {event.points_possible}
-              </div>
+            
+            <div className="flex items-center gap-4 text-sm text-gray-500 mb-2">
+              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                event.type === 'assignment' ? 'bg-blue-100 text-blue-800' :
+                event.type === 'quiz' ? 'bg-purple-100 text-purple-800' :
+                event.type === 'discussion' ? 'bg-green-100 text-green-800' :
+                'bg-gray-100 text-gray-800'
+              }`}>
+                {event.type.replace('_', ' ').toUpperCase()}
+              </span>
+              
+              {event.location && (
+                <div className="flex items-center gap-1">
+                  <span>{event.location}</span>
+                </div>
+              )}
+              
+              {event.points_possible && (
+                <div className="flex items-center gap-1">
+                  <span>{event.points_possible} pts</span>
+                </div>
+              )}
+            </div>
+            
+            {event.description && (
+              <p className="text-sm text-gray-600 mt-2">{event.description}</p>
             )}
           </Link>
         ))}
@@ -272,78 +347,115 @@ export default function Calendar() {
 
   if (loading || !user) {
     return (
-      <div className="bg-white rounded-xl shadow-soft p-6">
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-        </div>
+      <div className="flex items-center justify-center h-96">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
       </div>
     );
   }
 
+  // Filter events based on selected type
+  const filteredEvents = eventTypeFilter === 'all' 
+    ? events 
+    : events.filter(event => event.type === eventTypeFilter);
+
+  const eventTypes = [
+    { value: 'all', label: 'All Events', count: events.length },
+    { value: 'assignment', label: 'Assignments', count: events.filter(e => e.type === 'assignment').length },
+    { value: 'quiz', label: 'Quizzes', count: events.filter(e => e.type === 'quiz').length },
+    { value: 'discussion', label: 'Discussions', count: events.filter(e => e.type === 'discussion').length }
+  ].filter(type => type.count > 0 || type.value === 'all');
+
   return (
-    <div className="bg-white rounded-xl shadow-soft">
+    <div className="bg-white rounded-lg shadow-sm">
+      {/* Calendar Header */}
       <div className="p-6 border-b border-gray-200">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center space-x-4">
-            <h2 className="text-2xl font-semibold text-gray-900">
-              {format(currentDate, 'MMMM yyyy')}
-            </h2>
-            <div className="flex space-x-2">
-              <button
-                onClick={previousPeriod}
-                className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-primary-600 transition-colors"
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Calendar</h1>
+            <p className="text-gray-600 mt-1">
+              {format(currentDate, 'MMMM yyyy')} • {filteredEvents.length} events
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-4">
+            {/* Event Type Filter */}
+            <div className="flex items-center gap-2">
+              <label htmlFor="eventFilter" className="text-sm font-medium text-gray-700">
+                Filter:
+              </label>
+              <select
+                id="eventFilter"
+                value={eventTypeFilter}
+                onChange={(e) => setEventTypeFilter(e.target.value)}
+                className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               >
-                ←
-              </button>
-              <button
-                onClick={nextPeriod}
-                className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-primary-600 transition-colors"
-              >
-                →
-              </button>
+                {eventTypes.map(type => (
+                  <option key={type.value} value={type.value}>
+                    {type.label} ({type.count})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* View Mode Selector */}
+            <div className="flex rounded-lg border border-gray-300 bg-white">
+              {[
+                { mode: 'month' as const, label: 'Month' },
+                { mode: 'week' as const, label: 'Week' },
+                { mode: 'list' as const, label: 'List' }
+              ].map(({ mode, label }) => (
+                <button
+                  key={mode}
+                  onClick={() => setViewMode(mode)}
+                  className={`px-4 py-2 text-sm font-medium transition-colors ${
+                    viewMode === mode
+                      ? 'bg-primary-600 text-white'
+                      : 'text-gray-700 hover:bg-gray-50'
+                  } ${mode === 'month' ? 'rounded-l-lg' : mode === 'list' ? 'rounded-r-lg' : ''}`}
+                >
+                  {label}
+                </button>
+              ))}
             </div>
           </div>
-          <div className="flex space-x-2">
+        </div>
+
+        {/* Navigation */}
+        <div className="flex items-center justify-between mt-4">
+          <div className="flex items-center space-x-4">
             <button
-              onClick={() => setViewMode('month')}
-              className={`p-2 rounded-lg transition-colors ${
-                viewMode === 'month' ? 'bg-primary-50 text-primary-600' : 'text-gray-600 hover:bg-gray-100 hover:text-primary-600'
-              }`}
+              onClick={previousPeriod}
+              className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors"
             >
-              <CalendarIcon className="w-5 h-5" />
+              <ChevronLeft className="w-5 h-5" />
             </button>
             <button
-              onClick={() => setViewMode('week')}
-              className={`p-2 rounded-lg transition-colors ${
-                viewMode === 'week' ? 'bg-primary-50 text-primary-600' : 'text-gray-600 hover:bg-gray-100 hover:text-primary-600'
-              }`}
+              onClick={nextPeriod}
+              className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors"
             >
-              <Grid className="w-5 h-5" />
+              <ChevronRight className="w-5 h-5" />
             </button>
-            <button
-              onClick={() => setViewMode('list')}
-              className={`p-2 rounded-lg transition-colors ${
-                viewMode === 'list' ? 'bg-primary-50 text-primary-600' : 'text-gray-600 hover:bg-gray-100 hover:text-primary-600'
-              }`}
-            >
-              <List className="w-5 h-5" />
-            </button>
+            <h2 className="text-lg font-semibold text-gray-900">
+              {viewMode === 'month' && format(currentDate, 'MMMM yyyy')}
+              {viewMode === 'week' && `${format(startOfWeek(currentDate), 'MMM d')} - ${format(endOfWeek(currentDate), 'MMM d, yyyy')}`}
+              {viewMode === 'list' && 'Upcoming Events'}
+            </h2>
           </div>
+          
+          <button
+            onClick={() => setCurrentDate(new Date())}
+            className="px-4 py-2 text-sm font-medium text-primary-600 hover:text-primary-700 transition-colors"
+          >
+            Today
+          </button>
         </div>
       </div>
+
+      {/* Calendar Content */}
       <div className="p-6">
         {viewMode === 'month' && renderMonthView()}
         {viewMode === 'week' && renderWeekView()}
         {viewMode === 'list' && renderListView()}
-        
-        {/* Show helpful message when no events found in month/week view */}
-        {events.length === 0 && viewMode !== 'list' && (
-          <div className="text-center py-8 border-t border-gray-200">
-            <p className="text-gray-500">
-              No events found for this time period in your enrolled courses.
-            </p>
-          </div>
-        )}
       </div>
     </div>
   );

@@ -25,9 +25,10 @@ interface DashboardClientProps {
 export default function DashboardClient({ courses: initialCourses, assignments: initialAssignments }: DashboardClientProps) {
   const [courses, setCourses] = useState<Course[]>(initialCourses || []);
   const [assignments, setAssignments] = useState<Assignment[]>(initialAssignments || []);
+  const [calendarEvents, setCalendarEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState(!initialCourses || !initialAssignments);
   const [currentWeekStart, setCurrentWeekStart] = useState(startOfWeek(new Date()));
-  const { getUserData } = useAuth();
+  const { user, getUserData } = useAuth();
 
   useEffect(() => {
     // Only fetch if no initial data was provided
@@ -64,6 +65,29 @@ export default function DashboardClient({ courses: initialCourses, assignments: 
     }
   }, [initialCourses, initialAssignments, getUserData]);
 
+  // Load calendar events
+  useEffect(() => {
+    const loadCalendarEvents = async () => {
+      if (user) {
+        try {
+          const userData = getUserData();
+          const userEnrollments = userData?.courseProgress ? Object.keys(userData.courseProgress) : [];
+          
+          // Get events for the current week and next week
+          const startDate = format(currentWeekStart, 'yyyy-MM-dd');
+          const endDate = format(addDays(currentWeekStart, 13), 'yyyy-MM-dd'); // 2 weeks
+          
+          const events = await mockCanvasApi.getCalendarEvents(startDate, endDate, userEnrollments);
+          setCalendarEvents(events);
+        } catch (error) {
+          console.error('Error loading calendar events:', error);
+        }
+      }
+    };
+
+    loadCalendarEvents();
+  }, [user, getUserData, currentWeekStart]);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -85,16 +109,6 @@ export default function DashboardClient({ courses: initialCourses, assignments: 
     })
     .sort((a, b) => new Date(a.due_at).getTime() - new Date(b.due_at).getTime());
 
-  // Debug logging to understand assignment filtering
-  console.log('📊 Dashboard Debug Info:');
-  console.log('Total assignments:', assignments.length);
-  console.log('Upcoming assignments (next 14 days):', upcomingAssignments.length);
-  console.log('Assignment courses:', [...new Set(assignments.map(a => a.course_id))]);
-  console.log('User enrolled courses:', courses.map(c => c.id));
-  if (assignments.length > 0) {
-    console.log('Sample assignment dates:', assignments.slice(0, 3).map(a => ({ name: a.name, due: a.due_at, course: a.course_id })));
-  }
-
   const getCourseName = (courseId: number) => {
     return courses.find(course => course.id === courseId)?.name || 'Unknown Course';
   };
@@ -107,14 +121,28 @@ export default function DashboardClient({ courses: initialCourses, assignments: 
     setCurrentWeekStart(prev => addDays(prev, 7));
   };
 
+  // Helper function to get event styling
+  const getEventStyling = (event: any) => {
+    const baseClasses = "block text-xs p-1 rounded hover:opacity-80 transition-opacity truncate";
+    
+    switch (event.type) {
+      case 'assignment':
+        return `${baseClasses} bg-blue-100 text-blue-800`;
+      case 'quiz':
+        return `${baseClasses} bg-purple-100 text-purple-800`;
+      case 'discussion':
+        return `${baseClasses} bg-green-100 text-green-800`;
+      default:
+        return `${baseClasses} bg-gray-100 text-gray-800`;
+    }
+  };
+
   return (
     <div className="space-y-8">
       {/* Welcome Section */}
       <div className="bg-white rounded-lg p-6 shadow-sm">
         <h1 className="text-2xl font-bold text-gray-900">Welcome back!</h1>
-        <p className="text-gray-600 mt-2">
-          You have {assignments.filter(a => a.status === 'not_started').length} upcoming assignments
-        </p>
+        <p className="text-gray-600 mt-2">Here's what's happening in your courses.</p>
       </div>
 
       {/* Week View Calendar */}
@@ -154,6 +182,43 @@ export default function DashboardClient({ courses: initialCourses, assignments: 
                 {format(date, 'd')}
               </div>
               <div className="mt-2 space-y-1">
+                {/* Show calendar events for this date */}
+                {calendarEvents
+                  .filter(event => isSameDay(new Date(event.start_date), date))
+                  .map(event => {
+                    const course = courses.find(c => c.id === event.course_id);
+                    if (!course) return null;
+                    
+                    const courseSlug = slugify(course.name);
+                    const eventSlug = slugify(event.title);
+                    
+                    let eventUrl = `/courses/${courseSlug}`;
+                    if (event.type === 'assignment') {
+                      eventUrl = `/courses/${courseSlug}/assignments/${eventSlug}`;
+                    } else if (event.type === 'quiz') {
+                      eventUrl = `/courses/${courseSlug}/quizzes/${eventSlug}`;
+                    } else if (event.type === 'discussion') {
+                      eventUrl = `/courses/${courseSlug}/discussions/${eventSlug}`;
+                    }
+                    
+                    return (
+                      <Link
+                        key={`event-${event.id}`}
+                        href={eventUrl}
+                        className={getEventStyling(event)}
+                        title={`${event.title}${event.start_time ? ` at ${event.start_time}` : ''}${event.location ? ` (${event.location})` : ''}`}
+                      >
+                        <span className="truncate">{event.title}</span>
+                        {event.start_time && (
+                          <div className="text-xs opacity-75">
+                            {event.start_time}
+                          </div>
+                        )}
+                      </Link>
+                    );
+                  })}
+                
+                {/* Show assignments for backward compatibility */}
                 {assignments
                   .filter(assignment => {
                     const dueDate = new Date(assignment.due_at);
@@ -169,7 +234,7 @@ export default function DashboardClient({ courses: initialCourses, assignments: 
                         'bg-blue-100 text-blue-800'
                       }`}
                     >
-                      {assignment.name}
+                      <span className="truncate">{assignment.name}</span>
                     </Link>
                   ))}
               </div>
@@ -234,8 +299,7 @@ export default function DashboardClient({ courses: initialCourses, assignments: 
                         <Calendar className="w-4 h-4 mr-1" />
                         Due {format(new Date(assignment.due_at), 'MMM d')}
                       </div>
-                      <div className="flex items-center">
-                        <span className="w-4 h-4 mr-1">📝</span>
+                      <div>
                         {assignment.points_possible} pts
                       </div>
                     </div>

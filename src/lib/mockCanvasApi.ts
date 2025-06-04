@@ -213,14 +213,20 @@ export interface Assignment {
 export interface CalendarEvent {
   id: number;
   title: string;
-  type: 'assignment' | 'discussion' | 'quiz' | 'module';
+  type: 'assignment' | 'discussion' | 'quiz';
   start_date: string;
   end_date: string;
+  start_time?: string; // For timed events like office hours
+  end_time?: string;
   course_id: number;
   course_name: string;
-  status: 'not_started' | 'in_progress' | 'submitted' | 'graded';
+  status: 'not_started' | 'in_progress' | 'submitted' | 'graded' | 'upcoming' | 'completed';
   points_possible?: number;
   grade?: number;
+  description?: string;
+  location?: string;
+  priority?: 'high' | 'medium' | 'low';
+  reminder_set?: boolean;
 }
 
 // Mock Data - Current date is June 3, 2025
@@ -1273,43 +1279,7 @@ const calendarEvents: CalendarEvent[] = [
           grade: discussionItem.grade
         }))
     )
-  ),
-
-  // Module completion events
-  ...courses.flatMap(course => 
-    course.modules.map(module => ({
-      id: 1000 + module.id + (course.id * 100),
-      title: `${module.name} - ${course.course_code}`,
-      type: 'module' as const,
-      start_date: module.due_date ? module.due_date.split('T')[0] : format(addDays(new Date(course.start_date), module.id * 7), 'yyyy-MM-dd'),
-      end_date: module.due_date ? module.due_date.split('T')[0] : format(addDays(new Date(course.start_date), module.id * 7), 'yyyy-MM-dd'),
-      course_id: course.id,
-      course_name: course.name,
-      status: module.is_completed ? 'graded' as const : 'not_started' as const
-    }))
-  ),
-
-  // Additional upcoming events for Summer 2025
-  {
-    id: 2001,
-    title: "Summer Break",
-    type: 'module' as const,
-    start_date: '2025-08-09',
-    end_date: '2025-08-09',
-    course_id: 0,
-    course_name: 'University Calendar',
-    status: 'not_started' as const
-  },
-  {
-    id: 2002,
-    title: "Fall 2025 Registration Opens",
-    type: 'module' as const,
-    start_date: '2025-07-01',
-    end_date: '2025-07-01',
-    course_id: 0,
-    course_name: 'University Calendar',
-    status: 'not_started' as const
-  }
+  )
 ];
 
 // API Functions
