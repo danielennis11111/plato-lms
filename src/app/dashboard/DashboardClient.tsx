@@ -75,13 +75,25 @@ export default function DashboardClient({ courses: initialCourses, assignments: 
   // Get week dates
   const weekDates = Array.from({ length: 7 }, (_, i) => addDays(currentWeekStart, i));
 
-  // Get upcoming assignments (next 7 days)
+  // Get upcoming assignments (next 14 days instead of 7 for better visibility)
   const upcomingAssignments = assignments
     .filter(assignment => {
       const dueDate = new Date(assignment.due_at);
-      return dueDate > new Date() && dueDate <= addDays(new Date(), 7);
+      const now = new Date();
+      const twoWeeksFromNow = addDays(now, 14);
+      return dueDate > now && dueDate <= twoWeeksFromNow;
     })
     .sort((a, b) => new Date(a.due_at).getTime() - new Date(b.due_at).getTime());
+
+  // Debug logging to understand assignment filtering
+  console.log('📊 Dashboard Debug Info:');
+  console.log('Total assignments:', assignments.length);
+  console.log('Upcoming assignments (next 14 days):', upcomingAssignments.length);
+  console.log('Assignment courses:', [...new Set(assignments.map(a => a.course_id))]);
+  console.log('User enrolled courses:', courses.map(c => c.id));
+  if (assignments.length > 0) {
+    console.log('Sample assignment dates:', assignments.slice(0, 3).map(a => ({ name: a.name, due: a.due_at, course: a.course_id })));
+  }
 
   const getCourseName = (courseId: number) => {
     return courses.find(course => course.id === courseId)?.name || 'Unknown Course';
