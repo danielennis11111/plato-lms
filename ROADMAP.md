@@ -1,6 +1,15 @@
-# Roadmap - User Management & Enhanced Discussions
+# Roadmap - Canvas API Integration & Enhanced AI Dialogues
 
 ## Branch: feature/user-management-and-discussions
+
+### 🏗️ **Revised Architecture: Canvas + Gemini Integration**
+
+Instead of building custom user management, we're leveraging existing Canvas LMS infrastructure:
+
+- **Canvas API**: User authentication, course data, assignments, discussions
+- **Personal Gemini Keys**: Each user provides their own API key for AI features
+- **Focus**: Socratic AI enhancement as value-add to existing LMS
+- **Demo Mode**: Full functionality without Canvas connection for showcasing
 
 ### 🚀 Development Setup
 
@@ -23,167 +32,188 @@ npm run dev
 # Open browser to http://localhost:3000
 ```
 
-### 🎯 Primary Objectives
+### 🎯 **New Primary Objectives**
 
-#### 1. Multi-User Account System
-- **User Registration/Login**: Allow multiple users to create accounts and manage their own profiles
-- **Personal API Keys**: Each user can store their own Gemini API key securely
-- **User Isolation**: Separate chat histories, course progress, and settings per user
-- **Profile Management**: User profiles with customizable learning preferences
-- **Session Management**: Proper authentication and session handling
+#### 1. Canvas LTI/API Integration
+- **Canvas OAuth**: Authenticate users through Canvas instead of custom registration
+- **Real Course Data**: Pull actual courses, assignments, discussions from Canvas API
+- **Permissions**: Leverage Canvas enrollment and access controls
+- **LTI Tool**: Option to deploy as Canvas external tool
+- **Demo Mode**: Fallback for showcasing without Canvas connection
 
-#### 2. Enhanced Discussion Experience
-- **AI Discussion Simulation**: Improve chat experience on discussion pages to better simulate real classroom discussions
-- **Dynamic Conversation Flow**: AI continues discussions naturally based on recent comments and context
-- **Personality-Driven Responses**: Enhance the six student personality types with more realistic dialogue patterns
-- **Context-Aware Responses**: AI understands discussion topic, course context, and conversation history
-- **Real-time Discussion**: Simulate live discussion environments with multiple AI "students"
+#### 2. Personal Gemini API Key Management
+- **User-Provided Keys**: Each Canvas user adds their own Gemini API key
+- **Secure Storage**: Encrypted storage per Canvas user ID
+- **Demo Compatibility**: Backward compatibility with global keys
+- **Usage Tracking**: Monitor API usage per user
+- **Key Validation**: Test API keys before saving
 
-#### 3. Comprehensive Mock Discussion Content
-- **Expanded Discussion Topics**: Create diverse discussion threads for different courses and subjects
-- **Rich Thread Content**: Detailed posts, replies, and sub-conversations for each discussion
-- **Cross-Course Discussions**: Discussion topics that span multiple courses and disciplines
-- **Realistic Engagement**: Varied response times, discussion depths, and engagement levels
-- **Student Interaction Patterns**: Authentic conversation flows between different personality types
+#### 3. Enhanced Socratic AI with Real Data
+- **Real Context**: Use actual Canvas assignments, discussions, course content
+- **Canvas-Aware Responses**: AI understands Canvas-specific features and workflows
+- **Academic Calendar**: Integration with real due dates and course schedules
+- **Discussion Continuation**: Enhance real Canvas discussions with AI insights
+- **Assignment Guidance**: Context-aware help based on actual assignment requirements
 
-### 🛠 Technical Implementation Plan
+### 🛠 **Technical Implementation Plan**
 
-#### Phase 1: User Management Foundation
-1. **Authentication System**
-   - [ ] User registration/login components
-   - [ ] Secure password handling
-   - [ ] Session management with JWT or similar
-   - [ ] User profile storage (localStorage/IndexedDB initially)
+#### Phase 1: Canvas API Foundation ✅
+1. **Canvas API Service**
+   - [x] Complete Canvas API wrapper with all major endpoints
+   - [x] OAuth authentication flow
+   - [x] LTI integration helpers
+   - [x] Error handling and rate limiting
 
-2. **API Key Management**
-   - [ ] Per-user API key storage
-   - [ ] API key validation per user
-   - [ ] Secure key encryption/decryption
-   - [ ] Fallback to demo mode for users without keys
+2. **Canvas Context Provider**
+   - [x] Canvas user and course state management
+   - [x] Demo mode fallback
+   - [x] Gemini API key management per Canvas user
+   - [ ] Integration with existing components
 
-3. **User Data Isolation**
-   - [ ] Separate chat histories per user
-   - [ ] User-specific course enrollment and progress
-   - [ ] Individual settings and preferences
-   - [ ] User-specific calendar and assignments
+3. **Authentication Flow**
+   - [ ] Canvas OAuth login flow
+   - [ ] Token management and refresh
+   - [ ] Demo mode toggle
+   - [ ] User profile from Canvas data
 
-#### Phase 2: Enhanced Discussion AI
-1. **Discussion Context Enhancement**
-   - [ ] Better discussion thread parsing and understanding
-   - [ ] Topic-aware response generation
-   - [ ] Course-specific discussion knowledge
-   - [ ] Recent comment analysis for continuity
+#### Phase 2: AI Integration with Real Data
+1. **Enhanced Chat Context**
+   - [ ] Replace mock API calls with real Canvas data
+   - [ ] Context detection from Canvas URLs and pages
+   - [ ] Real assignment and discussion analysis
+   - [ ] Canvas-specific AI prompts and responses
 
-2. **Personality System Improvement**
-   - [ ] More nuanced personality traits and speech patterns
-   - [ ] Consistent character development across conversations
-   - [ ] Personality-driven argument styles and perspectives
-   - [ ] Emotional intelligence in responses
+2. **Socratic AI Improvements**
+   - [ ] Understanding of Canvas assignment types and requirements
+   - [ ] Integration with Canvas discussion threads
+   - [ ] Real course syllabus and objectives awareness
+   - [ ] Canvas grading and feedback integration
 
-3. **Conversation Flow Management**
-   - [ ] Natural discussion progression algorithms
-   - [ ] Conflict and agreement simulation
-   - [ ] Question generation to keep discussions active
-   - [ ] Summary and conclusion capabilities
+3. **Personal API Key System**
+   - [ ] Per-user Gemini key management UI
+   - [ ] Canvas user ID based storage
+   - [ ] API key testing and validation
+   - [ ] Usage analytics and monitoring
 
-#### Phase 3: Rich Discussion Content
-1. **Mock Discussion Database**
-   - [ ] Comprehensive discussion topics for each course
-   - [ ] Varied discussion types (debates, collaborative projects, Q&A, case studies)
-   - [ ] Historical discussion archives
-   - [ ] Trending topics and popular discussions
+#### Phase 3: LTI Tool Development
+1. **LTI Integration**
+   - [ ] LTI 1.3 specification compliance
+   - [ ] Canvas app configuration
+   - [ ] Deep linking support
+   - [ ] Grade passback integration
 
-2. **Dynamic Content Generation**
-   - [ ] AI-generated discussion starters
-   - [ ] Procedural conversation branches
-   - [ ] Context-sensitive follow-up questions
-   - [ ] Real-world case study integration
+2. **Canvas Tool Interface**
+   - [ ] Embedded tool views within Canvas
+   - [ ] Canvas navigation and theming
+   - [ ] Mobile-responsive LTI interface
+   - [ ] Canvas notification integration
 
-3. **Engagement Simulation**
-   - [ ] Realistic posting schedules and patterns
-   - [ ] Varied engagement levels (lurkers, active participants, leaders)
-   - [ ] Discussion moderation simulation
-   - [ ] Peer feedback and rating systems
+3. **Deployment Options**
+   - [ ] Canvas app store submission
+   - [ ] Institution-specific deployment
+   - [ ] Multi-tenant architecture
+   - [ ] Configuration management
 
-### 📊 Success Metrics
+### 📊 **Success Metrics**
 
-#### User Experience
-- Multiple users can register and maintain separate accounts
-- Each user has personalized chat experience and course progress
-- Seamless API key management without technical complexity
-- Discussions feel engaging and realistic
+#### Canvas Integration
+- Seamless Canvas OAuth authentication
+- Real course and assignment data successfully loaded
+- Canvas users can set and use personal Gemini API keys
+- Demo mode provides full functionality for showcasing
 
-#### Discussion Quality
-- AI responses feel natural and contextually appropriate
-- Conversations flow logically and build upon previous points
-- Multiple perspectives are represented authentically
-- Students can learn from simulated peer interactions
+#### AI Enhancement Value
+- Socratic AI provides meaningful insights on real Canvas content
+- Students receive personalized help based on actual assignments
+- AI responses feel contextually appropriate to Canvas environment
+- Academic integrity maintained with real course material
 
 #### Technical Performance
-- Fast user switching and session management
-- Secure API key storage and retrieval
-- Efficient discussion content loading
-- Responsive real-time discussion simulation
+- Fast Canvas API integration and data loading
+- Secure handling of user API keys and Canvas tokens
+- Efficient caching and rate limiting for Canvas API calls
+- Responsive UI that integrates well with Canvas ecosystem
 
-### 🎨 UI/UX Enhancements
+### 🎨 **UI/UX Changes**
 
-#### User Management Interface
-- Clean registration/login forms
-- Intuitive user profile management
-- Clear API key setup workflow
-- User dashboard with personalized content
+#### Canvas Integration Interface
+- Canvas OAuth login button
+- "Connect to Canvas" setup flow
+- Canvas course and user profile display
+- Demo mode toggle and explanation
 
-#### Discussion Interface Improvements
-- Modern discussion thread layout
-- Real-time typing indicators
-- User avatars and personality indicators
-- Rich text formatting and media support
-- Discussion search and filtering
+#### API Key Management
+- Personal Gemini API key setup within Canvas context
+- Key testing and validation interface
+- Usage monitoring and limits
+- Security and privacy explanations
 
-### 🔒 Security Considerations
+#### Canvas-Aware Features
+- Canvas assignment and discussion context detection
+- Canvas-themed UI elements and navigation
+- Integration with Canvas notifications and alerts
+- Canvas mobile app compatibility
 
-#### Data Protection
-- Secure password hashing and storage
-- Encrypted API key storage
-- User data isolation and privacy
-- Session security and timeout handling
+### 🔒 **Security & Privacy**
 
-#### API Security
-- Rate limiting per user
-- API key validation and error handling
-- Secure communication with external APIs
-- Audit logging for API usage
+#### Canvas Integration Security
+- Secure OAuth token storage and refresh
+- Canvas API rate limiting and error handling
+- User permission verification through Canvas
+- Audit logging for Canvas API access
 
-### 📅 Timeline Estimate
+#### Gemini API Key Protection
+- Encrypted storage of user API keys
+- Canvas user ID based isolation
+- No server-side storage of API keys
+- Clear data retention and deletion policies
 
-#### Week 1: User Management Foundation
-- User registration/login system
-- Basic profile management
-- API key storage per user
+### 📅 **Updated Timeline**
 
-#### Week 2: Enhanced Discussion AI
-- Improved personality system
-- Better context awareness
-- Natural conversation flow
+#### Week 1: Canvas Integration Foundation
+- Complete Canvas API service implementation
+- Build Canvas OAuth authentication flow
+- Create Canvas context provider
+- Implement demo mode fallback
 
-#### Week 3: Rich Discussion Content
-- Expanded mock discussion database
-- Dynamic content generation
-- Engagement simulation
+#### Week 2: AI + Canvas Data Integration
+- Replace mock API with real Canvas data
+- Update Chat component for Canvas context
+- Implement personal Gemini API key management
+- Test AI responses with real Canvas content
 
-#### Week 4: Testing & Polish
-- Bug fixes and optimization
-- UI/UX improvements
-- Performance testing
-- Documentation updates
+#### Week 3: LTI Tool Development
+- Build LTI 1.3 integration
+- Create Canvas-embedded interface
+- Implement Canvas app configuration
+- Test deployment within Canvas
+
+#### Week 4: Polish & Deployment
+- Canvas app store preparation
+- Documentation and setup guides
+- Security audit and testing
+- Performance optimization
 
 ---
 
-## Next Phases (Future Branches)
+## **Benefits of Canvas Integration Approach**
 
-### Advanced Features
-- **Real User Collaboration**: Allow real users to interact in discussions alongside AI
-- **Course Creation Tools**: Advanced course building and customization
-- **Assessment Analytics**: Detailed learning analytics and progress tracking
-- **Mobile Optimization**: Responsive design and mobile app considerations
-- **Integration APIs**: Connect with real LMS systems and external tools 
+### ✅ **Advantages**
+- **Leverage Existing Infrastructure**: No need to rebuild user management, course systems
+- **Real Data**: Work with actual Canvas courses, assignments, users
+- **Instant User Base**: Canvas institutions have thousands of existing users
+- **Security**: Leverage Canvas's robust authentication and permission systems
+- **Familiar UX**: Users work within familiar Canvas environment
+- **Scalability**: Canvas handles user management, we focus on AI value-add
+
+### 🎯 **Value Proposition**
+- **For Students**: Intelligent Socratic tutoring within their existing LMS
+- **For Instructors**: Enhanced discussion facilitation and student guidance
+- **For Institutions**: AI-powered learning enhancement with minimal IT overhead
+- **For Developers**: Focus on AI innovation rather than LMS infrastructure
+
+### 🚀 **Market Opportunity**
+- **Canvas Market**: 30+ million users across thousands of institutions
+- **LTI Ecosystem**: Established marketplace for educational tools
+- **AI Education**: Growing demand for AI-powered learning assistance
+- **Differentiation**: Socratic method approach unique in LMS space 
