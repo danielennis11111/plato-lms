@@ -34,7 +34,6 @@ export default function Sidebar() {
     { name: 'Courses', href: '/courses', icon: BookOpen },
     { name: 'Calendar', href: '/calendar', icon: Calendar },
     { name: 'Assignments', href: '/assignments', icon: ClipboardList },
-    { name: 'Discussions', href: '/discussions', icon: MessageSquare },
     { name: 'Dialogues', href: '/chat', icon: MessageSquare },
     { name: 'Settings', href: '/settings', icon: Settings },
   ];
