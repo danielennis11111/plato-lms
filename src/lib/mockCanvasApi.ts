@@ -1297,8 +1297,27 @@ export const mockCanvasApi = {
   // User functions
   getCurrentUser: () => Promise.resolve(currentUser),
 
-  // Course functions
-  getCourses: () => Promise.resolve(courses),
+  // Course functions - now accepts user enrollment data for filtering
+  getCourses: (userEnrollments?: string[]) => {
+    if (!userEnrollments || userEnrollments.length === 0) {
+      // For users with no enrollments, provide sample courses for testing API functionality
+      // Only show the first 2 courses as demo/sample courses
+      const sampleCourses = courses.slice(0, 2).map(course => ({
+        ...course,
+        name: `[SAMPLE] ${course.name}`,
+        description: `This is a sample course for testing. ${course.description}`,
+      }));
+      return Promise.resolve(sampleCourses);
+    }
+    
+    // Filter courses based on user enrollments
+    const enrolledCourses = courses.filter(course => 
+      userEnrollments.includes(course.id.toString())
+    );
+    
+    return Promise.resolve(enrolledCourses);
+  },
+  
   getCourse: (idOrSlug: number | string) => {
     if (typeof idOrSlug === 'number') {
       return Promise.resolve(courses.find(course => course.id === idOrSlug) || null);
@@ -1396,8 +1415,64 @@ export const mockCanvasApi = {
   },
 
   // Dashboard data
-  getDashboardData: () => {
-    const upcomingAssignments = assignments
+  getDashboardData: (userEnrollments?: string[]) => {
+    if (!userEnrollments || userEnrollments.length === 0) {
+      // For users with no enrollments, provide sample data for testing
+      const sampleCourses = courses.slice(0, 2).map(course => ({
+        ...course,
+        name: `[SAMPLE] ${course.name}`,
+        description: `This is a sample course for testing. ${course.description}`,
+        progress: Math.round((course.modules.filter(m => m.is_completed).length / course.modules.length) * 100)
+      }));
+
+      // Get assignments from sample courses only
+      const sampleAssignments = assignments.filter(assignment => 
+        assignment.course_id <= 2 // Only from first 2 courses
+      );
+
+      const upcomingAssignments = sampleAssignments
+        .filter(assignment => {
+          const dueDate = new Date(assignment.due_at);
+          const today = new Date(currentDate);
+          const daysDiff = Math.ceil((dueDate.getTime() - today.getTime()) / (1000 * 3600 * 24));
+          return daysDiff >= 0 && daysDiff <= 14 && assignment.status !== 'graded'; // Next 2 weeks
+        })
+        .sort((a, b) => a.due_at.localeCompare(b.due_at))
+        .slice(0, 5);
+
+      // Get calendar events from sample courses
+      const sampleCalendarEvents = calendarEvents.filter(event => 
+        event.course_id <= 2 || event.course_id === 0 // Sample courses + university events
+      );
+
+      const recentEvents = sampleCalendarEvents
+        .filter(event => {
+          const eventDate = new Date(event.start_date);
+          const today = new Date(currentDate);
+          const daysDiff = Math.ceil((eventDate.getTime() - today.getTime()) / (1000 * 3600 * 24));
+          return daysDiff >= -7 && daysDiff <= 7; // Past week to next week
+        })
+        .sort((a, b) => a.start_date.localeCompare(b.start_date));
+
+      return Promise.resolve({
+        courses: sampleCourses,
+        upcomingAssignments,
+        recentEvents,
+        currentUser
+      });
+    }
+
+    // Filter courses based on user enrollments
+    const userCourses = courses.filter(course => 
+      userEnrollments.includes(course.id.toString())
+    );
+
+    // Filter assignments to only those from enrolled courses
+    const userAssignments = assignments.filter(assignment => 
+      userCourses.some(course => course.id === assignment.course_id)
+    );
+
+    const upcomingAssignments = userAssignments
       .filter(assignment => {
         const dueDate = new Date(assignment.due_at);
         const today = new Date(currentDate);
@@ -1407,7 +1482,12 @@ export const mockCanvasApi = {
       .sort((a, b) => a.due_at.localeCompare(b.due_at))
       .slice(0, 5);
 
-    const recentEvents = calendarEvents
+    // Filter calendar events to only those from enrolled courses
+    const userCalendarEvents = calendarEvents.filter(event => 
+      userCourses.some(course => course.id === event.course_id) || event.course_id === 0 // Keep university events
+    );
+
+    const recentEvents = userCalendarEvents
       .filter(event => {
         const eventDate = new Date(event.start_date);
         const today = new Date(currentDate);
@@ -1417,7 +1497,7 @@ export const mockCanvasApi = {
       .sort((a, b) => a.start_date.localeCompare(b.start_date));
 
     return Promise.resolve({
-      courses: courses.map(course => ({
+      courses: userCourses.map(course => ({
         ...course,
         progress: Math.round((course.modules.filter(m => m.is_completed).length / course.modules.length) * 100)
       })),
@@ -1543,9 +1623,176 @@ export const mockCanvasApi = {
       { name: 'Jordan Kim', personality: 'istj', traits: 'methodical, reliable, structured' },
       { name: 'Sam Taylor', personality: 'esfj', traits: 'supportive, collaborative, empathetic' },
       { name: 'Casey Park', personality: 'entp', traits: 'innovative, curious, debate-loving' },
-      { name: 'River Jones', personality: 'infp', traits: 'thoughtful, value-driven, creative' }
+      { name: 'River Jones', personality: 'infp', traits: 'thoughtful, value-driven, creative' },
+      { name: 'Taylor Johnson', personality: 'enfp', traits: 'creative, passionate, empathetic' }
     ];
     
+    // Course-specific discussions
+    if (courseId === 5) { // Introduction to Literature
+      return [
+        {
+          id: 101,
+          title: "What is Literature? Discussion",
+          message: "Welcome to our first discussion! Please introduce yourself and share your definition of literature. What makes a text 'literary' in your opinion? Feel free to use examples from your own reading experience - whether it's novels, poetry, plays, or even song lyrics that have moved you. There's no wrong answer here; I'm interested in hearing your unique perspectives as we begin our journey together this semester.",
+          course_id: courseId,
+          author: "Dr. Margaret Thompson",
+          created_at: "2024-08-20T09:00:00Z",
+          topic: "literary-definition",
+          replies: [
+            {
+              id: 1,
+              message: "Hi everyone! I'm Taylor, an English major passionate about how literature helps us understand different perspectives. To me, literature is writing that makes us think deeply about human experience - it could be a classic novel, a powerful poem, or even a song that tells a story. I think what makes something 'literary' is how it uses language creatively to explore emotions, relationships, and big questions about life. For example, Maya Angelou's 'I Know Why the Caged Bird Sings' is literary because it doesn't just tell a story - it uses beautiful, metaphorical language to help us feel what freedom and oppression really mean.",
+              author: discussionPersonalities[6].name,
+              created_at: "2024-08-20T14:30:00Z",
+              personality: discussionPersonalities[6].personality
+            },
+            {
+              id: 2,
+              message: "Great point, Taylor! I'm Alex, and I approach this more analytically. I think literature is characterized by intentional craftsmanship in language use - the author makes deliberate choices about structure, symbolism, and style that create multiple layers of meaning. Take Shakespeare's sonnets: they're not just about love, but about time, mortality, and the power of art itself. The formal constraints actually enhance the meaning rather than limiting it.",
+              author: discussionPersonalities[0].name,
+              created_at: "2024-08-20T16:15:00Z",
+              personality: discussionPersonalities[0].personality
+            },
+            {
+              id: 3,
+              message: "I love how you both think about this! I'm Maria, and for me, literature is anything that creates an emotional connection while making us see the world differently. It doesn't have to be 'high culture' - some song lyrics are absolutely literary! Like Bob Dylan winning the Nobel Prize shows that the boundaries are expanding. What matters is that spark of recognition when you read something and think 'yes, that's exactly how I feel' or 'I never thought about it that way before.' 🌟",
+              author: discussionPersonalities[1].name,
+              created_at: "2024-08-20T18:45:00Z",
+              personality: discussionPersonalities[1].personality
+            }
+          ]
+        },
+        {
+          id: 104,
+          title: "Modern Poetry Discussion",
+          message: "For this discussion, compare traditional and contemporary poetry. Choose one poem from our anthology and one contemporary poem (published 2000 or later) that handle similar themes. How do their approaches differ? What does this tell us about how poetry has evolved? Consider elements like form, language, imagery, and cultural references.",
+          course_id: courseId,
+          author: "Dr. Margaret Thompson",
+          created_at: "2024-09-18T10:00:00Z",
+          topic: "poetry-evolution",
+          replies: [
+            {
+              id: 4,
+              message: "I'm comparing Emily Dickinson's 'I'm Nobody! Who are you?' with Rupi Kaur's 'you are your own soulmate.' Both explore identity and self-worth, but so differently! Dickinson uses playful irony and questions - being 'nobody' is actually better than being 'somebody' who seeks attention. Kaur is direct and affirmative - she tells us straight up that we're complete as we are. Dickinson's poem has that classic meter and rhyme, while Kaur's free verse feels like a conversation. Both empower the reader, but Dickinson does it through wit and Kaur through compassion. Modern poetry seems more accessible but maybe less mysterious? 💭",
+              author: discussionPersonalities[6].name,
+              created_at: "2024-09-18T15:20:00Z",
+              personality: discussionPersonalities[6].personality
+            },
+            {
+              id: 5,
+              message: "Interesting comparison, Taylor. I analyzed Robert Frost's 'The Road Not Taken' alongside Ocean Vuong's 'Someday I'll Love Ocean Vuong.' Both deal with choice and self-acceptance, but Frost uses metaphor (the diverging paths) while Vuong is autobiographical and direct. Frost's formal structure mirrors the poem's theme of conventional vs. unconventional choices. Vuong breaks traditional forms entirely - his line breaks and white space create emotional pauses. Contemporary poetry seems less concerned with universal themes and more focused on specific, personal identity experiences.",
+              author: discussionPersonalities[0].name,
+              created_at: "2024-09-18T17:40:00Z",
+              personality: discussionPersonalities[0].personality
+            }
+          ]
+        },
+        {
+          id: 108,
+          title: "Dramatic Techniques Discussion",
+          message: "How do playwrights use stage directions, dialogue, and dramatic irony differently than fiction writers? Think about the unique constraints and opportunities of theatrical performance. Use specific examples from our readings to support your analysis.",
+          course_id: courseId,
+          author: "Dr. Margaret Thompson",
+          created_at: "2024-11-07T09:00:00Z",
+          topic: "dramatic-techniques",
+          replies: [
+            {
+              id: 6,
+              message: "The biggest difference I notice is how playwrights have to trust actors and directors to bring their vision to life! In Shakespeare's 'Romeo and Juliet,' the balcony scene works because of what's NOT said as much as what is. The stage directions are minimal - just 'Enter Romeo' - but the dialogue carries all the emotion. Fiction writers can describe inner thoughts, but playwrights have to make characters reveal themselves through action and speech. Like when Juliet says 'Romeo, Romeo, wherefore art thou Romeo?' - we understand her conflict between love and family loyalty just from her words, not from a narrator explaining her feelings. Theatre is so immediate and vulnerable! ✨",
+              author: discussionPersonalities[6].name,
+              created_at: "2024-11-07T14:15:00Z",
+              personality: discussionPersonalities[6].personality
+            },
+            {
+              id: 7,
+              message: "Exactly, Taylor. The constraints of theater actually create unique dramatic effects. In 'A Raisin in the Sun,' Hansberry uses the cramped apartment setting as a character itself - the physical space reflects the family's economic limitations and deferred dreams. Fiction could describe poverty in pages of exposition, but theater shows it through every moment the characters interact with their environment. The dramatic irony when Ruth is pregnant but hasn't told Walter yet creates tension that wouldn't work the same way in a novel where we might have access to multiple perspectives simultaneously.",
+              author: discussionPersonalities[0].name,
+              created_at: "2024-11-07T16:30:00Z",
+              personality: discussionPersonalities[0].personality
+            }
+          ]
+        },
+        {
+          id: 110,
+          title: "Diverse Voices Discussion",
+          message: "Reflect on how authors from different backgrounds (race, gender, class, nationality) bring unique perspectives to universal themes. Choose two authors we've studied and compare how their identities influence their treatment of themes like love, identity, family, or social justice.",
+          course_id: courseId,
+          author: "Dr. Margaret Thompson",
+          created_at: "2024-11-28T10:00:00Z",
+          topic: "diverse-perspectives",
+          replies: [
+            {
+              id: 8,
+              message: "I'm comparing Langston Hughes and Emily Dickinson on the theme of identity. Both write about feeling different or marginalized, but from completely different perspectives. Hughes's 'I, Too, Sing America' is bold and assertive - he claims his place in American identity despite racism, using collective 'we' and 'I' to speak for his community. Dickinson's 'I'm Nobody! Who are you?' is more private and introspective - she questions the whole idea of public identity. Hughes writes from the experience of being excluded but fighting for inclusion, while Dickinson writes from the privilege of being able to choose solitude. Their different social positions completely shape how they approach the same basic human need to belong somewhere. 💫",
+              author: discussionPersonalities[6].name,
+              created_at: "2024-11-28T15:45:00Z",
+              personality: discussionPersonalities[6].personality
+            }
+          ]
+        }
+      ];
+    }
+    
+    if (courseId === 6) { // Composition and Rhetoric
+      return [
+        {
+          id: 202,
+          title: "Thesis Statement Workshop",
+          message: "Post three potential thesis statements for different essay types (argumentative, analytical, expository) and provide feedback on classmates' thesis statements. For each thesis, identify the topic, claim, and supporting points. Consider what makes a thesis statement effective and specific.",
+          course_id: courseId,
+          author: "Prof. David Martinez",
+          created_at: "2024-09-02T09:00:00Z",
+          topic: "thesis-development",
+          replies: [
+            {
+              id: 10,
+              message: "Here are my three thesis statements:\n\n1. Argumentative: 'Universities should implement mandatory financial literacy courses because students graduate with significant debt but lack basic money management skills, leading to long-term financial struggles that could be prevented through education.'\n\n2. Analytical: 'In 'The Great Gatsby,' Fitzgerald uses the green light as a symbol that evolves from representing Gatsby's hope and dreams to ultimately revealing the impossible nature of recapturing the past.'\n\n3. Expository: 'Effective time management for college students involves three key strategies: prioritizing tasks using the Eisenhower Matrix, breaking large projects into smaller steps, and creating consistent daily routines.'\n\nI tried to make each one specific and focused while clearly stating the main claim and supporting points. Looking forward to your feedback! 📝",
+              author: discussionPersonalities[6].name,
+              created_at: "2024-09-02T15:30:00Z",
+              personality: discussionPersonalities[6].personality
+            }
+          ]
+        },
+        {
+          id: 208,
+          title: "Peer Review Workshop",
+          message: "Review two classmates' position paper drafts using our peer review criteria. Provide constructive feedback on argument structure, evidence use, and counterargument handling. Focus on helping your peers strengthen their arguments rather than just pointing out problems.",
+          course_id: courseId,
+          author: "Prof. David Martinez",
+          created_at: "2024-11-11T10:00:00Z",
+          topic: "peer-review",
+          replies: [
+            {
+              id: 11,
+              message: "I reviewed Sarah's paper on social media regulation and Mike's on climate change policy. Both had strong opening arguments, but I suggested they could strengthen their counterargument sections. Sarah did a great job with ethos by citing expert sources, but could use more pathos to connect with readers emotionally. Mike's logical structure was excellent - very clear progression from problem to solution. I recommended both authors consider their opposing audience more when addressing counterarguments. It's so helpful to see how other people organize their thoughts! 🤝",
+              author: discussionPersonalities[6].name,
+              created_at: "2024-11-11T16:45:00Z",
+              personality: discussionPersonalities[6].personality
+            }
+          ]
+        },
+        {
+          id: 211,
+          title: "Final Reflection Discussion",
+          message: "Share one key insight about writing you've gained this semester and one goal for your continued development as a writer. Respond thoughtfully to classmates' reflections and celebrate the growth you've all achieved together.",
+          course_id: courseId,
+          author: "Prof. David Martinez",
+          created_at: "2024-12-12T09:00:00Z",
+          topic: "writing-reflection",
+          replies: [
+            {
+              id: 12,
+              message: "My biggest insight this semester is that good writing is actually good thinking made visible. Before this class, I thought writing was just about getting ideas down on paper, but now I understand that the writing process actually helps me develop and clarify my ideas. When I'm struggling with a paragraph, it usually means I'm struggling with the concept itself, not just the words.\n\nMy goal moving forward is to embrace revision as a creative process rather than just fixing mistakes. I want to see each draft as an opportunity to discover something new about my topic, not just polish what I already know. Thanks for an amazing semester, everyone! This class changed how I think about thinking. ✨",
+              author: discussionPersonalities[6].name,
+              created_at: "2024-12-12T14:20:00Z",
+              personality: discussionPersonalities[6].personality
+            }
+          ]
+        }
+      ];
+    }
+    
+    // Default discussions for other courses (like CS courses)
     const discussions = [
       {
         id: 1,
@@ -1691,8 +1938,21 @@ export const mockCanvasApi = {
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 300));
     
-    const allDiscussions = await mockCanvasApi.getDiscussions(1); // Get from course 1 for now
-    return allDiscussions.find(d => d.id === discussionId) || null;
+    // Search across all courses for the discussion
+    for (const courseId of [5, 6, 1, 2, 3, 4]) { // Check English courses first, then others
+      try {
+        const courseDiscussions = await mockCanvasApi.getDiscussions(courseId);
+        const discussion = courseDiscussions.find(d => d.id === discussionId);
+        if (discussion) {
+          return discussion;
+        }
+      } catch (error) {
+        // Continue to next course if this one has no discussions
+        continue;
+      }
+    }
+    
+    return null;
   },
 
   // Course management functions
