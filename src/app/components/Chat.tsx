@@ -235,9 +235,9 @@ export default function Chat({ context, isFullScreen = false }: ChatProps) {
     }
   }, [messages, isInitialized, contextKey, enhancedContext]);
 
-  // Initialize chat with context-aware welcome message
+  // Initialize welcome message based on context - only for authenticated users
   useEffect(() => {
-    if (enhancedContext && isInitialized && messages.length === 0) {
+    if (enhancedContext && isInitialized && messages.length === 0 && user) {
       const getWelcomeMessage = () => {
         if (enhancedContext.type === 'course') {
           return `Hello there, how can I help you explore ${enhancedContext.title || 'this course'}?`;
@@ -268,7 +268,7 @@ export default function Chat({ context, isFullScreen = false }: ChatProps) {
       };
       setMessages([initialMessage]);
     }
-  }, [enhancedContext, isInitialized, messages.length]);
+  }, [enhancedContext, isInitialized, messages.length, user]);
 
   // Auto-scroll to bottom when new messages are added
   useEffect(() => {
@@ -374,9 +374,22 @@ export default function Chat({ context, isFullScreen = false }: ChatProps) {
     setIsLoading(true);
     
     try {
+      // Check if user is authenticated
+      if (!user) {
+        console.log('❌ User not authenticated');
+        return "Please log in to access the AI tutoring features.";
+      }
+
       // Get comprehensive context information
       const courseData = await getComprehensiveContext(enhancedContext);
-      const searchResults = await mockCanvasApi.searchContent(userMessage, enhancedContext);
+      
+      // Build search context for API
+      const searchContext = enhancedContext.id ? {
+        type: enhancedContext.type,
+        id: enhancedContext.id
+      } : undefined;
+      
+      const searchResults = await mockCanvasApi.searchContent(userMessage, searchContext);
       
       console.log('📊 Context data loaded:', { courseData, enhancedContext });
       
@@ -543,10 +556,14 @@ Respond helpfully with 1-2 strategic questions:
 
   // Get comprehensive context about the current course/assignment
   const getComprehensiveContext = async (context?: ChatContext) => {
-    if (!context) return null;
+    if (!context || !user) return null;
     
     try {
       const data: any = { context };
+      
+      // Get user enrollments for filtering
+      const userData = getUserData();
+      const userEnrollments = userData?.courseProgress ? Object.keys(userData.courseProgress) : [];
       
       if (context.type === 'course' && context.id) {
         const course = await mockCanvasApi.getCourse(context.id);
@@ -565,14 +582,24 @@ Respond helpfully with 1-2 strategic questions:
         
         if (assignment) {
           data.assignment = assignment;
-          // Get the course this assignment belongs to
-          const dashboardData = await mockCanvasApi.getDashboardData();
-          data.course = dashboardData?.courses?.find((c: any) => 
-            c.id === assignment.course_id
-          );
+          // Get enrolled courses to find the course this assignment belongs to
+          const courses = await mockCanvasApi.getCourses(userEnrollments);
+          data.course = courses.find((c: any) => c.id === assignment.course_id);
         }
       } else if (context.type === 'dashboard') {
-        data.dashboard = await mockCanvasApi.getDashboardData();
+        data.dashboard = await mockCanvasApi.getDashboardData(userEnrollments);
+      } else if (context.type === 'discussion' && context.id) {
+        const discussion = await mockCanvasApi.getDiscussion(context.id);
+        if (discussion) {
+          data.discussion = discussion;
+          // Get enrolled courses to find the course this discussion belongs to
+          const courses = await mockCanvasApi.getCourses(userEnrollments);
+          data.course = courses.find((c: any) => c.id === discussion.course_id);
+        }
+      } else {
+        // For general context, get user's enrolled courses
+        data.courses = await mockCanvasApi.getCourses(userEnrollments);
+        data.dashboard = await mockCanvasApi.getDashboardData(userEnrollments);
       }
       
       return data;
