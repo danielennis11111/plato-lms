@@ -247,7 +247,7 @@ const courses: Course[] = [
     total_points: 1000,
     current_grade: 87,
     start_date: '2025-05-15',
-    end_date: '2025-08-08',
+    end_date: '2025-08-15',
     syllabus: 'This intensive summer course covers advanced web development techniques including React hooks, state management, API development, database design, authentication systems, and cloud deployment strategies.',
     modules: [
       {
@@ -829,11 +829,11 @@ const courses: Course[] = [
     course_code: 'ENG101',
     description: 'Foundation course exploring diverse literary genres, critical reading skills, and analysis techniques. Students will engage with poetry, fiction, drama, and essays from various time periods and cultures.',
     instructor: 'Dr. Margaret Thompson',
-    term: 'Fall 2024',
+    term: 'Summer 2025',
     total_points: 1000,
     current_grade: 0,
-    start_date: '2024-08-15',
-    end_date: '2024-12-15',
+    start_date: '2025-05-15',
+    end_date: '2025-08-15',
     syllabus: 'This introductory course develops critical reading and analytical writing skills through close examination of literary texts. Students will learn to identify themes, literary devices, and cultural contexts while developing their own interpretive voice.',
     modules: [
       {
@@ -847,7 +847,7 @@ const courses: Course[] = [
             title: 'What is Literature? Discussion',
             type: 'discussion',
             content: 'Introduce yourself and share your definition of literature. What makes a text "literary"? Discuss with examples from your reading experience.',
-            due_date: '2024-08-25T23:59:59Z',
+            due_date: '2025-05-25T23:59:59Z',
             status: 'not_started',
             points_possible: 25,
             submissions: 0,
@@ -858,7 +858,7 @@ const courses: Course[] = [
             title: 'Literary Terms Quiz',
             type: 'quiz',
             content: 'Test your knowledge of basic literary terms and devices including metaphor, symbolism, irony, and narrative perspective.',
-            due_date: '2024-09-01T23:59:59Z',
+            due_date: '2025-06-01T23:59:59Z',
             status: 'not_started',
             points_possible: 50,
             attempts: 0,
@@ -877,7 +877,7 @@ const courses: Course[] = [
             title: 'Poetry Analysis Essay',
             type: 'assignment',
             content: 'Write a 750-word analysis of either Emily Dickinson\'s "Because I could not stop for Death" or Robert Frost\'s "The Road Not Taken." Focus on how poetic devices create meaning.',
-            due_date: '2024-09-15T23:59:59Z',
+            due_date: '2025-06-15T23:59:59Z',
             status: 'not_started',
             points_possible: 100,
             submissions: 0,
@@ -889,7 +889,7 @@ const courses: Course[] = [
             title: 'Modern Poetry Discussion',
             type: 'discussion',
             content: 'Compare traditional and contemporary poetry. Choose one poem from our anthology and one contemporary poem (2000+) and discuss how they handle similar themes.',
-            due_date: '2024-09-22T23:59:59Z',
+            due_date: '2025-06-22T23:59:59Z',
             status: 'not_started',
             points_possible: 30,
             submissions: 0,
@@ -908,7 +908,7 @@ const courses: Course[] = [
             title: 'Character Development Essay',
             type: 'assignment',
             content: 'Analyze character development in either Alice Walker\'s "Everyday Use" or James Joyce\'s "Araby." How does the author reveal character through action, dialogue, and internal conflict?',
-            due_date: '2024-10-06T23:59:59Z',
+            due_date: '2025-07-06T23:59:59Z',
             status: 'not_started',
             points_possible: 125,
             submissions: 0,
@@ -920,7 +920,7 @@ const courses: Course[] = [
             title: 'Symbolism in Short Fiction Quiz',
             type: 'quiz',
             content: 'Identify and interpret symbolic elements in the short stories we\'ve read. Focus on how symbols contribute to theme and meaning.',
-            due_date: '2024-10-13T23:59:59Z',
+            due_date: '2025-07-13T23:59:59Z',
             status: 'not_started',
             points_possible: 60,
             attempts: 0,
@@ -939,7 +939,7 @@ const courses: Course[] = [
             title: 'Scene Performance Project',
             type: 'assignment',
             content: 'In groups of 2-3, perform a scene from either Shakespeare\'s "Romeo and Juliet" or Lorraine Hansberry\'s "A Raisin in the Sun." Include a written reflection on your interpretation choices.',
-            due_date: '2024-11-03T23:59:59Z',
+            due_date: '2025-07-25T23:59:59Z',
             status: 'not_started',
             points_possible: 150,
             submissions: 0,
@@ -951,7 +951,7 @@ const courses: Course[] = [
             title: 'Dramatic Techniques Discussion',
             type: 'discussion',
             content: 'How do playwrights use stage directions, dialogue, and dramatic irony differently than fiction writers? Use specific examples from our readings.',
-            due_date: '2024-11-10T23:59:59Z',
+            due_date: '2025-08-01T23:59:59Z',
             status: 'not_started',
             points_possible: 35,
             submissions: 0,
@@ -970,7 +970,7 @@ const courses: Course[] = [
             title: 'Cultural Context Research Paper',
             type: 'assignment',
             content: 'Choose one text from our course and research its historical/cultural context. Write a 1000-word paper explaining how understanding this context enriches interpretation of the work.',
-            due_date: '2024-11-24T23:59:59Z',
+            due_date: '2025-08-08T23:59:59Z',
             status: 'not_started',
             points_possible: 175,
             submissions: 0,
@@ -982,7 +982,7 @@ const courses: Course[] = [
             title: 'Diverse Voices Discussion',
             type: 'discussion',
             content: 'Reflect on how authors from different backgrounds (race, gender, class, nationality) bring unique perspectives to universal themes. Choose two authors to compare.',
-            due_date: '2024-12-01T23:59:59Z',
+            due_date: '2025-08-12T23:59:59Z',
             status: 'not_started',
             points_possible: 40,
             submissions: 0,
@@ -1001,7 +1001,7 @@ const courses: Course[] = [
             title: 'Portfolio Reflection Essay',
             type: 'assignment',
             content: 'Write a reflective essay analyzing your growth as a reader and writer this semester. Include examples from your work and discuss how your understanding of literature has evolved.',
-            due_date: '2024-12-08T23:59:59Z',
+            due_date: '2025-08-15T23:59:59Z',
             status: 'not_started',
             points_possible: 100,
             submissions: 0,
@@ -1013,7 +1013,7 @@ const courses: Course[] = [
             title: 'Final Comprehensive Analysis',
             type: 'assignment',
             content: 'Choose any text from our course for an in-depth 1200-word analysis incorporating multiple critical approaches (historical, feminist, formalist, etc.). Demonstrate mastery of analytical skills.',
-            due_date: '2024-12-15T23:59:59Z',
+            due_date: '2025-08-15T23:59:59Z',
             status: 'not_started',
             points_possible: 200,
             submissions: 0,
@@ -1030,11 +1030,11 @@ const courses: Course[] = [
     course_code: 'ENG102',
     description: 'Advanced writing course focusing on argumentation, research methods, and rhetorical analysis. Students develop skills in critical thinking, academic writing, and multimedia composition.',
     instructor: 'Prof. David Martinez',
-    term: 'Fall 2024',
+    term: 'Summer 2025',
     total_points: 1000,
     current_grade: 0,
-    start_date: '2024-08-15',
-    end_date: '2024-12-15',
+    start_date: '2025-05-15',
+    end_date: '2025-08-15',
     syllabus: 'This course emphasizes the writing process, from invention to revision, while introducing students to academic research and citation. Students will compose various forms of academic and public writing.',
     modules: [
       {
@@ -1048,7 +1048,7 @@ const courses: Course[] = [
             title: 'Personal Narrative Essay',
             type: 'assignment',
             content: 'Write a 500-word personal narrative that demonstrates your relationship with writing. Use concrete details and reflection to show how your writing has developed.',
-            due_date: '2024-08-29T23:59:59Z',
+            due_date: '2025-05-29T23:59:59Z',
             status: 'not_started',
             points_possible: 75,
             submissions: 0,
@@ -1060,7 +1060,7 @@ const courses: Course[] = [
             title: 'Thesis Statement Workshop',
             type: 'discussion',
             content: 'Post three potential thesis statements for different essay types (argumentative, analytical, expository) and provide feedback on classmates\' thesis statements.',
-            due_date: '2024-09-05T23:59:59Z',
+            due_date: '2025-06-05T23:59:59Z',
             status: 'not_started',
             points_possible: 25,
             submissions: 0,
@@ -1079,7 +1079,7 @@ const courses: Course[] = [
             title: 'Rhetorical Analysis Essay',
             type: 'assignment',
             content: 'Analyze the rhetorical strategies in a speech, advertisement, or article of your choice. Examine how the author uses ethos, pathos, and logos to persuade their audience. 750 words.',
-            due_date: '2024-09-19T23:59:59Z',
+            due_date: '2025-06-19T23:59:59Z',
             status: 'not_started',
             points_possible: 125,
             submissions: 0,
@@ -1091,7 +1091,7 @@ const courses: Course[] = [
             title: 'Visual Rhetoric Analysis',
             type: 'assignment',
             content: 'Analyze how a visual text (infographic, poster, meme, etc.) uses design elements to convey meaning and persuade viewers. Include the image and 400-word analysis.',
-            due_date: '2024-09-26T23:59:59Z',
+            due_date: '2025-06-26T23:59:59Z',
             status: 'not_started',
             points_possible: 100,
             submissions: 0,
@@ -1111,7 +1111,7 @@ const courses: Course[] = [
             title: 'Source Evaluation Exercise',
             type: 'assignment',
             content: 'Find 5 sources on a controversial topic. Evaluate each source\'s credibility, bias, and usefulness. Explain your evaluation criteria in a 600-word analysis.',
-            due_date: '2024-10-10T23:59:59Z',
+            due_date: '2025-07-10T23:59:59Z',
             status: 'not_started',
             points_possible: 100,
             submissions: 0,
@@ -1123,7 +1123,7 @@ const courses: Course[] = [
             title: 'MLA Citation Quiz',
             type: 'quiz',
             content: 'Test your knowledge of MLA citation format for various source types including books, articles, websites, and multimedia sources.',
-            due_date: '2024-10-17T23:59:59Z',
+            due_date: '2025-07-17T23:59:59Z',
             status: 'not_started',
             points_possible: 50,
             attempts: 0,
@@ -1142,7 +1142,7 @@ const courses: Course[] = [
             title: 'Position Paper',
             type: 'assignment',
             content: 'Write a 1000-word argumentative essay on a current social issue. Use at least 4 credible sources and address potential counterarguments. Focus on logical reasoning and evidence.',
-            due_date: '2024-11-07T23:59:59Z',
+            due_date: '2025-07-30T23:59:59Z',
             status: 'not_started',
             points_possible: 175,
             submissions: 0,
@@ -1154,7 +1154,7 @@ const courses: Course[] = [
             title: 'Peer Review Workshop',
             type: 'discussion',
             content: 'Review two classmates\' position paper drafts using our peer review criteria. Provide constructive feedback on argument structure, evidence, and counterargument handling.',
-            due_date: '2024-11-14T23:59:59Z',
+            due_date: '2025-08-05T23:59:59Z',
             status: 'not_started',
             points_possible: 40,
             submissions: 0,
@@ -1173,7 +1173,7 @@ const courses: Course[] = [
             title: 'Digital Story Project',
             type: 'assignment',
             content: 'Create a 3-5 minute digital story combining text, images, audio, and/or video to argue for a solution to a local community problem. Include a 500-word reflection on your design choices.',
-            due_date: '2024-11-28T23:59:59Z',
+            due_date: '2025-08-12T23:59:59Z',
             status: 'not_started',
             points_possible: 150,
             submissions: 0,
@@ -1193,7 +1193,7 @@ const courses: Course[] = [
             title: 'Writing Portfolio',
             type: 'assignment',
             content: 'Compile a portfolio of your best revised work from the semester. Include a 750-word reflective introduction analyzing your growth as a writer and the choices you made in revision.',
-            due_date: '2024-12-12T23:59:59Z',
+            due_date: '2025-08-15T23:59:59Z',
             status: 'not_started',
             points_possible: 125,
             submissions: 0,
@@ -1205,7 +1205,7 @@ const courses: Course[] = [
             title: 'Final Reflection Discussion',
             type: 'discussion',
             content: 'Share one key insight about writing you\'ve gained this semester and one goal for your continued development as a writer. Respond thoughtfully to classmates\' reflections.',
-            due_date: '2024-12-15T23:59:59Z',
+            due_date: '2025-08-15T23:59:59Z',
             status: 'not_started',
             points_possible: 30,
             submissions: 0,
@@ -1636,28 +1636,28 @@ export const mockCanvasApi = {
           message: "Welcome to our first discussion! Please introduce yourself and share your definition of literature. What makes a text 'literary' in your opinion? Feel free to use examples from your own reading experience - whether it's novels, poetry, plays, or even song lyrics that have moved you. There's no wrong answer here; I'm interested in hearing your unique perspectives as we begin our journey together this semester.",
           course_id: courseId,
           author: "Dr. Margaret Thompson",
-          created_at: "2024-08-20T09:00:00Z",
+          created_at: "2025-05-20T09:00:00Z",
           topic: "literary-definition",
           replies: [
             {
               id: 1,
               message: "Hi everyone! I'm Taylor, an English major passionate about how literature helps us understand different perspectives. To me, literature is writing that makes us think deeply about human experience - it could be a classic novel, a powerful poem, or even a song that tells a story. I think what makes something 'literary' is how it uses language creatively to explore emotions, relationships, and big questions about life. For example, Maya Angelou's 'I Know Why the Caged Bird Sings' is literary because it doesn't just tell a story - it uses beautiful, metaphorical language to help us feel what freedom and oppression really mean.",
               author: discussionPersonalities[6].name,
-              created_at: "2024-08-20T14:30:00Z",
+              created_at: "2025-05-20T14:30:00Z",
               personality: discussionPersonalities[6].personality
             },
             {
               id: 2,
               message: "Great point, Taylor! I'm Alex, and I approach this more analytically. I think literature is characterized by intentional craftsmanship in language use - the author makes deliberate choices about structure, symbolism, and style that create multiple layers of meaning. Take Shakespeare's sonnets: they're not just about love, but about time, mortality, and the power of art itself. The formal constraints actually enhance the meaning rather than limiting it.",
               author: discussionPersonalities[0].name,
-              created_at: "2024-08-20T16:15:00Z",
+              created_at: "2025-05-20T16:15:00Z",
               personality: discussionPersonalities[0].personality
             },
             {
               id: 3,
               message: "I love how you both think about this! I'm Maria, and for me, literature is anything that creates an emotional connection while making us see the world differently. It doesn't have to be 'high culture' - some song lyrics are absolutely literary! Like Bob Dylan winning the Nobel Prize shows that the boundaries are expanding. What matters is that spark of recognition when you read something and think 'yes, that's exactly how I feel' or 'I never thought about it that way before.' 🌟",
               author: discussionPersonalities[1].name,
-              created_at: "2024-08-20T18:45:00Z",
+              created_at: "2025-05-20T18:45:00Z",
               personality: discussionPersonalities[1].personality
             }
           ]
@@ -1668,21 +1668,21 @@ export const mockCanvasApi = {
           message: "For this discussion, compare traditional and contemporary poetry. Choose one poem from our anthology and one contemporary poem (published 2000 or later) that handle similar themes. How do their approaches differ? What does this tell us about how poetry has evolved? Consider elements like form, language, imagery, and cultural references.",
           course_id: courseId,
           author: "Dr. Margaret Thompson",
-          created_at: "2024-09-18T10:00:00Z",
+          created_at: "2025-06-18T10:00:00Z",
           topic: "poetry-evolution",
           replies: [
             {
               id: 4,
               message: "I'm comparing Emily Dickinson's 'I'm Nobody! Who are you?' with Rupi Kaur's 'you are your own soulmate.' Both explore identity and self-worth, but so differently! Dickinson uses playful irony and questions - being 'nobody' is actually better than being 'somebody' who seeks attention. Kaur is direct and affirmative - she tells us straight up that we're complete as we are. Dickinson's poem has that classic meter and rhyme, while Kaur's free verse feels like a conversation. Both empower the reader, but Dickinson does it through wit and Kaur through compassion. Modern poetry seems more accessible but maybe less mysterious? 💭",
               author: discussionPersonalities[6].name,
-              created_at: "2024-09-18T15:20:00Z",
+              created_at: "2025-06-18T15:20:00Z",
               personality: discussionPersonalities[6].personality
             },
             {
               id: 5,
               message: "Interesting comparison, Taylor. I analyzed Robert Frost's 'The Road Not Taken' alongside Ocean Vuong's 'Someday I'll Love Ocean Vuong.' Both deal with choice and self-acceptance, but Frost uses metaphor (the diverging paths) while Vuong is autobiographical and direct. Frost's formal structure mirrors the poem's theme of conventional vs. unconventional choices. Vuong breaks traditional forms entirely - his line breaks and white space create emotional pauses. Contemporary poetry seems less concerned with universal themes and more focused on specific, personal identity experiences.",
               author: discussionPersonalities[0].name,
-              created_at: "2024-09-18T17:40:00Z",
+              created_at: "2025-06-18T17:40:00Z",
               personality: discussionPersonalities[0].personality
             }
           ]
@@ -1693,21 +1693,21 @@ export const mockCanvasApi = {
           message: "How do playwrights use stage directions, dialogue, and dramatic irony differently than fiction writers? Think about the unique constraints and opportunities of theatrical performance. Use specific examples from our readings to support your analysis.",
           course_id: courseId,
           author: "Dr. Margaret Thompson",
-          created_at: "2024-11-07T09:00:00Z",
+          created_at: "2025-07-28T09:00:00Z",
           topic: "dramatic-techniques",
           replies: [
             {
               id: 6,
               message: "The biggest difference I notice is how playwrights have to trust actors and directors to bring their vision to life! In Shakespeare's 'Romeo and Juliet,' the balcony scene works because of what's NOT said as much as what is. The stage directions are minimal - just 'Enter Romeo' - but the dialogue carries all the emotion. Fiction writers can describe inner thoughts, but playwrights have to make characters reveal themselves through action and speech. Like when Juliet says 'Romeo, Romeo, wherefore art thou Romeo?' - we understand her conflict between love and family loyalty just from her words, not from a narrator explaining her feelings. Theatre is so immediate and vulnerable! ✨",
               author: discussionPersonalities[6].name,
-              created_at: "2024-11-07T14:15:00Z",
+              created_at: "2025-07-28T14:15:00Z",
               personality: discussionPersonalities[6].personality
             },
             {
               id: 7,
               message: "Exactly, Taylor. The constraints of theater actually create unique dramatic effects. In 'A Raisin in the Sun,' Hansberry uses the cramped apartment setting as a character itself - the physical space reflects the family's economic limitations and deferred dreams. Fiction could describe poverty in pages of exposition, but theater shows it through every moment the characters interact with their environment. The dramatic irony when Ruth is pregnant but hasn't told Walter yet creates tension that wouldn't work the same way in a novel where we might have access to multiple perspectives simultaneously.",
               author: discussionPersonalities[0].name,
-              created_at: "2024-11-07T16:30:00Z",
+              created_at: "2025-07-28T16:30:00Z",
               personality: discussionPersonalities[0].personality
             }
           ]
@@ -1718,14 +1718,14 @@ export const mockCanvasApi = {
           message: "Reflect on how authors from different backgrounds (race, gender, class, nationality) bring unique perspectives to universal themes. Choose two authors we've studied and compare how their identities influence their treatment of themes like love, identity, family, or social justice.",
           course_id: courseId,
           author: "Dr. Margaret Thompson",
-          created_at: "2024-11-28T10:00:00Z",
+          created_at: "2025-08-10T10:00:00Z",
           topic: "diverse-perspectives",
           replies: [
             {
               id: 8,
               message: "I'm comparing Langston Hughes and Emily Dickinson on the theme of identity. Both write about feeling different or marginalized, but from completely different perspectives. Hughes's 'I, Too, Sing America' is bold and assertive - he claims his place in American identity despite racism, using collective 'we' and 'I' to speak for his community. Dickinson's 'I'm Nobody! Who are you?' is more private and introspective - she questions the whole idea of public identity. Hughes writes from the experience of being excluded but fighting for inclusion, while Dickinson writes from the privilege of being able to choose solitude. Their different social positions completely shape how they approach the same basic human need to belong somewhere. 💫",
               author: discussionPersonalities[6].name,
-              created_at: "2024-11-28T15:45:00Z",
+              created_at: "2025-08-10T15:45:00Z",
               personality: discussionPersonalities[6].personality
             }
           ]
@@ -1741,14 +1741,14 @@ export const mockCanvasApi = {
           message: "Post three potential thesis statements for different essay types (argumentative, analytical, expository) and provide feedback on classmates' thesis statements. For each thesis, identify the topic, claim, and supporting points. Consider what makes a thesis statement effective and specific.",
           course_id: courseId,
           author: "Prof. David Martinez",
-          created_at: "2024-09-02T09:00:00Z",
+          created_at: "2025-05-20T09:00:00Z",
           topic: "thesis-development",
           replies: [
             {
               id: 10,
               message: "Here are my three thesis statements:\n\n1. Argumentative: 'Universities should implement mandatory financial literacy courses because students graduate with significant debt but lack basic money management skills, leading to long-term financial struggles that could be prevented through education.'\n\n2. Analytical: 'In 'The Great Gatsby,' Fitzgerald uses the green light as a symbol that evolves from representing Gatsby's hope and dreams to ultimately revealing the impossible nature of recapturing the past.'\n\n3. Expository: 'Effective time management for college students involves three key strategies: prioritizing tasks using the Eisenhower Matrix, breaking large projects into smaller steps, and creating consistent daily routines.'\n\nI tried to make each one specific and focused while clearly stating the main claim and supporting points. Looking forward to your feedback! 📝",
               author: discussionPersonalities[6].name,
-              created_at: "2024-09-02T15:30:00Z",
+              created_at: "2025-05-20T14:30:00Z",
               personality: discussionPersonalities[6].personality
             }
           ]
@@ -1759,14 +1759,14 @@ export const mockCanvasApi = {
           message: "Review two classmates' position paper drafts using our peer review criteria. Provide constructive feedback on argument structure, evidence use, and counterargument handling. Focus on helping your peers strengthen their arguments rather than just pointing out problems.",
           course_id: courseId,
           author: "Prof. David Martinez",
-          created_at: "2024-11-11T10:00:00Z",
+          created_at: "2025-06-18T10:00:00Z",
           topic: "peer-review",
           replies: [
             {
               id: 11,
               message: "I reviewed Sarah's paper on social media regulation and Mike's on climate change policy. Both had strong opening arguments, but I suggested they could strengthen their counterargument sections. Sarah did a great job with ethos by citing expert sources, but could use more pathos to connect with readers emotionally. Mike's logical structure was excellent - very clear progression from problem to solution. I recommended both authors consider their opposing audience more when addressing counterarguments. It's so helpful to see how other people organize their thoughts! 🤝",
               author: discussionPersonalities[6].name,
-              created_at: "2024-11-11T16:45:00Z",
+              created_at: "2025-06-18T15:20:00Z",
               personality: discussionPersonalities[6].personality
             }
           ]
@@ -1777,14 +1777,14 @@ export const mockCanvasApi = {
           message: "Share one key insight about writing you've gained this semester and one goal for your continued development as a writer. Respond thoughtfully to classmates' reflections and celebrate the growth you've all achieved together.",
           course_id: courseId,
           author: "Prof. David Martinez",
-          created_at: "2024-12-12T09:00:00Z",
+          created_at: "2025-07-28T09:00:00Z",
           topic: "writing-reflection",
           replies: [
             {
               id: 12,
               message: "My biggest insight this semester is that good writing is actually good thinking made visible. Before this class, I thought writing was just about getting ideas down on paper, but now I understand that the writing process actually helps me develop and clarify my ideas. When I'm struggling with a paragraph, it usually means I'm struggling with the concept itself, not just the words.\n\nMy goal moving forward is to embrace revision as a creative process rather than just fixing mistakes. I want to see each draft as an opportunity to discover something new about my topic, not just polish what I already know. Thanks for an amazing semester, everyone! This class changed how I think about thinking. ✨",
               author: discussionPersonalities[6].name,
-              created_at: "2024-12-12T14:20:00Z",
+              created_at: "2025-07-28T14:15:00Z",
               personality: discussionPersonalities[6].personality
             }
           ]
@@ -1800,28 +1800,28 @@ export const mockCanvasApi = {
         message: "Welcome everyone! Let's start by sharing what we hope to achieve in this programming course. What projects or career paths are you most excited about?",
         course_id: courseId,
         author: "Professor Smith",
-        created_at: "2024-12-01T10:00:00Z",
+        created_at: "2025-07-28T16:30:00Z",
         topic: "introductions",
         replies: [
           {
             id: 1,
             message: "I'm aiming to build efficient algorithms for data analysis. My goal is to work in fintech where performance optimization is crucial. I'm particularly interested in the mathematical foundations of algorithm complexity.",
             author: discussionPersonalities[0].name,
-            created_at: "2024-12-01T14:30:00Z",
+            created_at: "2025-07-28T18:45:00Z",
             personality: discussionPersonalities[0].personality
           },
           {
             id: 2,
             message: "That's awesome Alex! I'm super excited about web development and creating user-friendly applications! 🎉 I love the creative side of programming - making beautiful interfaces that people actually enjoy using. Maybe we could collaborate on a project sometime!",
             author: discussionPersonalities[1].name,
-            created_at: "2024-12-01T15:45:00Z",
+            created_at: "2025-07-28T19:30:00Z",
             personality: discussionPersonalities[1].personality
           },
           {
             id: 3,
             message: "My approach is more systematic. I plan to focus on software engineering principles, following best practices, and building maintainable codebases. Proper documentation and testing are my priorities.",
             author: discussionPersonalities[2].name,
-            created_at: "2024-12-01T16:20:00Z",
+            created_at: "2025-07-28T20:15:00Z",
             personality: discussionPersonalities[2].personality
           }
         ]
@@ -1832,35 +1832,35 @@ export const mockCanvasApi = {
         message: "What debugging techniques have you found most effective? Share your favorite tools and methods for tracking down those tricky bugs!",
         course_id: courseId,
         author: "Professor Smith",
-        created_at: "2024-12-02T09:00:00Z",
+        created_at: "2025-07-28T21:00:00Z",
         topic: "debugging",
         replies: [
           {
             id: 4,
             message: "I always start with systematic isolation - binary search through the codebase to narrow down the issue. Print statements at strategic points, then graduate to a proper debugger. Hypothesis-driven debugging is key.",
             author: discussionPersonalities[0].name,
-            created_at: "2024-12-02T11:15:00Z",
+            created_at: "2025-07-28T22:15:00Z",
             personality: discussionPersonalities[0].personality
           },
           {
             id: 5,
             message: "I love using colorful console.log statements! 🌈 Different colors for different types of data. And rubber duck debugging is amazing - explaining the problem out loud often reveals the solution! Sometimes I talk to my plants instead of a duck 😄",
             author: discussionPersonalities[1].name,
-            created_at: "2024-12-02T12:30:00Z",
+            created_at: "2025-07-28T23:30:00Z",
             personality: discussionPersonalities[1].personality
           },
           {
             id: 6,
             message: "Step-by-step debugging with proper IDE tools. I maintain a debugging checklist: 1) Reproduce consistently 2) Check recent changes 3) Verify assumptions 4) Use breakpoints methodically 5) Document the solution for future reference.",
             author: discussionPersonalities[2].name,
-            created_at: "2024-12-02T13:45:00Z",
+            created_at: "2025-07-29T00:45:00Z",
             personality: discussionPersonalities[2].personality
           },
           {
             id: 7,
             message: "I find pair debugging really helpful! Two sets of eyes can spot issues faster, and explaining your thought process to someone else often clarifies the problem. Plus it's less frustrating when you're not stuck alone.",
             author: discussionPersonalities[3].name,
-            created_at: "2024-12-02T14:10:00Z",
+            created_at: "2025-07-29T01:10:00Z",
             personality: discussionPersonalities[3].personality
           }
         ]
@@ -1871,28 +1871,28 @@ export const mockCanvasApi = {
         message: "How do you structure your code projects? What organizational patterns have you found most maintainable?",
         course_id: courseId,
         author: "Professor Smith",
-        created_at: "2024-12-03T08:00:00Z",
+        created_at: "2025-07-29T01:55:00Z",
         topic: "code-organization",
         replies: [
           {
             id: 8,
             message: "Clean architecture principles: separate business logic from infrastructure. Use dependency inversion, single responsibility principle. Modular design allows for easier testing and maintenance.",
             author: discussionPersonalities[0].name,
-            created_at: "2024-12-03T10:20:00Z",
+            created_at: "2025-07-29T03:10:00Z",
             personality: discussionPersonalities[0].personality
           },
           {
             id: 9,
             message: "What if we created visual diagrams of our code structure? 📊 I like to sketch out how different modules connect - it helps me see the big picture! Sometimes I use fun folder names that make me smile when I'm coding late at night ✨",
             author: discussionPersonalities[1].name,
-            created_at: "2024-12-03T11:35:00Z",
+            created_at: "2025-07-29T04:25:00Z",
             personality: discussionPersonalities[1].personality
           },
           {
             id: 10,
             message: "Consistent folder structure is essential. I follow established conventions: src/, tests/, docs/, config/. Every project should have the same layout. Clear naming conventions and comprehensive README files are non-negotiable.",
             author: discussionPersonalities[2].name,
-            created_at: "2024-12-03T12:15:00Z",
+            created_at: "2025-07-29T05:05:00Z",
             personality: discussionPersonalities[2].personality
           }
         ]
@@ -1903,28 +1903,28 @@ export const mockCanvasApi = {
         message: "What learning resources have been most helpful for you? Are you interested in forming study groups for this course?",
         course_id: courseId,
         author: "Professor Smith",
-        created_at: "2024-12-04T07:30:00Z",
+        created_at: "2025-07-29T05:50:00Z",
         topic: "study-groups",
         replies: [
           {
             id: 11,
             message: "I'm definitely interested in study groups! Learning together makes everything more enjoyable 🤝 I love explaining concepts to others - it helps me understand them better too. Should we set up a Discord server or something?",
             author: discussionPersonalities[1].name,
-            created_at: "2024-12-04T09:45:00Z",
+            created_at: "2025-07-29T07:05:00Z",
             personality: discussionPersonalities[1].personality
           },
           {
             id: 12,
             message: "A study group sounds beneficial. I suggest we establish regular meeting times, set clear agendas, and rotate leadership responsibilities. We could focus on problem-solving sessions and code reviews.",
             author: discussionPersonalities[2].name,
-            created_at: "2024-12-04T10:30:00Z",
+            created_at: "2025-07-29T07:50:00Z",
             personality: discussionPersonalities[2].personality
           },
           {
             id: 13,
             message: "I'm happy to help organize! We could create different groups based on schedules and learning styles. Some people prefer morning sessions, others evening. Maybe we could have both collaborative coding sessions and peer mentoring?",
             author: discussionPersonalities[3].name,
-            created_at: "2024-12-04T11:20:00Z",
+            created_at: "2025-07-29T08:35:00Z",
             personality: discussionPersonalities[3].personality
           }
         ]

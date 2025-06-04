@@ -263,9 +263,7 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
 
       <div className="mt-4 text-center">
         <p className="text-xs text-gray-500">
-          Or continue as a{' '}
-          <span className="font-medium text-gray-600">guest user</span>{' '}
-          to explore the demo
+          Use test accounts above to explore the platform features
         </p>
       </div>
     </div>

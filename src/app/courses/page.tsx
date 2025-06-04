@@ -60,16 +60,6 @@ export default function CoursesPage() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-4">Your Courses</h1>
         
-        {courses.length > 0 && courses[0].name.includes('[SAMPLE]') && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
-            <h3 className="text-lg font-medium text-blue-800 mb-2">Sample Courses for Testing</h3>
-            <p className="text-blue-700">
-              You're seeing sample courses to test the platform. These include assignments and AI chat functionality. 
-              Create your own courses below or enroll in actual courses to see your personalized content.
-            </p>
-          </div>
-        )}
-        
         {courses.length === 0 && (
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-6">
             <h3 className="text-lg font-medium text-yellow-800 mb-2">No Enrolled Courses</h3>
