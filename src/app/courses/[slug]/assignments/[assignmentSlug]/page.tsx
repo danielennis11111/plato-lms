@@ -2,10 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { mockCanvasApi } from '@/lib/mockCanvasApi';
+import { AIGradingService } from '@/lib/aiGradingService';
 import { format } from 'date-fns';
-import { ArrowLeft, FileText, Clock, Award } from 'lucide-react';
+import { ArrowLeft, FileText, Clock, Award, Brain, CheckCircle, AlertCircle, Lightbulb } from 'lucide-react';
 import Link from 'next/link';
 import { slugify } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface Assignment {
   id: number;
@@ -28,16 +30,32 @@ interface Course {
   course_code: string;
 }
 
+interface GradingResult {
+  score: number;
+  breakdown: {
+    criterion: string;
+    score: number;
+    feedback: string;
+  }[];
+  overallFeedback: string;
+  suggestions: string[];
+  passesThreshold: boolean;
+}
+
 export default function AssignmentPage({
   params,
 }: {
   params: { slug: string; assignmentSlug: string };
 }) {
+  const { getUserData } = useAuth();
   const [assignment, setAssignment] = useState<Assignment | null>(null);
   const [course, setCourse] = useState<Course | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [submission, setSubmission] = useState('');
+  const [gradingResult, setGradingResult] = useState<GradingResult | null>(null);
+  const [isGrading, setIsGrading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -73,18 +91,58 @@ export default function AssignmentPage({
     fetchData();
   }, [params.slug, params.assignmentSlug]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handlePreGrade = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!assignment || !course || !submission.trim()) return;
+
+    setIsGrading(true);
+    setGradingResult(null);
+    
+    try {
+      // Get user's API key for enhanced grading
+      const userData = getUserData();
+      const geminiKey = userData?.apiKeys?.find(key => key.provider === 'gemini' && key.isActive)?.keyHash;
+      
+      let result: GradingResult;
+      if (geminiKey) {
+        result = await AIGradingService.gradeWithAI(submission, assignment, geminiKey);
+      } else {
+        result = await AIGradingService.gradeSubmission(submission, assignment);
+      }
+      
+      setGradingResult(result);
+    } catch (error) {
+      console.error('Error grading submission:', error);
+      setError('Error analyzing submission. Please try again.');
+    } finally {
+      setIsGrading(false);
+    }
+  };
+
+  const handleFinalSubmit = async () => {
     if (!assignment || !course) return;
 
+    setIsSubmitting(true);
+    
     try {
-      // TODO: Implement actual submission logic
-      console.log('Submitting assignment:', submission);
-      // For now, just update the status
-      setAssignment(prev => prev ? { ...prev, status: 'submitted' } : null);
+      // Convert percentage to points
+      const earnedPoints = gradingResult ? Math.round((gradingResult.score / 100) * assignment.points_possible) : 0;
+      
+      // Submit assignment with grade and feedback
+      const updatedAssignment = await mockCanvasApi.submitAssignment(
+        assignment.id,
+        submission,
+        earnedPoints,
+        gradingResult?.overallFeedback || 'Assignment submitted successfully.'
+      );
+      
+      setAssignment(updatedAssignment);
+      
     } catch (error) {
       console.error('Error submitting assignment:', error);
       setError('Error submitting assignment');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -96,32 +154,11 @@ export default function AssignmentPage({
     );
   }
 
-  if (error) {
+  if (error || !assignment || !course) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen">
-        <h1 className="text-2xl font-bold text-gray-900 mb-4">{error}</h1>
-        <Link
-          href={`/courses/${params.slug}`}
-          className="text-blue-500 hover:text-blue-600 flex items-center space-x-2"
-        >
-          <ArrowLeft className="w-5 h-5" />
-          <span>Back to Course</span>
-        </Link>
-      </div>
-    );
-  }
-
-  if (!assignment || !course) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen">
-        <h1 className="text-2xl font-bold text-gray-900 mb-4">Assignment not found</h1>
-        <Link
-          href={`/courses/${params.slug}`}
-          className="text-blue-500 hover:text-blue-600 flex items-center space-x-2"
-        >
-          <ArrowLeft className="w-5 h-5" />
-          <span>Back to Course</span>
-        </Link>
+      <div className="text-center py-12">
+        <h2 className="text-2xl font-semibold text-gray-900">Error</h2>
+        <p className="mt-2 text-gray-600">{error || 'Assignment not found'}</p>
       </div>
     );
   }
@@ -181,38 +218,154 @@ export default function AssignmentPage({
 
         {/* Submission Form */}
         {assignment.status !== 'graded' && (
-          <form onSubmit={handleSubmit} className="mt-8 space-y-4">
-            <div>
-              <label htmlFor="submission" className="block text-sm font-medium text-gray-700 mb-2">
-                Your Submission
-              </label>
-              <textarea
-                id="submission"
-                rows={10}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                value={submission}
-                onChange={(e) => setSubmission(e.target.value)}
-                placeholder="Enter your submission here..."
-                required
-              />
-            </div>
-            <button
-              type="submit"
-              className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-            >
-              Submit Assignment
-            </button>
-          </form>
+          <div className="mt-8 space-y-6">
+            <form onSubmit={handlePreGrade} className="space-y-4">
+              <div>
+                <label htmlFor="submission" className="block text-sm font-medium text-gray-700 mb-2">
+                  Your Submission
+                </label>
+                <textarea
+                  id="submission"
+                  rows={10}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  value={submission}
+                  onChange={(e) => setSubmission(e.target.value)}
+                  placeholder="Enter your submission here..."
+                  required
+                />
+                <p className="text-sm text-gray-500 mt-1">
+                  Word count: {submission.split(/\s+/).filter(word => word.length > 0).length}
+                </p>
+              </div>
+              
+              <button
+                type="submit"
+                disabled={isGrading || !submission.trim()}
+                className="w-full px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+              >
+                {isGrading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
+                    <span>Analyzing Submission...</span>
+                  </>
+                ) : (
+                  <>
+                    <Brain className="w-5 h-5" />
+                    <span>Submit for AI Pre-Grading</span>
+                  </>
+                )}
+              </button>
+            </form>
+
+            {/* AI Grading Results */}
+            {gradingResult && (
+              <div className="bg-gray-50 rounded-lg p-6 space-y-6">
+                <div className="flex items-center space-x-3">
+                  <Brain className="w-6 h-6 text-purple-600" />
+                  <h3 className="text-lg font-semibold text-gray-900">AI Pre-Grading Results</h3>
+                </div>
+
+                {/* Overall Score */}
+                <div className={`rounded-lg p-4 ${
+                  gradingResult.passesThreshold ? 'bg-green-100 border-green-200' : 'bg-yellow-100 border-yellow-200'
+                } border`}>
+                  <div className="flex items-center space-x-3">
+                    {gradingResult.passesThreshold ? (
+                      <CheckCircle className="w-6 h-6 text-green-600" />
+                    ) : (
+                      <AlertCircle className="w-6 h-6 text-yellow-600" />
+                    )}
+                    <div>
+                      <h4 className="font-semibold text-gray-900">
+                        Predicted Score: {gradingResult.score}%
+                      </h4>
+                      <p className={`text-sm ${
+                        gradingResult.passesThreshold ? 'text-green-800' : 'text-yellow-800'
+                      }`}>
+                        {gradingResult.passesThreshold 
+                          ? 'Ready for submission!' 
+                          : 'Consider revising before final submission'
+                        }
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Overall Feedback */}
+                <div>
+                  <h4 className="font-medium text-gray-900 mb-2">Overall Feedback</h4>
+                  <p className="text-gray-700">{gradingResult.overallFeedback}</p>
+                </div>
+
+                {/* Detailed Breakdown */}
+                <div>
+                  <h4 className="font-medium text-gray-900 mb-3">Detailed Breakdown</h4>
+                  <div className="space-y-3">
+                    {gradingResult.breakdown.map((item, index) => (
+                      <div key={index} className="bg-white rounded-lg p-4 border">
+                        <div className="flex justify-between items-center mb-2">
+                          <h5 className="font-medium text-gray-900">{item.criterion}</h5>
+                          <span className={`px-2 py-1 rounded text-sm font-medium ${
+                            item.score >= 85 ? 'bg-green-100 text-green-800' :
+                            item.score >= 75 ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-red-100 text-red-800'
+                          }`}>
+                            {item.score}%
+                          </span>
+                        </div>
+                        <p className="text-gray-600 text-sm">{item.feedback}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Suggestions */}
+                {gradingResult.suggestions.length > 0 && (
+                  <div>
+                    <div className="flex items-center space-x-2 mb-3">
+                      <Lightbulb className="w-5 h-5 text-yellow-500" />
+                      <h4 className="font-medium text-gray-900">Suggestions for Improvement</h4>
+                    </div>
+                    <ul className="space-y-2">
+                      {gradingResult.suggestions.map((suggestion, index) => (
+                        <li key={index} className="flex items-start space-x-2">
+                          <span className="text-yellow-500 mt-1">•</span>
+                          <span className="text-gray-700 text-sm">{suggestion}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Final Submit Button */}
+                <div className="flex space-x-4">
+                  <button
+                    onClick={() => setGradingResult(null)}
+                    className="flex-1 px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                  >
+                    Revise Submission
+                  </button>
+                  <button
+                    onClick={handleFinalSubmit}
+                    disabled={isSubmitting}
+                    className="flex-1 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isSubmitting ? 'Submitting...' : 'Submit Final Assignment'}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         )}
 
-        {/* Feedback (if graded) */}
+        {/* Final Feedback (if graded) */}
         {assignment.status === 'graded' && assignment.feedback && (
-          <div className="mt-8 p-4 bg-gray-50 rounded-lg">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Feedback</h3>
+          <div className="mt-8 p-4 bg-blue-50 rounded-lg">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Final Grade & Feedback</h3>
             <p className="text-gray-700">{assignment.feedback}</p>
             {assignment.grade !== undefined && (
               <p className="mt-2 text-lg font-medium text-gray-900">
-                Grade: {assignment.grade} / {assignment.points_possible}
+                Final Grade: {assignment.grade} / {assignment.points_possible} points
               </p>
             )}
           </div>

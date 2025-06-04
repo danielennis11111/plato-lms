@@ -1241,7 +1241,7 @@ const assignments: Assignment[] = courses.flatMap(course =>
 );
 
 const calendarEvents: CalendarEvent[] = [
-  // Assignment Events
+  // Assignment Events (includes assignments and quizzes)
   ...assignments.map(assignment => ({
     id: assignment.id,
     title: assignment.name,
@@ -1254,6 +1254,26 @@ const calendarEvents: CalendarEvent[] = [
     points_possible: assignment.points_possible,
     grade: assignment.grade
   })),
+
+  // Discussion Events
+  ...courses.flatMap(course => 
+    course.modules.flatMap(module => 
+      module.items
+        .filter(item => item.type === 'discussion' && item.due_date)
+        .map(discussionItem => ({
+          id: discussionItem.id,
+          title: discussionItem.title,
+          type: 'discussion' as const,
+          start_date: discussionItem.due_date!.split('T')[0],
+          end_date: discussionItem.due_date!.split('T')[0],
+          course_id: course.id,
+          course_name: course.name,
+          status: discussionItem.status,
+          points_possible: discussionItem.points_possible || 0,
+          grade: discussionItem.grade
+        }))
+    )
+  ),
 
   // Module completion events
   ...courses.flatMap(course => 
@@ -1386,10 +1406,53 @@ export const mockCanvasApi = {
     assignment.status = status;
     return Promise.resolve(assignment);
   },
+
+  submitAssignment: (assignmentId: number, submission: string, grade?: number, feedback?: string) => {
+    const assignment = assignments.find(a => a.id === assignmentId);
+    if (!assignment) return Promise.reject(new Error('Assignment not found'));
+    
+    assignment.status = 'graded';
+    if (grade !== undefined) assignment.grade = grade;
+    if (feedback) assignment.feedback = feedback;
+    
+    return Promise.resolve(assignment);
+  },
   
   // Calendar functions
-  getCalendarEvents: (startDate?: string, endDate?: string) => {
+  getCalendarEvents: (startDate?: string, endDate?: string, userEnrollments?: string[]) => {
     let events = [...calendarEvents];
+    
+    console.log('🔍 getCalendarEvents Debug:');
+    console.log('Total events before filtering:', events.length);
+    console.log('User enrollments provided:', userEnrollments);
+    
+    // Filter events based on user enrollments if provided
+    if (userEnrollments && userEnrollments.length > 0) {
+      const enrolledCourseIds = userEnrollments.map(id => parseInt(id));
+      console.log('Enrolled course IDs (numbers):', enrolledCourseIds);
+      
+      const beforeFilterCount = events.length;
+      events = events.filter(event => {
+        const isEnrolled = enrolledCourseIds.includes(event.course_id);
+        const isUniversityEvent = event.course_id === 0;
+        const shouldInclude = isEnrolled || isUniversityEvent;
+        
+        if (!shouldInclude) {
+          console.log(`Filtering out event: "${event.title}" from course ${event.course_id}`);
+        }
+        
+        return shouldInclude;
+      });
+      console.log(`Filtered from ${beforeFilterCount} to ${events.length} events`);
+    } else if (userEnrollments && userEnrollments.length === 0) {
+      // For users with no enrollments, only show sample courses (1-2) + university events
+      console.log('User has no enrollments, showing sample courses only');
+      events = events.filter(event => 
+        event.course_id <= 2 || event.course_id === 0
+      );
+    } else {
+      console.log('No enrollment filtering applied - showing all events');
+    }
     
     if (startDate) {
       events = events.filter(event => event.start_date >= startDate);
@@ -1398,6 +1461,9 @@ export const mockCanvasApi = {
     if (endDate) {
       events = events.filter(event => event.end_date <= endDate);
     }
+    
+    console.log('Final events after date filtering:', events.length);
+    console.log('Event course IDs in result:', [...new Set(events.map(e => e.course_id))]);
     
     return Promise.resolve(events.sort((a, b) => a.start_date.localeCompare(b.start_date)));
   },

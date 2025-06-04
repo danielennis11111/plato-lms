@@ -28,6 +28,15 @@ export default function Calendar() {
     const userData = getUserData();
     const userEnrollments = userData?.courseProgress ? Object.keys(userData.courseProgress) : [];
     
+    // Debug logging to understand calendar filtering
+    console.log('📅 Calendar Debug Info:');
+    console.log('User enrollments:', userEnrollments);
+    console.log('User enrollments type:', typeof userEnrollments, userEnrollments?.length);
+    
+    // Debug current user
+    console.log('Current user data:', userData);
+    console.log('User session:', user);
+    
     let startDate: Date;
     let endDate: Date;
 
@@ -49,17 +58,19 @@ export default function Calendar() {
     const [fetchedEvents, fetchedCourses] = await Promise.all([
       mockCanvasApi.getCalendarEvents(
         format(startDate, 'yyyy-MM-dd'),
-        format(endDate, 'yyyy-MM-dd')
+        format(endDate, 'yyyy-MM-dd'),
+        userEnrollments
       ),
       mockCanvasApi.getCourses(userEnrollments)
     ]);
     
-    // Filter events to only those from enrolled courses
-    const filteredEvents = fetchedEvents.filter(event => 
-      fetchedCourses.some(course => course.id === event.course_id) || event.course_id === 0 // Keep university events
-    );
+    console.log('All events fetched:', fetchedEvents.length);
+    console.log('User enrolled courses:', fetchedCourses.map(c => ({ id: c.id, name: c.name })));
+    console.log('Events are pre-filtered by API based on enrollments');
+    console.log('Event course IDs:', [...new Set(fetchedEvents.map(e => e.course_id))]);
     
-    setEvents(filteredEvents);
+    // Events are already filtered by the API based on user enrollments
+    setEvents(fetchedEvents);
     setCourses(fetchedCourses);
     setLoading(false);
   };
@@ -213,6 +224,19 @@ export default function Calendar() {
   };
 
   const renderListView = () => {
+    if (events.length === 0) {
+      return (
+        <div className="text-center py-12">
+          <CalendarIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">No events found</h3>
+          <p className="text-gray-500 max-w-md mx-auto">
+            There are no assignments, quizzes, or other events scheduled for the selected time period 
+            in your enrolled courses.
+          </p>
+        </div>
+      );
+    }
+
     return (
       <div className="space-y-4">
         {events.map(event => (
@@ -311,6 +335,15 @@ export default function Calendar() {
         {viewMode === 'month' && renderMonthView()}
         {viewMode === 'week' && renderWeekView()}
         {viewMode === 'list' && renderListView()}
+        
+        {/* Show helpful message when no events found in month/week view */}
+        {events.length === 0 && viewMode !== 'list' && (
+          <div className="text-center py-8 border-t border-gray-200">
+            <p className="text-gray-500">
+              No events found for this time period in your enrolled courses.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
