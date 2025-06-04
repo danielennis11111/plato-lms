@@ -7,7 +7,11 @@ import { createCourseFromPrompt } from '@/app/actions/courses';
 import { useRouter } from 'next/navigation';
 import { useAuth, useAPIKey } from '@/contexts/AuthContext';
 
-export function CourseGeneratorForm() {
+interface CourseGeneratorFormProps {
+  onCourseGenerated?: () => void;
+}
+
+export function CourseGeneratorForm({ onCourseGenerated }: CourseGeneratorFormProps) {
   const [prompt, setPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -26,9 +30,15 @@ export function CourseGeneratorForm() {
       const result = await createCourseFromPrompt(prompt, user?.id, apiKey || undefined);
       if (result.success) {
         setPrompt('');
+        console.log('✅ Course created successfully:', result.course?.name);
+        
+        // Call the callback to refresh the courses list
+        if (onCourseGenerated) {
+          onCourseGenerated();
+        }
+        
+        // Also trigger Next.js revalidation
         router.refresh();
-        // Redirect to the courses page to see the new course
-        router.push('/courses');
       } else {
         alert(result.error || 'Failed to create course');
       }

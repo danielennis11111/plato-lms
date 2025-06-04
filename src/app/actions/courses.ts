@@ -47,7 +47,10 @@ export async function createCourseFromPrompt(prompt: string, userId?: string, ap
     }
     
     // Add course to global course list
-    await mockCanvasApi.addCourse(courseData);
+    const addResult = await mockCanvasApi.addCourse(courseData);
+    const finalCourse = addResult.course || courseData;
+    
+    console.log('📚 Course added to API with ID:', finalCourse.id);
     
     // Enroll the user in the course
     const userData = UserService.getUserData(userId);
@@ -57,8 +60,8 @@ export async function createCourseFromPrompt(prompt: string, userId?: string, ap
         userData.courseProgress = {};
       }
       
-      userData.courseProgress[courseData.id.toString()] = {
-        courseId: courseData.id.toString(),
+      userData.courseProgress[finalCourse.id.toString()] = {
+        courseId: finalCourse.id.toString(),
         enrolledAt: new Date().toISOString(),
         lastAccessedAt: new Date().toISOString(),
         completedModules: [],
@@ -70,12 +73,15 @@ export async function createCourseFromPrompt(prompt: string, userId?: string, ap
       };
       
       UserService.saveUserData(userId, userData);
-      console.log('✅ User enrolled in course:', courseData.name);
+      console.log('✅ User enrolled in course:', finalCourse.name, 'with ID:', finalCourse.id);
+      console.log('📝 User now enrolled in courses:', Object.keys(userData.courseProgress));
+    } else {
+      console.log('⚠️ No user data found for enrollment');
     }
     
     revalidatePath('/courses');
     revalidatePath('/');
-    return { success: true, course: courseData };
+    return { success: true, course: finalCourse };
   } catch (error) {
     console.error('Error creating course:', error);
     return { success: false, error: 'Failed to create course' };

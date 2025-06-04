@@ -12,27 +12,34 @@ export default function CoursesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchCourses = async () => {
-      try {
-        setLoading(true);
-        
-        // Get user enrollments from their courseProgress keys
-        const userData = getUserData();
-        const userEnrollments = userData?.courseProgress ? Object.keys(userData.courseProgress) : [];
-        
-        const coursesData = await mockCanvasApi.getCourses(userEnrollments);
-        setCourses(coursesData);
-      } catch (error) {
-        console.error('Error loading courses:', error);
-        setError('Failed to load courses');
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchCourses = async () => {
+    try {
+      setLoading(true);
+      
+      // Get user enrollments from their courseProgress keys
+      const userData = getUserData();
+      const userEnrollments = userData?.courseProgress ? Object.keys(userData.courseProgress) : [];
+      
+      console.log('📚 Fetching courses for enrollments:', userEnrollments);
+      const coursesData = await mockCanvasApi.getCourses(userEnrollments);
+      console.log('📚 Loaded courses:', coursesData.length);
+      setCourses(coursesData);
+    } catch (error) {
+      console.error('Error loading courses:', error);
+      setError('Failed to load courses');
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchCourses();
   }, [user, getUserData]);
+
+  const handleCourseGenerated = () => {
+    console.log('🔄 Course generated, refreshing course list...');
+    fetchCourses();
+  };
 
   if (loading) {
     return (
@@ -71,7 +78,7 @@ export default function CoursesPage() {
         
         <div className="bg-white p-6 rounded-lg shadow">
           <h2 className="text-xl font-semibold mb-4">Create New Course</h2>
-          <CourseGeneratorForm />
+          <CourseGeneratorForm onCourseGenerated={handleCourseGenerated} />
         </div>
       </div>
       
