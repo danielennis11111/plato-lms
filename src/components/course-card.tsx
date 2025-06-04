@@ -7,6 +7,7 @@ import { Trash2 } from 'lucide-react';
 import { deleteCourse } from '@/app/actions/courses';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { slugify } from '@/lib/utils';
 
 interface CourseCardProps {
   course: Course;
@@ -26,9 +27,6 @@ export function CourseCard({ course }: CourseCardProps) {
     }
   };
 
-  // Create a URL-friendly slug from the course code and name
-  const courseSlug = `${course.course_code.toLowerCase()}-${course.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
-
   return (
     <Card>
       <CardHeader>
@@ -43,7 +41,7 @@ export function CourseCard({ course }: CourseCardProps) {
         </div>
       </CardContent>
       <CardFooter className="flex justify-between">
-        <Link href={`/courses/${courseSlug}`}>
+        <Link href={`/courses/${slugify(course.name)}`}>
           <Button variant="outline">View Course</Button>
         </Link>
         <Button variant="destructive" onClick={handleDelete}>

@@ -5,16 +5,18 @@ import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, addDays, addM
 import { mockCanvasApi, CalendarEvent } from '@/lib/mockCanvasApi';
 import { Calendar as CalendarIcon, List, Grid } from 'lucide-react';
 import Link from 'next/link';
+import { slugify } from '@/lib/utils';
 
 type ViewMode = 'month' | 'week' | 'list';
 
 export default function Calendar() {
-  const [currentDate, setCurrentDate] = useState(new Date('2025-05-28')); // Set to May 28, 2025
+  const [currentDate, setCurrentDate] = useState(new Date('2025-06-03')); // Set to June 3, 2025
   const [viewMode, setViewMode] = useState<ViewMode>('month');
   const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const [courses, setCourses] = useState<any[]>([]);
 
-  // Fetch events for the current view
-  const fetchEvents = async () => {
+  // Fetch events and courses for the current view
+  const fetchData = async () => {
     let startDate: Date;
     let endDate: Date;
 
@@ -33,17 +35,43 @@ export default function Calendar() {
         break;
     }
 
-    const fetchedEvents = await mockCanvasApi.getCalendarEvents(
-      format(startDate, 'yyyy-MM-dd'),
-      format(endDate, 'yyyy-MM-dd')
-    );
+    const [fetchedEvents, fetchedCourses] = await Promise.all([
+      mockCanvasApi.getCalendarEvents(
+        format(startDate, 'yyyy-MM-dd'),
+        format(endDate, 'yyyy-MM-dd')
+      ),
+      mockCanvasApi.getCourses()
+    ]);
+    
     setEvents(fetchedEvents);
+    setCourses(fetchedCourses);
   };
 
   // Fetch events when component mounts or when view mode/date changes
   useEffect(() => {
-    fetchEvents();
+    fetchData();
   }, [currentDate, viewMode]);
+
+  // Helper function to get the correct URL for an event
+  const getEventUrl = (event: CalendarEvent) => {
+    const course = courses.find(c => c.id === event.course_id);
+    if (!course) return '#';
+    
+    const courseSlug = slugify(course.name);
+    const eventSlug = slugify(event.title);
+    
+    if (event.type === 'assignment') {
+      return `/courses/${courseSlug}/assignments/${eventSlug}`;
+    } else if (event.type === 'quiz') {
+      return `/courses/${courseSlug}/quizzes/${eventSlug}`;
+    } else if (event.type === 'discussion') {
+      return `/courses/${courseSlug}/discussions/${eventSlug}`;
+    } else if (event.type === 'module') {
+      return `/courses/${courseSlug}`;
+    }
+    
+    return `/courses/${courseSlug}`;
+  };
 
   // Navigation handlers
   const previousPeriod = () => {
@@ -87,7 +115,7 @@ export default function Calendar() {
             {dayEvents.map(event => (
               <Link
                 key={event.id}
-                href={`/assignments/${event.id}`}
+                href={getEventUrl(event)}
                 className={`block text-xs p-1 rounded hover:opacity-80 transition-opacity ${
                   event.type === 'assignment' ? 'bg-blue-100 text-blue-800' :
                   event.type === 'quiz' ? 'bg-purple-100 text-purple-800' :
@@ -141,7 +169,7 @@ export default function Calendar() {
             {dayEvents.map(event => (
               <Link
                 key={event.id}
-                href={`/assignments/${event.id}`}
+                href={getEventUrl(event)}
                 className={`block text-xs p-1 rounded hover:opacity-80 transition-opacity ${
                   event.type === 'assignment' ? 'bg-blue-100 text-blue-800' :
                   event.type === 'quiz' ? 'bg-purple-100 text-purple-800' :
@@ -171,7 +199,7 @@ export default function Calendar() {
         {events.map(event => (
           <Link
             key={event.id}
-            href={`/assignments/${event.id}`}
+            href={getEventUrl(event)}
             className={`block p-4 rounded-lg hover:opacity-80 transition-opacity ${
               event.type === 'assignment' ? 'bg-blue-100 text-blue-800' :
               event.type === 'quiz' ? 'bg-purple-100 text-purple-800' :

@@ -6,6 +6,7 @@ import Chat from './Chat';
 import { useLayout } from '../contexts/LayoutContext';
 import { usePathname } from 'next/navigation';
 import { ChatContext } from '@/types/chat';
+import { mockCanvasApi } from '@/lib/mockCanvasApi';
 
 export default function ChatButton() {
   const { isChatOpen, toggleChat } = useLayout();
@@ -23,59 +24,108 @@ export default function ChatButton() {
 
   // Determine context based on current page path
   useEffect(() => {
-    const getContextFromPath = (): ChatContext => {
+    const getContextFromPath = async (): Promise<ChatContext> => {
       // Default context
       let context: ChatContext = {
         type: 'dashboard',
         title: 'Learning Assistant'
       };
 
-      // Course page: /courses/[id]
-      if (pathname?.match(/^\/courses\/(\d+)$/)) {
-        const id = parseInt(pathname.split('/').pop() || '0', 10);
+      console.log('ChatButton: Current pathname:', pathname);
+
+      // Course assignment page: /courses/[slug]/assignments/[assignmentSlug]
+      if (pathname?.match(/^\/courses\/[^\/]+\/assignments\/[^\/]+$/)) {
+        console.log('ChatButton: Detected assignment page');
+        const pathParts = pathname.split('/');
+        const courseSlug = pathParts[2];
+        const assignmentSlug = pathParts[4];
+        
+        try {
+          // Get course data first
+          const courseData = await mockCanvasApi.getCourse(courseSlug);
+          if (courseData) {
+            // Get assignment data
+            const assignmentData = await mockCanvasApi.getAssignmentByName(courseData.id, assignmentSlug);
+            if (assignmentData) {
+              context = {
+                type: 'assignment',
+                id: assignmentData.id,
+                title: assignmentData.name
+              };
+              console.log('ChatButton: Set assignment context:', context);
+            }
+          }
+        } catch (error) {
+          console.error('ChatButton: Error fetching assignment context:', error);
+        }
+      }
+      // Course page: /courses/[slug]
+      else if (pathname?.match(/^\/courses\/[^\/]+$/)) {
+        console.log('ChatButton: Detected course page');
+        const courseSlug = pathname.split('/')[2];
+        try {
+          const courseData = await mockCanvasApi.getCourse(courseSlug);
+          if (courseData) {
+            context = {
+              type: 'course',
+              id: courseData.id,
+              title: courseData.name
+            };
+            console.log('ChatButton: Set course context:', context);
+          }
+        } catch (error) {
+          console.error('ChatButton: Error fetching course context:', error);
+        }
+      }
+      // Quiz page: /courses/[slug]/quizzes/[quizSlug]
+      else if (pathname?.match(/^\/courses\/[^\/]+\/quizzes\/[^\/]+$/)) {
+        console.log('ChatButton: Detected quiz page');
+        const pathParts = pathname.split('/');
+        const courseSlug = pathParts[2];
+        const quizSlug = pathParts[4];
+        
+        try {
+          const courseData = await mockCanvasApi.getCourse(courseSlug);
+          if (courseData) {
+            const quizData = await mockCanvasApi.getQuizByName(courseData.id, quizSlug);
+            if (quizData) {
+              context = {
+                type: 'assignment', // Treat quizzes as assignments for chat purposes
+                id: quizData.id,
+                title: quizData.name
+              };
+              console.log('ChatButton: Set quiz context:', context);
+            }
+          }
+        } catch (error) {
+          console.error('ChatButton: Error fetching quiz context:', error);
+        }
+      }
+      // Calendar page
+      else if (pathname?.includes('/calendar')) {
         context = {
-          type: 'course',
-          id,
-          title: `Course #${id}`
+          type: 'calendar',
+          title: 'Calendar Assistant'
         };
       }
-      // Course chat: /courses/[id]/chat
-      else if (pathname?.match(/^\/courses\/(\d+)\/chat$/)) {
-        const id = parseInt(pathname.split('/')[2] || '0', 10);
+      // Courses list page
+      else if (pathname?.includes('/courses')) {
         context = {
-          type: 'course',
-          id,
-          title: `Course #${id}`
-        };
-      }
-      // Assignment page: /assignments/[id]
-      else if (pathname?.match(/^\/assignments\/(\d+)$/)) {
-        const id = parseInt(pathname.split('/').pop() || '0', 10);
-        context = {
-          type: 'assignment',
-          id,
-          title: `Assignment #${id}`
-        };
-      }
-      // Chat page: /chat/[id]
-      else if (pathname?.match(/^\/chat\/(\d+)$/)) {
-        const id = parseInt(pathname.split('/').pop() || '0', 10);
-        context = {
-          type: 'dashboard', // Treat chat pages as dashboard type
-          id,
-          title: `Chat #${id}`
+          type: 'dashboard',
+          title: 'Courses Assistant'
         };
       }
 
+      console.log('ChatButton: Final context:', context);
       return context;
     };
 
-    setPageContext(getContextFromPath());
+    getContextFromPath().then(setPageContext);
   }, [pathname]);
 
   if (!mounted) return null;
 
-  const CHAT_WIDTH = 400; // Fixed width for the chat panel
+  const CHAT_WIDTH = 500; // Increased width for better readability
 
   return (
     <>
@@ -100,24 +150,24 @@ export default function ChatButton() {
       >
         <div className="flex flex-col h-full">
           {/* Chat Header */}
-          <div className="p-4 border-b border-gray-200 bg-white flex justify-between items-center">
+          <div className="p-3 border-b border-gray-200 bg-white flex justify-between items-center">
             <div className="flex items-center">
-              <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center text-primary-600 mr-3">
-                <MessageCircle size={16} />
+              <div className="w-6 h-6 rounded-full bg-primary-100 flex items-center justify-center text-primary-600 mr-2">
+                <MessageCircle size={14} />
               </div>
               <div>
-                <h2 className="text-base font-semibold text-gray-900">Learning Assistant</h2>
+                <h2 className="text-sm font-semibold text-gray-900">Learning Assistant</h2>
                 <p className="text-xs text-gray-500">
-                  {pageContext?.title ? `Context: ${pageContext.title}` : 'Ask any question about your courses'}
+                  {pageContext?.title ? `${pageContext.title}` : 'Ask any question about your courses'}
                 </p>
               </div>
             </div>
             <button
               onClick={toggleChat}
-              className="p-2 text-gray-500 hover:text-gray-700 rounded-full hover:bg-gray-100"
+              className="p-1 text-gray-500 hover:text-gray-700 rounded-full hover:bg-gray-100"
               aria-label="Close chat"
             >
-              <X size={20} />
+              <X size={16} />
             </button>
           </div>
 

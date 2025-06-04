@@ -21,30 +21,35 @@ interface DashboardClientProps {
   assignments: Assignment[];
 }
 
-export default function DashboardClient() {
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [assignments, setAssignments] = useState<Assignment[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function DashboardClient({ courses: initialCourses, assignments: initialAssignments }: DashboardClientProps) {
+  const [courses, setCourses] = useState<Course[]>(initialCourses || []);
+  const [assignments, setAssignments] = useState<Assignment[]>(initialAssignments || []);
+  const [loading, setLoading] = useState(!initialCourses || !initialAssignments);
   const [currentWeekStart, setCurrentWeekStart] = useState(startOfWeek(new Date()));
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [coursesData, assignmentsData] = await Promise.all([
-          mockCanvasApi.getCourses(),
-          mockCanvasApi.getAssignments()
-        ]);
-        setCourses(coursesData);
-        setAssignments(assignmentsData);
-      } catch (error) {
-        console.error('Error fetching dashboard data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    // Only fetch if no initial data was provided
+    if (!initialCourses || !initialAssignments) {
+      const fetchData = async () => {
+        try {
+          const [coursesData, assignmentsData] = await Promise.all([
+            mockCanvasApi.getCourses(),
+            mockCanvasApi.getAssignments()
+          ]);
+          setCourses(coursesData);
+          setAssignments(assignmentsData);
+        } catch (error) {
+          console.error('Error fetching dashboard data:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
 
-    fetchData();
-  }, []);
+      fetchData();
+    } else {
+      setLoading(false);
+    }
+  }, [initialCourses, initialAssignments]);
 
   if (loading) {
     return (
@@ -80,27 +85,27 @@ export default function DashboardClient() {
   return (
     <div className="space-y-8">
       {/* Welcome Section */}
-      <div className="card">
-        <h1>Welcome back!</h1>
+      <div className="bg-white rounded-lg p-6 shadow-sm">
+        <h1 className="text-2xl font-bold text-gray-900">Welcome back!</h1>
         <p className="text-gray-600 mt-2">
           You have {assignments.filter(a => a.status === 'not_started').length} upcoming assignments
         </p>
       </div>
 
       {/* Week View Calendar */}
-      <div className="card">
+      <div className="bg-white rounded-lg p-6 shadow-sm">
         <div className="flex justify-between items-center mb-4">
-          <h2>This Week</h2>
+          <h2 className="text-xl font-semibold text-gray-900">This Week</h2>
           <div className="flex items-center space-x-4">
             <button
               onClick={previousWeek}
-              className="btn btn-secondary"
+              className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
             <button
               onClick={nextWeek}
-              className="btn btn-secondary"
+              className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors"
             >
               <ChevronRight className="w-5 h-5" />
             </button>
@@ -150,17 +155,17 @@ export default function DashboardClient() {
 
       {/* Courses Section */}
       <div>
-        <h2 className="mb-4">Your Courses</h2>
+        <h2 className="text-xl font-semibold text-gray-900 mb-4">Your Courses</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {courses.map(course => (
             <Link
               key={course.id}
               href={`/courses/${slugify(course.name)}`}
-              className="card hover:bg-gray-50 transition-colors"
+              className="bg-white rounded-lg p-6 shadow-sm hover:bg-gray-50 transition-colors"
             >
               <div className="flex items-start justify-between">
                 <div>
-                  <h3>{course.name}</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">{course.name}</h3>
                   <p className="text-gray-600 mt-1">{course.course_code}</p>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -183,7 +188,7 @@ export default function DashboardClient() {
 
       {/* Upcoming Assignments */}
       <div>
-        <h2 className="mb-4">Upcoming Assignments</h2>
+        <h2 className="text-xl font-semibold text-gray-900 mb-4">Upcoming Assignments</h2>
         <div className="space-y-4">
           {upcomingAssignments.slice(0, 5).map(assignment => (
             <Link
@@ -191,25 +196,32 @@ export default function DashboardClient() {
               href={`/courses/${slugify(getCourseName(assignment.course_id))}/assignments/${slugify(assignment.name)}`}
               className="block"
             >
-              <div className="card hover:bg-gray-50 transition-colors">
+              <div className="bg-white rounded-lg p-6 shadow-sm hover:bg-gray-50 transition-colors">
                 <div className="flex items-start space-x-4">
                   <div className="mt-1">
                     <FileText className="w-5 h-5 text-blue-500" />
                   </div>
                   <div className="flex-1">
-                    <h4 className="font-medium">{assignment.name}</h4>
-                    <p className="text-gray-600 text-sm mt-1">{assignment.description}</p>
-                    <div className="flex items-center space-x-4 mt-2 text-sm">
-                      <div className="flex items-center text-gray-600">
+                    <h4 className="font-medium text-gray-900">{assignment.name}</h4>
+                    <p className="text-gray-600 text-sm mt-1">{getCourseName(assignment.course_id)}</p>
+                    <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500">
+                      <div className="flex items-center">
                         <Calendar className="w-4 h-4 mr-1" />
-                        Due: {format(new Date(assignment.due_at), 'MMM d, yyyy')}
+                        Due {format(new Date(assignment.due_at), 'MMM d')}
                       </div>
-                      {assignment.points_possible && (
-                        <div className="text-gray-600">
-                          {assignment.points_possible} points
-                        </div>
-                      )}
+                      <div className="flex items-center">
+                        <span className="w-4 h-4 mr-1">📝</span>
+                        {assignment.points_possible} pts
+                      </div>
                     </div>
+                  </div>
+                  <div className={`px-3 py-1 rounded-full text-sm ${
+                    assignment.status === 'not_started' ? 'bg-gray-100 text-gray-800' :
+                    assignment.status === 'in_progress' ? 'bg-yellow-100 text-yellow-800' :
+                    assignment.status === 'submitted' ? 'bg-blue-100 text-blue-800' :
+                    'bg-green-100 text-green-800'
+                  }`}>
+                    {assignment.status.replace('_', ' ')}
                   </div>
                 </div>
               </div>

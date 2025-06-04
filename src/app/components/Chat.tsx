@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { MessageSquare, Send, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { MessageSquare, Send, X, ChevronLeft, ChevronRight, Bot, User } from 'lucide-react';
 import { mockCanvasApi } from '@/lib/mockCanvasApi';
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
 import Link from 'next/link';
@@ -50,71 +50,90 @@ export default function Chat({ context, isFullScreen = false }: ChatProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [isInitialized, setIsInitialized] = useState(false);
   const [debugInfo, setDebugInfo] = useState<string | null>(null);
+  const [contextInfo, setContextInfo] = useState<any>(null);
 
-  // Load chat history from localStorage on mount
+  // Generate a unique key for the current page context
+  const getContextKey = (ctx?: ChatContext): string => {
+    if (!ctx) return 'global-chat';
+    if (ctx.type === 'dashboard') return 'dashboard';
+    return `${ctx.type}-${ctx.id || 'unknown'}`;
+  };
+
+  const contextKey = getContextKey(context);
+
+  // Load context information for better assistance
   useEffect(() => {
-    const loadChatHistory = () => {
-      const savedMessages = localStorage.getItem('chatHistory');
-      if (savedMessages) {
-        const parsedMessages = JSON.parse(savedMessages);
-        // Filter messages by current context if provided
-        const contextMessages = context 
-          ? parsedMessages.filter((msg: Message) => {
-              if (!msg.context || !context) return false;
-              if (context.type === 'dashboard') {
-                return msg.context.type === 'dashboard';
-              }
-              return msg.context.type === context.type && 
-                     msg.context.id === context.id;
-            })
-          : parsedMessages;
-        
-        // Sort messages by timestamp
-        contextMessages.sort((a: Message, b: Message) => 
-          new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
-        );
-        
-        setMessages(contextMessages);
-      }
+    if (context?.id && context?.type) {
+      mockCanvasApi.getContextInfo(context.type, context.id).then(info => {
+        setContextInfo(info);
+      }).catch(error => {
+        console.error('Error loading context info:', error);
+      });
+    }
+  }, [context]);
+
+  // Load page-specific chat history from localStorage - FRESH START PER PAGE
+  useEffect(() => {
+    const loadPageChatHistory = () => {
+      // Always start fresh - clear any existing messages
+      setMessages([]);
       setIsInitialized(true);
     };
 
-    loadChatHistory();
-  }, [context]);
+    loadPageChatHistory();
+  }, [contextKey]);
 
-  // Save messages to localStorage whenever they change
+  // Save page-specific messages to localStorage whenever they change
   useEffect(() => {
     if (messages.length > 0 && isInitialized) {
-      const savedMessages = localStorage.getItem('chatHistory');
-      const existingMessages = savedMessages ? JSON.parse(savedMessages) : [];
+      const savedChats = localStorage.getItem('pageSpecificChats');
+      const allChats = savedChats ? JSON.parse(savedChats) : {};
       
-      // Remove old messages for this context
-      const filteredMessages = existingMessages.filter((msg: Message) => {
-        if (!msg.context || !context) return true;
-        if (context.type === 'dashboard') {
-          return msg.context.type !== 'dashboard';
-        }
-        return msg.context.type !== context.type || msg.context.id !== context.id;
-      });
-
       // Convert timestamps to ISO strings for storage
       const messagesToSave = messages.map(msg => ({
         ...msg,
         timestamp: msg.timestamp instanceof Date ? msg.timestamp.toISOString() : msg.timestamp
       }));
+      
+      allChats[contextKey] = messagesToSave;
+      localStorage.setItem('pageSpecificChats', JSON.stringify(allChats));
 
-      // Add new messages
-      const updatedMessages = [...filteredMessages, ...messagesToSave];
-      localStorage.setItem('chatHistory', JSON.stringify(updatedMessages));
+      // Also update the global chat history for the chat history page
+      const globalHistory = localStorage.getItem('chatHistory');
+      const existingGlobalMessages = globalHistory ? JSON.parse(globalHistory) : [];
+      
+      // Remove old messages for this context from global history
+      const filteredGlobalMessages = existingGlobalMessages.filter((msg: Message) => {
+        if (!msg.context || !context) return true;
+        const msgKey = getContextKey(msg.context);
+        return msgKey !== contextKey;
+      });
+
+      // Add current messages to global history
+      const updatedGlobalMessages = [...filteredGlobalMessages, ...messagesToSave];
+      localStorage.setItem('chatHistory', JSON.stringify(updatedGlobalMessages));
     }
-  }, [messages, context, isInitialized]);
+  }, [messages, isInitialized, contextKey, context]);
 
-  // Initialize chat with context
+  // Initialize chat with context-aware welcome message
   useEffect(() => {
-    if (context && !isInitialized && messages.length === 0) {
+    if (context && isInitialized && messages.length === 0) {
+      const getWelcomeMessage = () => {
+        if (context.type === 'course') {
+          return `Hi! I'm here to help you with ${context.title || 'this course'}. I can assist with assignments, explain concepts, help with study planning, or answer questions about course content. What would you like to know?`;
+        } else if (context.type === 'assignment') {
+          return `Hello! I'm ready to help you with "${context.title || 'this assignment'}". I can explain requirements, suggest approaches, help break down the work, or clarify any concepts. How can I assist you?`;
+        } else if (context.type === 'calendar') {
+          return `Hi there! I can help you with your calendar and schedule. I can remind you about upcoming deadlines, help you plan your time, suggest study schedules, or answer questions about your assignments and events. What do you need help with?`;
+        } else if (context.type === 'dashboard') {
+          return `Welcome! I'm your learning assistant. I can help you with any of your courses, assignments, study planning, or answer questions about your academic progress. I have access to all your course information. How can I help you today?`;
+        }
+        return `Hello! I'm your learning assistant. How can I help you today?`;
+      };
+
       const initialMessage: Message = {
         id: Date.now().toString(),
-        content: `Starting a new chat about ${context.title || context.type}. How can I help you today?`,
+        content: getWelcomeMessage(),
         role: 'assistant',
         timestamp: new Date(),
         context
@@ -122,6 +141,11 @@ export default function Chat({ context, isFullScreen = false }: ChatProps) {
       setMessages([initialMessage]);
     }
   }, [context, isInitialized, messages.length]);
+
+  // Auto-scroll to bottom when new messages are added
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
   // Debounced search for similar conversations
   const searchSimilarConversations = useCallback(
@@ -171,260 +195,181 @@ export default function Chat({ context, isFullScreen = false }: ChatProps) {
     setHasApiKey(!!apiKey);
   }, []);
 
-  // Scroll to bottom when messages change
-  useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [messages]);
-
-  const generateResponse = async (userInput: string, context: ChatProps['context']) => {
-    if (!context) return "I'm here to help! What would you like to know?";
-
-    const maxRetries = 3;
-    let retryCount = 0;
-    // Clear previous debug info
-    setDebugInfo(null);
-
-    while (retryCount < maxRetries) {
-      try {
-        // Get relevant context data
-        let contextData = '';
-        
-        switch (context.type) {
-          case 'course': {
-            const course = await mockCanvasApi.getCourse(context.id!);
-            if (course) {
-              contextData = `Course: ${course.name}\nDescription: ${course.syllabus}\nInstructor: ${course.instructor}\nCurrent Grade: ${course.current_grade}%\nModules: ${course.modules.length}`;
-            }
-            break;
-          }
-          case 'assignment': {
-            const assignment = await mockCanvasApi.getAssignments().then(assignments => 
-              assignments.find(a => a.id === context.id)
-            );
-            if (assignment) {
-              contextData = `Assignment: ${assignment.name}\nDescription: ${assignment.description}\nPoints: ${assignment.points_possible}\nStatus: ${assignment.status}\nDue: ${new Date(assignment.due_at).toLocaleDateString()}`;
-            }
-            break;
-          }
-          case 'module': {
-            const course = await mockCanvasApi.getCourse(context.courseId!);
-            const module = course?.modules.find(m => m.id === context.id);
-            if (module) {
-              contextData = `Module: ${module.name}\nDescription: ${module.description}\nItems: ${module.items.length}\nStatus: ${module.is_completed ? 'Completed' : 'In Progress'}`;
-            }
-            break;
-          }
-        }
-
-        // Get learning objectives based on context
-        const learningObjectives = getLearningObjectives(context);
-
-        // Get the user's Gemini API key
-        const apiKey = localStorage.getItem('geminiApiKey');
-        
-        if (!apiKey) {
-          console.error('No API key found in localStorage');
-          setDebugInfo('Error: No API key found in localStorage');
-          return "Please set up your Gemini API key in the settings page to use the AI assistant. You can go to the Settings page from the sidebar.";
-        }
-
-        console.log('Using API key:', apiKey.substring(0, 5) + '...'); // Log first 5 chars for debugging
-        setDebugInfo(`API Key: ${apiKey.substring(0, 5)}..., Context: ${context.type}, Model: gemini-2.0-flash`);
-
-        // Initialize the Gemini API client
-        const genAI = new GoogleGenerativeAI(apiKey);
-        
-        // Get the model
-        const model = genAI.getGenerativeModel({ 
-          model: "gemini-2.0-flash"
-        });
-
-        // Create system prompt with strong ethical guidelines
-        const systemPrompt = `You are Plato, an AI learning assistant that helps students with their courses, assignments, and learning needs.
-        
-        Current context information:
-        ${contextData}
-        
-        ${learningObjectives}
-        
-        IMPORTANT ETHICAL GUIDELINES:
-        1. Never provide direct answers to assignment questions or homework problems
-        2. Instead of solving problems, guide students through the thought process
-        3. Ask probing questions that lead students to discover answers themselves
-        4. Focus on explaining concepts, not providing solutions
-        5. If a student is clearly asking for direct answers to an assignment, politely redirect them to learning the underlying concepts
-        6. Use the Socratic method to promote critical thinking
-        7. Provide examples that are different from assignment questions to illustrate concepts
-        8. Encourage students to consult course materials and resources
-        
-        Your role is to:
-        - Help students understand concepts and build skills
-        - Guide critical thinking through thoughtful questions
-        - Encourage independent problem-solving
-        - Support learning without doing the work for students
-        - Adapt your assistance based on the specific learning context
-        
-        Keep your responses helpful, clear, and focused on supporting the student's learning journey while encouraging critical thinking and academic integrity.`;
-
-        console.log('Starting chat with context:', context.type);
-
-        // Properly format past messages for the chat history
-        const previousMessages = messages
-          .filter(msg => msg.role === 'user' || msg.role === 'assistant')
-          .map(msg => ({
-            role: msg.role,
-            parts: [{ text: msg.content }]
-          }))
-          .slice(-10);
-        
-        // Create the full chat history with system prompt
-        const chatHistory = [
-          // Add system prompt as first message (as assistant)
-          {
-            role: 'assistant' as const,
-            parts: [{ text: systemPrompt }]
-          },
-          // Add previous messages
-          ...previousMessages
-        ];
-
-        // Directly send the message without creating a chat session first
-        console.log('Sending message to Gemini API');
-        setDebugInfo(prev => `${prev}\nSending message to Gemini API with ${chatHistory.length} previous messages`);
-        
-        const result = await model.generateContent({
-          contents: [
-            ...chatHistory,
-            {
-              role: 'user' as const,
-              parts: [{ text: userInput }]
-            }
-          ],
-          generationConfig: {
-            temperature: 0.7,
-            topK: 40,
-            topP: 0.95,
-            maxOutputTokens: 1024,
-          },
-          safetySettings: [
-            {
-              category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-              threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE
-            },
-            {
-              category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-              threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE
-            },
-            {
-              category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-              threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE
-            },
-            {
-              category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-              threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE
-            }
-          ]
-        });
-
-        // Extract the response text
-        const response = result.response;
-        const text = response.text();
-
-        if (!text) {
-          console.error('Empty response from Gemini API');
-          setDebugInfo(prev => `${prev}\nError: Empty response from Gemini API`);
-          throw new Error('No response text received from Gemini API');
-        }
-
-        console.log('Received response from Gemini API');
-        setDebugInfo(prev => `${prev}\nReceived response from Gemini API (${text.length} chars)`);
-        return text;
-      } catch (error) {
-        console.error(`Attempt ${retryCount + 1} failed:`, error);
-        setDebugInfo(prev => `${prev}\nAttempt ${retryCount + 1} failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
-        
-        if (error instanceof Error) {
-          if (error.message.includes('API key')) {
-            console.error('API key error:', error.message);
-            setDebugInfo(prev => `${prev}\nAPI key error: ${error.message}`);
-            return "There seems to be an issue with your API key. Please check your settings and try again.";
-          }
-          if (error.message.includes('quota')) {
-            console.error('Quota error:', error.message);
-            setDebugInfo(prev => `${prev}\nQuota error: ${error.message}`);
-            return "You've reached your API quota limit. Please try again later or upgrade your plan.";
-          }
-          if (error.message.includes('model')) {
-            console.error('Model error:', error.message);
-            setDebugInfo(prev => `${prev}\nModel error: ${error.message}`);
-            return "There was an issue with the AI model. Please try again later.";
-          }
-          if (error.message.includes('permission')) {
-            console.error('Permission error:', error.message);
-            setDebugInfo(prev => `${prev}\nPermission error: ${error.message}`);
-            return "You don't have permission to use this API. Please check your API key and try again.";
-          }
-          if (error.message.includes('network')) {
-            console.error('Network error:', error.message);
-            setDebugInfo(prev => `${prev}\nNetwork error: ${error.message}`);
-            retryCount++;
-            if (retryCount < maxRetries) {
-              console.log(`Retrying in ${retryCount * 1000}ms...`);
-              setDebugInfo(prev => `${prev}\nRetrying in ${retryCount * 1000}ms...`);
-              await new Promise(resolve => setTimeout(resolve, retryCount * 1000));
-              continue;
-            }
-            setDebugInfo(prev => `${prev}\nNetwork error. Please check your internet connection and try again.`);
-            return "Network error. Please check your internet connection and try again.";
-          }
-          if (error.message.includes('RECITATION')) {
-            console.error('Recitation error:', error.message);
-            setDebugInfo(prev => `${prev}\nRecitation error: ${error.message}`);
-            retryCount++;
-            if (retryCount < maxRetries) {
-              console.log(`Retrying in ${retryCount * 1000}ms...`);
-              setDebugInfo(prev => `${prev}\nRetrying in ${retryCount * 1000}ms...`);
-              await new Promise(resolve => setTimeout(resolve, retryCount * 1000));
-              continue;
-            }
-            setDebugInfo(prev => `${prev}\nI apologize, but I'm having trouble generating a response. Please try rephrasing your question.`);
-            return "I apologize, but I'm having trouble generating a response. Please try rephrasing your question.";
-          }
-          // Handle blocked by safety settings
-          if (error.message.includes('safety')) {
-            console.error('Safety error:', error.message);
-            setDebugInfo(prev => `${prev}\nSafety error: ${error.message}`);
-            return "I'm unable to provide a response as the content may violate safety guidelines. Please rephrase your question.";
-          }
-        }
-        
-        retryCount++;
-        if (retryCount < maxRetries) {
-          console.log(`Retrying in ${retryCount * 1000}ms...`);
-          setDebugInfo(prev => `${prev}\nRetrying in ${retryCount * 1000}ms...`);
-          await new Promise(resolve => setTimeout(resolve, retryCount * 1000));
-          continue;
-        }
-        
-        console.error('Unexpected error:', error);
-        setDebugInfo(prev => `${prev}\nUnexpected error: ${error instanceof Error ? error.message : 'Unknown error'}`);
-        return "I'm sorry, there was an error generating a response. Please try again later.";
-      }
-    }
+  const generateContextAwareResponse = async (userMessage: string): Promise<string> => {
+    setIsLoading(true);
     
-    return "I'm sorry, I wasn't able to generate a response after multiple attempts. Please try again later.";
+    try {
+      // Get comprehensive context information
+      const courseData = await getComprehensiveContext(context);
+      const searchResults = await mockCanvasApi.searchContent(userMessage, context);
+      
+      // Check for API key
+      const apiKey = localStorage.getItem('geminiApiKey');
+      if (!apiKey) {
+        return "I need an API key to provide intelligent responses. Please set your Gemini API key in the settings.";
+      }
+
+      // Use Gemini 2.0 Flash for intelligent responses
+      const genAI = new GoogleGenerativeAI(apiKey);
+      const model = genAI.getGenerativeModel({ 
+        model: "gemini-2.0-flash-exp",
+        generationConfig: {
+          temperature: 0.7,
+          topP: 0.8,
+          topK: 40,
+          maxOutputTokens: 1024,
+        },
+        safetySettings: [
+          {
+            category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+            threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+          },
+          {
+            category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+            threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+          },
+          {
+            category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+            threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+          },
+          {
+            category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+            threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+          },
+        ],
+      });
+
+      // Build intelligent context-aware prompt
+      const contextPrompt = buildEducationalPrompt(userMessage, courseData, context);
+      
+      const result = await model.generateContent(contextPrompt);
+      const response = result.response;
+      const text = response.text();
+      
+      return text;
+      
+    } catch (error) {
+      console.error('Error generating response:', error);
+      return "I'm having trouble processing your request right now. Could you try rephrasing your question?";
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Build intelligent educational prompt for Gemini
+  const buildEducationalPrompt = (userMessage: string, courseData: any, context?: ChatContext) => {
+    let prompt = `You are an intelligent learning assistant for a university student. Your role is to help students learn and understand concepts, NOT to give direct answers or do their work for them.
+
+CORE PRINCIPLES:
+- Use the Socratic method - ask guiding questions to help students discover answers
+- Explain concepts clearly but don't give away solutions
+- Encourage critical thinking and problem-solving
+- Maintain academic integrity - never do homework for students
+- Be encouraging and supportive
+- Keep responses concise but helpful
+
+CURRENT CONTEXT:
+`;
+
+    // Add context-specific information
+    if (context?.type === 'assignment' && courseData?.assignment) {
+      const assignment = courseData.assignment;
+      const course = courseData.course;
+      
+      prompt += `The student is currently working on an assignment:
+- Assignment: "${assignment.name}"
+- Course: ${course?.name || 'Unknown Course'}
+- Due Date: ${new Date(assignment.due_at).toLocaleDateString()}
+- Points: ${assignment.points_possible}
+- Description: ${assignment.description?.substring(0, 300)}...
+
+The student is asking about THIS SPECIFIC ASSIGNMENT.
+`;
+    } else if (context?.type === 'course' && courseData?.course) {
+      const course = courseData.course;
+      prompt += `The student is in the course "${course.name}" (${course.course_code}).
+Instructor: ${course.instructor}
+`;
+      
+      if (courseData.upcomingAssignments?.length > 0) {
+        prompt += `\nUpcoming assignments:
+`;
+        courseData.upcomingAssignments.slice(0, 3).forEach((assignment: any) => {
+          prompt += `- ${assignment.name} (Due: ${new Date(assignment.due_at).toLocaleDateString()})\n`;
+        });
+      }
+    } else if (context?.type === 'dashboard') {
+      if (courseData?.dashboard?.courses) {
+        prompt += `The student is on their dashboard. Current courses: ${courseData.dashboard.courses.map((c: any) => c.name).join(', ')}.
+`;
+      }
+    }
+
+    prompt += `
+CONVERSATION CONTEXT:
+Student's question: "${userMessage}"
+
+INSTRUCTIONS:
+1. If they're asking for direct answers or solutions, redirect them to learning through guided questions
+2. If they're struggling with concepts, break them down step by step
+3. If they're on an assignment page, acknowledge the specific assignment they're working on
+4. Use the context information to provide relevant, personalized help
+5. Be encouraging and maintain a helpful, educational tone
+6. Keep responses under 200 words when possible
+7. Use bullet points for clarity when listing multiple items
+
+Your response:`;
+
+    return prompt;
+  };
+
+  // Get comprehensive context about the current course/assignment
+  const getComprehensiveContext = async (context?: ChatContext) => {
+    if (!context) return null;
     
+    try {
+      const data: any = { context };
+      
+      if (context.type === 'course' && context.id) {
+        const course = await mockCanvasApi.getCourse(context.id);
+        const assignments = await mockCanvasApi.getCourseAssignments(context.id);
+        const modules = course?.modules || [];
+        
+        data.course = course;
+        data.assignments = assignments;
+        data.modules = modules;
+        data.upcomingAssignments = assignments.filter(a => 
+          a.status !== 'graded' && new Date(a.due_at) > new Date()
+        );
+        data.currentModule = modules.find((m: any) => !m.is_completed);
+      } else if (context.type === 'assignment' && context.id) {
+        const assignment = await mockCanvasApi.getAssignment(context.id);
+        
+        if (assignment) {
+          data.assignment = assignment;
+          // Get the course this assignment belongs to
+          const dashboardData = await mockCanvasApi.getDashboardData();
+          data.course = dashboardData?.courses?.find((c: any) => 
+            c.id === assignment.course_id
+          );
+        }
+      } else if (context.type === 'dashboard') {
+        data.dashboard = await mockCanvasApi.getDashboardData();
+      }
+      
+      return data;
+    } catch (error) {
+      console.error('Error getting comprehensive context:', error);
+      return null;
+    }
+  };
+
+  const handleSendMessage = async () => {
     if (!input.trim() || isLoading) return;
     
     const userMessage: Message = {
       id: Date.now().toString(),
-      content: input,
+      content: input.trim(),
       role: 'user',
       timestamp: new Date(),
       context
@@ -432,37 +377,14 @@ export default function Chat({ context, isFullScreen = false }: ChatProps) {
     
     setMessages(prev => [...prev, userMessage]);
     setInput('');
-    setIsLoading(true);
     setShowSimilarChats(false);
     
     try {
-      // Check if user is asking for direct answers in assignment context
-      if (context?.type === 'assignment' && isAskingForDirectAnswer(input)) {
-        const guidanceMessage: Message = {
-          id: (Date.now() + 1).toString(),
-          content: 
-            "I notice you might be asking for a direct answer to your assignment. As your learning assistant, I'm here to help you understand concepts and develop problem-solving skills, not to complete assignments for you. \n\n" +
-            "Instead, I can help by:\n" +
-            "- Breaking down the problem into smaller steps\n" +
-            "- Explaining relevant concepts\n" +
-            "- Providing similar examples\n" +
-            "- Guiding you through the reasoning process\n\n" +
-            "Could you tell me which part of the assignment you're struggling with, or what concept you'd like me to explain?",
-          role: 'assistant',
-          timestamp: new Date(),
-          context
-        };
-        
-        setMessages(prev => [...prev, guidanceMessage]);
-        setIsLoading(false);
-        return;
-      }
-      
-      const aiResponse = await generateResponse(input, context);
+      const response = await generateContextAwareResponse(input.trim());
       
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: aiResponse,
+        content: response,
         role: 'assistant',
         timestamp: new Date(),
         context
@@ -482,87 +404,196 @@ export default function Chat({ context, isFullScreen = false }: ChatProps) {
       };
       
       setMessages(prev => [...prev, errorMessage]);
-    } finally {
-      setIsLoading(false);
     }
   };
 
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
+
+  if (!isFullScreen) {
+    return (
+      <div className="flex flex-col h-full bg-white border border-gray-200 rounded-lg shadow-lg">
+        <div className="flex-1 overflow-y-auto p-3 space-y-3">
+          {messages.map((message) => (
+            <div
+              key={message.id}
+              className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+            >
+              <div
+                className={`flex max-w-md space-x-2 ${
+                  message.role === 'user' ? 'flex-row-reverse space-x-reverse' : 'flex-row'
+                }`}
+              >
+                <div className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center ${
+                  message.role === 'user' ? 'bg-blue-500' : 'bg-green-500'
+                }`}>
+                  {message.role === 'user' ? (
+                    <User className="w-3 h-3 text-white" />
+                  ) : (
+                    <Bot className="w-3 h-3 text-white" />
+                  )}
+                </div>
+                <div
+                  className={`px-3 py-2 rounded-lg ${
+                    message.role === 'user'
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-gray-100 text-gray-900'
+                  }`}
+                >
+                  <p className="text-xs leading-relaxed whitespace-pre-wrap">{message.content}</p>
+                  <p className="text-xs opacity-70 mt-1">
+                    {message.timestamp.toLocaleTimeString()}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ))}
+          {isLoading && (
+            <div className="flex justify-start">
+              <div className="bg-gray-100 rounded-lg px-3 py-2">
+                <div className="flex space-x-1">
+                  <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"></div>
+                  <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                  <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                </div>
+              </div>
+            </div>
+          )}
+          {debugInfo && (
+            <div className="flex justify-center my-2">
+              <div className="bg-gray-100 text-gray-700 px-3 py-2 rounded-lg max-w-md w-full font-mono text-xs">
+                <details>
+                  <summary className="cursor-pointer text-xs">Debug Info</summary>
+                  <pre className="whitespace-pre-wrap mt-1 text-xs">{debugInfo}</pre>
+                </details>
+              </div>
+            </div>
+          )}
+          <div ref={messagesEndRef} />
+        </div>
+        
+        <div className="border-t border-gray-200 p-3">
+          <div className="flex space-x-2">
+            <input
+              type="text"
+              value={input}
+              onChange={handleInputChange}
+              onKeyPress={handleKeyPress}
+              placeholder={`Ask about ${context?.title || 'anything'}...`}
+              className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+              disabled={isLoading}
+            />
+            <button
+              onClick={handleSendMessage}
+              disabled={isLoading || !input.trim()}
+              className="bg-blue-500 text-white px-3 py-2 rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Send className="w-3 h-3" />
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Full screen chat view (for dedicated chat pages)
   return (
-    <div className="flex flex-col h-full bg-white">
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
-        {filteredMessages.map((message, index) => (
+    <div className="flex flex-col h-screen bg-white">
+      <div className="bg-white border-b border-gray-200 px-6 py-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-semibold text-gray-900">
+              {context?.title || 'Chat Assistant'}
+            </h1>
+            <p className="text-sm text-gray-600">
+              {context?.type === 'course' && 'Course Assistant'}
+              {context?.type === 'assignment' && 'Assignment Help'}
+              {context?.type === 'dashboard' && 'General Learning Assistant'}
+              {context?.type === 'calendar' && 'Schedule Assistant'}
+              {!context && 'Learning Assistant'}
+            </p>
+          </div>
+          <button
+            onClick={() => router.back()}
+            className="text-gray-400 hover:text-gray-600"
+          >
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+      </div>
+
+      <div className="flex-1 overflow-y-auto p-6 space-y-6">
+        {messages.map((message) => (
           <div
-            key={index}
+            key={message.id}
             className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             <div
-              className={`max-w-[80%] rounded-xl p-4 ${
-                message.role === 'user'
-                  ? 'bg-primary-600 text-white'
-                  : 'bg-gray-50 text-gray-900'
+              className={`flex max-w-2xl space-x-3 ${
+                message.role === 'user' ? 'flex-row-reverse space-x-reverse' : 'flex-row'
               }`}
             >
-              <div className="prose prose-sm max-w-none">
-                <ReactMarkdown components={components}>
-                  {message.content}
-                </ReactMarkdown>
+              <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${
+                message.role === 'user' ? 'bg-blue-500' : 'bg-green-500'
+              }`}>
+                {message.role === 'user' ? (
+                  <User className="w-5 h-5 text-white" />
+                ) : (
+                  <Bot className="w-5 h-5 text-white" />
+                )}
+              </div>
+              <div
+                className={`px-6 py-4 rounded-lg ${
+                  message.role === 'user'
+                    ? 'bg-blue-500 text-white'
+                    : 'bg-gray-100 text-gray-900'
+                }`}
+              >
+                <p className="whitespace-pre-wrap">{message.content}</p>
+                <p className="text-xs opacity-70 mt-2">
+                  {message.timestamp.toLocaleString()}
+                </p>
               </div>
             </div>
           </div>
         ))}
         {isLoading && (
           <div className="flex justify-start">
-            <div className="bg-gray-100 text-gray-900 rounded-xl px-4 py-2 shadow flex items-center gap-2">
-              <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" />
-              <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce delay-100" />
-              <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce delay-200" />
-            </div>
-          </div>
-        )}
-        {!hasApiKey && (
-          <div className="flex justify-center my-4">
-            <div className="bg-yellow-100 text-yellow-800 px-4 py-3 rounded-lg max-w-md">
-              <p className="text-sm">
-                AI assistant requires a Gemini API key. 
-                <Link href="/settings" className="ml-1 font-medium text-blue-600 hover:text-blue-800">
-                  Set up in Settings
-                </Link>
-              </p>
-            </div>
-          </div>
-        )}
-        {debugInfo && (
-          <div className="flex justify-center my-4">
-            <div className="bg-gray-100 text-gray-700 px-4 py-3 rounded-lg max-w-md w-full font-mono text-xs">
-              <details>
-                <summary className="cursor-pointer">Debug Info</summary>
-                <pre className="whitespace-pre-wrap mt-2">{debugInfo}</pre>
-              </details>
+            <div className="bg-gray-100 rounded-lg px-6 py-4">
+              <div className="flex space-x-1">
+                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+              </div>
             </div>
           </div>
         )}
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input */}
-      <div className="p-4 border-t border-gray-200">
-        <form onSubmit={handleSubmit} className="flex gap-2">
+      <div className="border-t border-gray-200 p-6">
+        <div className="flex space-x-4">
           <input
             type="text"
             value={input}
             onChange={handleInputChange}
-            placeholder="Ask a question..."
-            className="flex-1 px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            onKeyPress={handleKeyPress}
+            placeholder={`Ask about ${context?.title || 'anything'}...`}
+            className="flex-1 border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            disabled={isLoading}
           />
           <button
-            type="submit"
-            disabled={isLoading}
-            className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={handleSendMessage}
+            disabled={isLoading || !input.trim()}
+            className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             <Send className="w-5 h-5" />
           </button>
-        </form>
+        </div>
       </div>
     </div>
   );
