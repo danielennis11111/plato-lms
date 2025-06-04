@@ -243,8 +243,8 @@ Requirements:
     if (topics.length === 0) {
       const sentences = courseInfo.description.split(/[.!?]+/);
       topics = sentences
-        .filter(s => s.length > 20)
-        .map(s => s.trim())
+        .filter((s: string) => s.length > 20)
+        .map((s: string) => s.trim())
         .slice(0, 8); // Limit to 8 topics
     }
 
