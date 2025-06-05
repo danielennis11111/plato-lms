@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { slugify } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { AssignmentSubmissionForm } from '@/components/AssignmentSubmissionForm';
+import { UserService } from '@/lib/userService';
 
 interface Assignment {
   id: number;
@@ -41,6 +42,13 @@ interface GradingResult {
   overallFeedback: string;
   suggestions: string[];
   passesThreshold: boolean;
+  aiDetection?: {
+    isLikelyAIGenerated: boolean;
+    confidence: number;
+    warning: string;
+    indicators: string[];
+    flaggedReasons: string[];
+  };
 }
 
 export default function AssignmentPage({
@@ -48,7 +56,7 @@ export default function AssignmentPage({
 }: {
   params: { slug: string; assignmentSlug: string };
 }) {
-  const { getUserData } = useAuth();
+  const { user, getUserData } = useAuth();
   const [assignment, setAssignment] = useState<Assignment | null>(null);
   const [course, setCourse] = useState<Course | null>(null);
   const [loading, setLoading] = useState(true);
@@ -106,12 +114,17 @@ export default function AssignmentPage({
     try {
       // Get user's API key for enhanced grading
       const userData = getUserData();
-      const geminiKey = userData?.apiKeys?.find(key => key.provider === 'gemini' && key.isActive)?.keyHash;
+      const geminiKey = user ? UserService.getActiveAPIKey(user.id, 'gemini') : null;
+      
+      console.log('User data for API key:', userData);
+      console.log('Found Gemini key:', geminiKey ? 'Yes' : 'No');
       
       let result: GradingResult;
       if (geminiKey) {
+        console.log('Using AI-powered grading with Gemini API');
         result = await AIGradingService.gradeWithAI(submission, assignment, geminiKey);
       } else {
+        console.log('Using heuristic-only grading (no API key)');
         result = await AIGradingService.gradeSubmission(submission, assignment);
       }
       
@@ -235,10 +248,98 @@ export default function AssignmentPage({
             {/* AI Grading Results */}
             {gradingResult && (
               <div className="mt-8 bg-gray-50 rounded-lg p-6 space-y-6">
-                <div className="flex items-center space-x-3">
-                  <Brain className="w-6 h-6 text-purple-600" />
-                  <h3 className="text-lg font-semibold text-gray-900">AI Pre-Grading Results</h3>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <Brain className="w-6 h-6 text-purple-600" />
+                    <h3 className="text-lg font-semibold text-gray-900">AI Pre-Grading Results</h3>
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    {user && UserService.getActiveAPIKey(user.id, 'gemini')
+                      ? '🤖 AI-Powered Analysis' 
+                      : '📊 Heuristic Analysis'
+                    }
+                  </div>
                 </div>
+
+                {/* AI Detection Results */}
+                {gradingResult.aiDetection && (
+                  <div className={`rounded-lg p-4 border ${
+                    gradingResult.aiDetection!.isLikelyAIGenerated 
+                      ? 'bg-red-100 border-red-200' 
+                      : 'bg-blue-50 border-blue-200'
+                  }`}>
+                    <div className="flex items-start space-x-3">
+                      <AlertCircle className={`w-6 h-6 mt-1 flex-shrink-0 ${
+                        gradingResult.aiDetection!.isLikelyAIGenerated 
+                          ? 'text-red-600' 
+                          : 'text-blue-600'
+                      }`} />
+                      <div>
+                        <h4 className={`font-semibold ${
+                          gradingResult.aiDetection!.isLikelyAIGenerated 
+                            ? 'text-red-900' 
+                            : 'text-blue-900'
+                        }`}>
+                          {gradingResult.aiDetection!.isLikelyAIGenerated 
+                            ? `AI Content Detected (${gradingResult.aiDetection!.confidence}% confidence)`
+                            : `Human Content Detected (${100 - gradingResult.aiDetection!.confidence}% confidence)`
+                          }
+                        </h4>
+                        
+                        {gradingResult.aiDetection!.isLikelyAIGenerated ? (
+                          <p className="text-red-800 text-sm mt-1">
+                            {gradingResult.aiDetection!.warning}
+                          </p>
+                        ) : (
+                          <p className="text-blue-800 text-sm mt-1">
+                            Analysis suggests this content was written by a human. Human likelihood: {gradingResult.aiDetection!.confidence}%
+                          </p>
+                        )}
+                        
+                        {gradingResult.aiDetection!.indicators.length > 0 && (
+                          <div className="mt-3">
+                            <p className={`text-sm font-medium ${
+                              gradingResult.aiDetection!.isLikelyAIGenerated ? 'text-red-800' : 'text-blue-800'
+                            }`}>
+                              {gradingResult.aiDetection!.isLikelyAIGenerated ? 'AI Indicators:' : 'Human Indicators:'}
+                            </p>
+                            <ul className="mt-1 space-y-1">
+                              {gradingResult.aiDetection!.indicators.map((indicator, index) => (
+                                <li key={index} className={`text-sm flex items-start ${
+                                  gradingResult.aiDetection!.isLikelyAIGenerated ? 'text-red-700' : 'text-blue-700'
+                                }`}>
+                                  <span className={`mr-2 ${
+                                    gradingResult.aiDetection!.isLikelyAIGenerated ? 'text-red-500' : 'text-blue-500'
+                                  }`}>•</span>
+                                  <span>{indicator}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                        
+                        {gradingResult.aiDetection!.flaggedReasons.length > 0 && (
+                          <div className="mt-3">
+                            <p className={`text-sm font-medium ${
+                              gradingResult.aiDetection!.isLikelyAIGenerated ? 'text-red-800' : 'text-blue-800'
+                            }`}>
+                              Analysis reasoning:
+                            </p>
+                            <ul className="mt-1 space-y-1">
+                              {gradingResult.aiDetection!.flaggedReasons.map((reason, index) => (
+                                <li key={index} className={`text-sm ${
+                                  gradingResult.aiDetection!.isLikelyAIGenerated ? 'text-red-700' : 'text-blue-700'
+                                }`}>
+                                  {reason}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Overall Score */}
                 <div className={`rounded-lg p-4 ${
