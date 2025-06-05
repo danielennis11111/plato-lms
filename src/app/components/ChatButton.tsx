@@ -116,9 +116,7 @@ export default function ChatButton() {
             context = {
               type: 'discussion',
               id: parsedContext.id,
-              title: parsedContext.selectedPersona 
-                ? `${parsedContext.selectedPersona.name}: ${parsedContext.title}`
-                : `Discussion: ${parsedContext.title}`,
+              title: parsedContext.title,
               topic: parsedContext.topic,
               state: 'active'
             };

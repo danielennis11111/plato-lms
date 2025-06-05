@@ -100,13 +100,13 @@ export default function Chat({ context, isFullScreen = false }: ChatProps) {
         }
       }
       
-      // Discussion page detection
+      // Discussion page detection - improved pattern matching
       if (pathname.includes('/discussions/')) {
-        const discussionMatch = pathname.match(/\/discussions\/(\d+)/);
+        const discussionMatch = pathname.match(/\/discussions\/([^\/]+)/);
         if (discussionMatch) {
           return {
             type: 'discussion' as const,
-            id: parseInt(discussionMatch[1]),
+            id: ctx?.id,
             title: ctx?.title || 'Discussion',
             state: 'active',
             topic: ctx?.topic
@@ -346,6 +346,8 @@ export default function Chat({ context, isFullScreen = false }: ChatProps) {
   useEffect(() => {
     if (enhancedContext && isInitialized && messages.length === 0 && user) {
       const getWelcomeMessage = () => {
+        console.log('Chat: Getting welcome message for context:', enhancedContext);
+        
         if (enhancedContext.type === 'course') {
           return `Hello there, how can I help you explore ${enhancedContext.title || 'this course'}?`;
         } else if (enhancedContext.type === 'assignment') {
@@ -370,7 +372,7 @@ export default function Chat({ context, isFullScreen = false }: ChatProps) {
               console.error('Error parsing discussion context:', error);
             }
           }
-          return `Hello! I see you're working with this discussion. I can engage with you in different ways:
+          return `Hello there, I see you're working with this discussion. I can engage with you in different ways:
 
 **Classic Socrates** - Traditional Socratic method questioning
 **Discussion Moderator** - Synthesizes viewpoints and guides conversation  
