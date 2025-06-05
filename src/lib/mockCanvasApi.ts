@@ -1,5 +1,6 @@
 import { addDays, addWeeks, format, startOfMonth, subDays, subWeeks, addMonths } from 'date-fns';
 import { slugify } from '@/lib/utils';
+import { generatePopularMusicPianoCourse } from './comprehensiveMusicCourseGenerator';
 
 // ASU Photo Utility - Generate profile photo URLs using ASURITE
 export function getASUPhotoUrl(asurite: string, size: 'small' | 'medium' | 'large' = 'medium'): string {
@@ -150,8 +151,8 @@ const courses: Course[] = [
     description: 'Master modern web development with React, Next.js, Node.js, and cloud deployment. Build full-stack applications using TypeScript, database integration, authentication, and real-time features.',
     instructor: 'Dr. Sarah Martinez',
     instructor_email: 'faculty@plato.edu',
-    term: 'Summer 2025',
-    total_points: 1000,
+    term: 'Spring 2025',
+    total_points: 1620,
     current_grade: 87,
     start_date: getRelativeDate(-23),
     end_date: getRelativeDate(72),
@@ -237,93 +238,648 @@ Students with disabilities should contact Disability Resources Center. All cours
     modules: [
       {
         id: 1,
-        name: 'React Fundamentals Review',
-        description: 'Quick review of React basics and introduction to advanced patterns',
+        name: 'Module 1: Modern React Fundamentals',
+        description: 'Deep dive into React hooks, context, and modern development patterns',
         is_completed: true,
+        due_date: getRelativeDate(-85),
         items: [
           {
-            id: 1,
-            title: 'React Hooks Deep Dive - Required Reading',
-            type: 'reading',
-            content: 'Essential reading on React Hooks covering theoretical foundations and practical implementations. Focus on understanding hook patterns, state management, and performance optimization in modern React applications.',
-            due_date: getRelativeDate(-15),
-            status: 'graded',
-            points_possible: 0,
-            reading_details: {
-              source: 'React Official Documentation and Advanced Patterns Guide',
-              url: 'https://react.dev/reference/react/hooks',
-              estimated_time: 45,
-              type: 'website'
-            }
-          },
-          {
-            id: 1.5,
-            title: 'React Hooks Deep Dive',
+            id: 101,
+            title: 'Introduction to Modern React Fundamentals',
             type: 'page',
-            content: 'Comprehensive guide to React hooks including useState, useEffect, useContext, and custom hooks.',
-            due_date: getRelativeDate(-13),
+            content: '<h2>Welcome to Modern React Fundamentals</h2><p>Master React hooks, context, and modern development patterns including performance optimization and advanced state management.</p><h3>Learning Objectives</h3><ul><li>Master fundamental React concepts</li><li>Apply hooks and modern patterns</li><li>Develop component architecture skills</li><li>Engage in collaborative learning</li></ul>',
+            due_date: getRelativeDate(-85),
             status: 'graded',
             points_possible: 0
           },
           {
-            id: 2,
-            title: 'Component Architecture Quiz',
-            type: 'quiz',
-            content: 'Test your understanding of React component patterns, prop drilling, and state management strategies.',
-            due_date: getRelativeDate(-8),
+            id: 102,
+            title: 'React Hooks and Modern Patterns - Essential Reading',
+            type: 'reading',
+            content: 'Read foundational materials covering React hooks and modern development patterns',
+            due_date: getRelativeDate(-83),
+            status: 'graded',
+            points_possible: 0,
+            reading_details: {
+              source: 'React Official Documentation',
+              pages: '65-85',
+              estimated_time: 60,
+              type: 'website'
+            }
+          },
+          {
+            id: 103,
+            title: 'Discussion: Best Practices in React Development',
+            type: 'discussion',
+            content: 'Discuss modern react fundamentals and share your insights. Requirements: Initial post: 250+ words with examples, Respond to 2 classmates substantively, Reference course materials',
+            due_date: getRelativeDate(-81),
+            status: 'graded',
+            points_possible: 25
+          },
+          {
+            id: 104,
+            title: 'Advanced React Patterns - Advanced Reading',
+            type: 'reading',
+            content: 'Advanced materials for modern react fundamentals',
+            due_date: getRelativeDate(-78),
+            status: 'graded',
+            points_possible: 0,
+            reading_details: {
+              source: 'Supplementary Materials',
+              pages: '85-105',
+              estimated_time: 45,
+              type: 'article'
+            }
+          },
+          {
+            id: 105,
+            title: 'Modern React Fundamentals Programming Project',
+            type: 'assignment',
+            content: 'Complete this programming project demonstrating understanding of modern react fundamentals. Requirements: Apply course concepts correctly, Show detailed work and analysis, Follow academic standards, Submit by due date',
+            due_date: getRelativeDate(-75),
             status: 'graded',
             grade: 92,
-            feedback: 'Great understanding of component patterns!',
-            points_possible: 50,
+            feedback: 'Excellent implementation of React hooks and modern patterns!',
+            points_possible: 105,
+            max_attempts: 3,
             submissions: 1,
-            attempts: 1,
-            max_attempts: 2
+            attempts: 1
+          },
+          {
+            id: 106,
+            title: 'Modern React Fundamentals Assessment',
+            type: 'quiz',
+            content: 'Comprehensive assessment covering modern react fundamentals',
+            due_date: getRelativeDate(-72),
+            status: 'graded',
+            grade: 88,
+            points_possible: 50,
+            max_attempts: 2,
+            attempts: 1
           }
         ]
       },
       {
         id: 2,
-        name: 'Database Integration & APIs',
-        description: 'Backend development with databases and RESTful APIs',
-        is_completed: false,
+        name: 'Module 2: State Management Systems',
+        description: 'Redux, Zustand, and advanced state management techniques',
+        is_completed: true,
+        due_date: getRelativeDate(-71),
         items: [
           {
-            id: 3.5,
-            title: 'Database Design Fundamentals - Required Reading',
+            id: 201,
+            title: 'Introduction to State Management Systems',
+            type: 'page',
+            content: '<h2>Welcome to State Management Systems</h2><p>Redux, Zustand, and advanced state management techniques for scalable applications.</p><h3>Learning Objectives</h3><ul><li>Master fundamental concepts</li><li>Apply knowledge practically</li><li>Develop critical thinking</li><li>Engage in collaborative learning</li></ul>',
+            due_date: getRelativeDate(-71),
+            status: 'graded',
+            points_possible: 0
+          },
+          {
+            id: 202,
+            title: 'State Management - Essential Reading',
             type: 'reading',
-            content: 'Comprehensive reading covering database design principles with emphasis on normalization, indexing strategies, and modern database architectures. Includes worked examples and comparative analysis of SQL vs NoSQL approaches.',
-            due_date: getRelativeDate(2),
-            status: 'not_started',
+            content: 'Read foundational materials covering state management systems',
+            due_date: getRelativeDate(-69),
+            status: 'graded',
             points_possible: 0,
             reading_details: {
-              source: 'Database Systems: Design, Implementation, and Management',
-              pages: '45-78, 112-135',
+              source: 'Course Textbook',
+              pages: '85-105',
               estimated_time: 60,
               type: 'textbook'
             }
           },
           {
-            id: 4,
-            title: 'Database Design Discussion Due',
+            id: 203,
+            title: 'Discussion: Technology Trends in State Management',
             type: 'discussion',
-            content: 'Discuss normalization, relationships, and NoSQL vs SQL database choices for web applications.',
-            due_date: getRelativeDate(4),
+            content: 'Discuss state management systems and share your insights. Requirements: Initial post: 250+ words with examples, Respond to 2 classmates substantively, Reference course materials',
+            due_date: getRelativeDate(-67),
+            status: 'graded',
+            points_possible: 25
+          },
+          {
+            id: 204,
+            title: 'Advanced State Management - Advanced Reading',
+            type: 'reading',
+            content: 'Advanced materials for state management systems',
+            due_date: getRelativeDate(-64),
+            status: 'graded',
+            points_possible: 0,
+            reading_details: {
+              source: 'Supplementary Materials',
+              pages: '105-125',
+              estimated_time: 45,
+              type: 'article'
+            }
+          },
+          {
+            id: 205,
+            title: 'State Management Systems Code Review',
+            type: 'assignment',
+            content: 'Complete this code review demonstrating understanding of state management systems. Requirements: Apply course concepts correctly, Show detailed work and analysis, Follow academic standards, Submit by due date',
+            due_date: getRelativeDate(-61),
+            status: 'graded',
+            grade: 90,
+            points_possible: 110,
+            max_attempts: 3,
+            submissions: 1,
+            attempts: 1
+          },
+          {
+            id: 206,
+            title: 'State Management Systems Assessment',
+            type: 'quiz',
+            content: 'Comprehensive assessment covering state management systems',
+            due_date: getRelativeDate(-58),
+            status: 'graded',
+            grade: 85,
+            points_possible: 50,
+            max_attempts: 2,
+            attempts: 1
+          }
+        ]
+      },
+      {
+        id: 3,
+        name: 'Module 3: Backend Integration',
+        description: 'API design, authentication, and full-stack development',
+        is_completed: true,
+        due_date: getRelativeDate(-57),
+        items: [
+          {
+            id: 301,
+            title: 'Introduction to Backend Integration',
+            type: 'page',
+            content: '<h2>Welcome to Backend Integration</h2><p>API design, authentication, and full-stack development fundamentals.</p><h3>Learning Objectives</h3><ul><li>Master fundamental concepts</li><li>Apply knowledge practically</li><li>Develop critical thinking</li><li>Engage in collaborative learning</li></ul>',
+            due_date: getRelativeDate(-57),
+            status: 'graded',
+            points_possible: 0
+          },
+          {
+            id: 302,
+            title: 'Backend Integration - Essential Reading',
+            type: 'reading',
+            content: 'Read foundational materials covering backend integration',
+            due_date: getRelativeDate(-55),
+            status: 'graded',
+            points_possible: 0,
+            reading_details: {
+              source: 'Course Textbook',
+              pages: '125-145',
+              estimated_time: 60,
+              type: 'textbook'
+            }
+          },
+          {
+            id: 303,
+            title: 'Discussion: Code Architecture in Full-Stack Development',
+            type: 'discussion',
+            content: 'Discuss backend integration and share your insights. Requirements: Initial post: 250+ words with examples, Respond to 2 classmates substantively, Reference course materials',
+            due_date: getRelativeDate(-53),
+            status: 'graded',
+            points_possible: 25
+          },
+          {
+            id: 304,
+            title: 'API Design and Authentication - Advanced Reading',
+            type: 'reading',
+            content: 'Advanced materials for backend integration',
+            due_date: getRelativeDate(-50),
+            status: 'graded',
+            points_possible: 0,
+            reading_details: {
+              source: 'Supplementary Materials',
+              pages: '145-165',
+              estimated_time: 45,
+              type: 'article'
+            }
+          },
+          {
+            id: 305,
+            title: 'Backend Integration System Design',
+            type: 'assignment',
+            content: 'Complete this system design demonstrating understanding of backend integration. Requirements: Apply course concepts correctly, Show detailed work and analysis, Follow academic standards, Submit by due date',
+            due_date: getRelativeDate(-47),
+            status: 'graded',
+            grade: 94,
+            points_possible: 115,
+            max_attempts: 3,
+            submissions: 1,
+            attempts: 1
+          },
+          {
+            id: 306,
+            title: 'Backend Integration Assessment',
+            type: 'quiz',
+            content: 'Comprehensive assessment covering backend integration',
+            due_date: getRelativeDate(-44),
+            status: 'graded',
+            grade: 91,
+            points_possible: 50,
+            max_attempts: 2,
+            attempts: 1
+          }
+        ]
+      },
+      {
+        id: 4,
+        name: 'Module 4: Performance Optimization',
+        description: 'Code splitting, lazy loading, and performance monitoring',
+        is_completed: false,
+        due_date: getRelativeDate(-43),
+        items: [
+          {
+            id: 401,
+            title: 'Introduction to Performance Optimization',
+            type: 'page',
+            content: '<h2>Welcome to Performance Optimization</h2><p>Code splitting, lazy loading, and performance monitoring techniques.</p><h3>Learning Objectives</h3><ul><li>Master fundamental concepts</li><li>Apply knowledge practically</li><li>Develop critical thinking</li><li>Engage in collaborative learning</li></ul>',
+            due_date: getRelativeDate(-43),
+            status: 'graded',
+            points_possible: 0
+          },
+          {
+            id: 402,
+            title: 'Performance Optimization - Essential Reading',
+            type: 'reading',
+            content: 'Read foundational materials covering performance optimization',
+            due_date: getRelativeDate(-41),
+            status: 'graded',
+            points_possible: 0,
+            reading_details: {
+              source: 'Course Textbook',
+              pages: '165-185',
+              estimated_time: 60,
+              type: 'textbook'
+            }
+          },
+          {
+            id: 403,
+            title: 'Discussion: Best Practices in Performance',
+            type: 'discussion',
+            content: 'Discuss performance optimization and share your insights. Requirements: Initial post: 250+ words with examples, Respond to 2 classmates substantively, Reference course materials',
+            due_date: getRelativeDate(-39),
+            status: 'submitted',
+            points_possible: 25
+          },
+          {
+            id: 404,
+            title: 'Advanced Performance Techniques - Advanced Reading',
+            type: 'reading',
+            content: 'Advanced materials for performance optimization',
+            due_date: getRelativeDate(-36),
             status: 'in_progress',
-            points_possible: 25,
+            points_possible: 0,
+            reading_details: {
+              source: 'Supplementary Materials',
+              pages: '185-205',
+              estimated_time: 45,
+              type: 'article'
+            }
+          },
+          {
+            id: 405,
+            title: 'Performance Optimization Programming Project',
+            type: 'assignment',
+            content: 'Complete this programming project demonstrating understanding of performance optimization. Requirements: Apply course concepts correctly, Show detailed work and analysis, Follow academic standards, Submit by due date',
+            due_date: getRelativeDate(-33),
+            status: 'not_started',
+            points_possible: 120,
+            max_attempts: 3,
             submissions: 0,
             attempts: 0
           },
           {
-            id: 5,
-            title: 'REST API Development',
+            id: 406,
+            title: 'Performance Optimization Assessment',
+            type: 'quiz',
+            content: 'Comprehensive assessment covering performance optimization',
+            due_date: getRelativeDate(-30),
+            status: 'not_started',
+            points_possible: 50,
+            max_attempts: 2,
+            attempts: 0
+          }
+        ]
+      },
+      {
+        id: 5,
+        name: 'Module 5: Testing Strategies',
+        description: 'Unit testing, integration testing, and E2E testing',
+        is_completed: false,
+        due_date: getRelativeDate(-29),
+        items: [
+          {
+            id: 501,
+            title: 'Introduction to Testing Strategies',
+            type: 'page',
+            content: '<h2>Welcome to Testing Strategies</h2><p>Unit testing, integration testing, and E2E testing methodologies.</p><h3>Learning Objectives</h3><ul><li>Master fundamental concepts</li><li>Apply knowledge practically</li><li>Develop critical thinking</li><li>Engage in collaborative learning</li></ul>',
+            due_date: getRelativeDate(-29),
+            status: 'not_started',
+            points_possible: 0
+          },
+          {
+            id: 502,
+            title: 'Testing Strategies - Essential Reading',
+            type: 'reading',
+            content: 'Read foundational materials covering testing strategies',
+            due_date: getRelativeDate(-27),
+            status: 'not_started',
+            points_possible: 0,
+            reading_details: {
+              source: 'Course Textbook',
+              pages: '205-225',
+              estimated_time: 60,
+              type: 'textbook'
+            }
+          },
+          {
+            id: 503,
+            title: 'Discussion: Technology Trends in Testing',
+            type: 'discussion',
+            content: 'Discuss testing strategies and share your insights. Requirements: Initial post: 250+ words with examples, Respond to 2 classmates substantively, Reference course materials',
+            due_date: getRelativeDate(-25),
+            status: 'not_started',
+            points_possible: 25
+          },
+          {
+            id: 504,
+            title: 'Advanced Testing Methodologies - Advanced Reading',
+            type: 'reading',
+            content: 'Advanced materials for testing strategies',
+            due_date: getRelativeDate(-22),
+            status: 'not_started',
+            points_possible: 0,
+            reading_details: {
+              source: 'Supplementary Materials',
+              pages: '225-245',
+              estimated_time: 45,
+              type: 'article'
+            }
+          },
+          {
+            id: 505,
+            title: 'Testing Strategies Code Review',
             type: 'assignment',
-            content: 'Create a full REST API with CRUD operations, authentication middleware, and proper error handling.',
+            content: 'Complete this code review demonstrating understanding of testing strategies. Requirements: Apply course concepts correctly, Show detailed work and analysis, Follow academic standards, Submit by due date',
+            due_date: getRelativeDate(-19),
+            status: 'not_started',
+            points_possible: 125,
+            max_attempts: 3,
+            submissions: 0,
+            attempts: 0
+          },
+          {
+            id: 506,
+            title: 'Testing Strategies Assessment',
+            type: 'quiz',
+            content: 'Comprehensive assessment covering testing strategies',
+            due_date: getRelativeDate(-16),
+            status: 'not_started',
+            points_possible: 50,
+            max_attempts: 2,
+            attempts: 0
+          }
+        ]
+      },
+      {
+        id: 6,
+        name: 'Module 6: Deployment & DevOps',
+        description: 'CI/CD pipelines, containerization, and cloud deployment',
+        is_completed: false,
+        due_date: getRelativeDate(-15),
+        items: [
+          {
+            id: 601,
+            title: 'Introduction to Deployment & DevOps',
+            type: 'page',
+            content: '<h2>Welcome to Deployment & DevOps</h2><p>CI/CD pipelines, containerization, and cloud deployment strategies.</p><h3>Learning Objectives</h3><ul><li>Master fundamental concepts</li><li>Apply knowledge practically</li><li>Develop critical thinking</li><li>Engage in collaborative learning</li></ul>',
+            due_date: getRelativeDate(-15),
+            status: 'not_started',
+            points_possible: 0
+          },
+          {
+            id: 602,
+            title: 'Deployment & DevOps - Essential Reading',
+            type: 'reading',
+            content: 'Read foundational materials covering deployment & devops',
+            due_date: getRelativeDate(-13),
+            status: 'not_started',
+            points_possible: 0,
+            reading_details: {
+              source: 'Course Textbook',
+              pages: '245-265',
+              estimated_time: 60,
+              type: 'textbook'
+            }
+          },
+          {
+            id: 603,
+            title: 'Discussion: Code Architecture in DevOps',
+            type: 'discussion',
+            content: 'Discuss deployment & devops and share your insights. Requirements: Initial post: 250+ words with examples, Respond to 2 classmates substantively, Reference course materials',
+            due_date: getRelativeDate(-11),
+            status: 'not_started',
+            points_possible: 25
+          },
+          {
+            id: 604,
+            title: 'Advanced DevOps Practices - Advanced Reading',
+            type: 'reading',
+            content: 'Advanced materials for deployment & devops',
+            due_date: getRelativeDate(-8),
+            status: 'not_started',
+            points_possible: 0,
+            reading_details: {
+              source: 'Supplementary Materials',
+              pages: '265-285',
+              estimated_time: 45,
+              type: 'article'
+            }
+          },
+          {
+            id: 605,
+            title: 'Deployment & DevOps System Design',
+            type: 'assignment',
+            content: 'Complete this system design demonstrating understanding of deployment & devops. Requirements: Apply course concepts correctly, Show detailed work and analysis, Follow academic standards, Submit by due date',
+            due_date: getRelativeDate(-5),
+            status: 'not_started',
+            points_possible: 130,
+            max_attempts: 3,
+            submissions: 0,
+            attempts: 0
+          },
+          {
+            id: 606,
+            title: 'Deployment & DevOps Assessment',
+            type: 'quiz',
+            content: 'Comprehensive assessment covering deployment & devops',
+            due_date: getRelativeDate(-2),
+            status: 'not_started',
+            points_possible: 50,
+            max_attempts: 2,
+            attempts: 0
+          }
+        ]
+      },
+      {
+        id: 7,
+        name: 'Module 7: Advanced Patterns',
+        description: 'Design patterns, architecture, and scalability',
+        is_completed: false,
+        due_date: getRelativeDate(-1),
+        items: [
+          {
+            id: 701,
+            title: 'Introduction to Advanced Patterns',
+            type: 'page',
+            content: '<h2>Welcome to Advanced Patterns</h2><p>Design patterns, architecture, and scalability principles for enterprise applications.</p><h3>Learning Objectives</h3><ul><li>Master fundamental concepts</li><li>Apply knowledge practically</li><li>Develop critical thinking</li><li>Engage in collaborative learning</li></ul>',
+            due_date: getRelativeDate(-1),
+            status: 'not_started',
+            points_possible: 0
+          },
+          {
+            id: 702,
+            title: 'Advanced Patterns - Essential Reading',
+            type: 'reading',
+            content: 'Read foundational materials covering advanced patterns',
+            due_date: getRelativeDate(1),
+            status: 'not_started',
+            points_possible: 0,
+            reading_details: {
+              source: 'Course Textbook',
+              pages: '285-305',
+              estimated_time: 60,
+              type: 'textbook'
+            }
+          },
+          {
+            id: 703,
+            title: 'Discussion: Best Practices in Architecture',
+            type: 'discussion',
+            content: 'Discuss advanced patterns and share your insights. Requirements: Initial post: 250+ words with examples, Respond to 2 classmates substantively, Reference course materials',
+            due_date: getRelativeDate(3),
+            status: 'not_started',
+            points_possible: 25
+          },
+          {
+            id: 704,
+            title: 'Scalable Architecture Patterns - Advanced Reading',
+            type: 'reading',
+            content: 'Advanced materials for advanced patterns',
             due_date: getRelativeDate(6),
             status: 'not_started',
-            points_possible: 150,
+            points_possible: 0,
+            reading_details: {
+              source: 'Supplementary Materials',
+              pages: '305-325',
+              estimated_time: 45,
+              type: 'article'
+            }
+          },
+          {
+            id: 705,
+            title: 'Advanced Patterns Programming Project',
+            type: 'assignment',
+            content: 'Complete this programming project demonstrating understanding of advanced patterns. Requirements: Apply course concepts correctly, Show detailed work and analysis, Follow academic standards, Submit by due date',
+            due_date: getRelativeDate(9),
+            status: 'not_started',
+            points_possible: 135,
+            max_attempts: 3,
             submissions: 0,
-            attempts: 0,
-            max_attempts: 3
+            attempts: 0
+          },
+          {
+            id: 706,
+            title: 'Advanced Patterns Assessment',
+            type: 'quiz',
+            content: 'Comprehensive assessment covering advanced patterns',
+            due_date: getRelativeDate(12),
+            status: 'not_started',
+            points_possible: 50,
+            max_attempts: 2,
+            attempts: 0
+          }
+        ]
+      },
+      {
+        id: 8,
+        name: 'Module 8: Capstone Project',
+        description: 'Comprehensive full-stack application development',
+        is_completed: false,
+        due_date: getRelativeDate(13),
+        items: [
+          {
+            id: 801,
+            title: 'Introduction to Capstone Project',
+            type: 'page',
+            content: '<h2>Welcome to Capstone Project</h2><p>Comprehensive full-stack application development demonstrating all course concepts.</p><h3>Learning Objectives</h3><ul><li>Master fundamental concepts</li><li>Apply knowledge practically</li><li>Develop critical thinking</li><li>Engage in collaborative learning</li></ul>',
+            due_date: getRelativeDate(13),
+            status: 'not_started',
+            points_possible: 0
+          },
+          {
+            id: 802,
+            title: 'Capstone Project - Essential Reading',
+            type: 'reading',
+            content: 'Read foundational materials covering capstone project requirements',
+            due_date: getRelativeDate(15),
+            status: 'not_started',
+            points_possible: 0,
+            reading_details: {
+              source: 'Course Textbook',
+              pages: '325-345',
+              estimated_time: 60,
+              type: 'textbook'
+            }
+          },
+          {
+            id: 803,
+            title: 'Discussion: Project Planning and Architecture',
+            type: 'discussion',
+            content: 'Discuss capstone project plans and share your insights. Requirements: Initial post: 250+ words with examples, Respond to 2 classmates substantively, Reference course materials',
+            due_date: getRelativeDate(17),
+            status: 'not_started',
+            points_possible: 25
+          },
+          {
+            id: 804,
+            title: 'Full-Stack Development Best Practices - Advanced Reading',
+            type: 'reading',
+            content: 'Advanced materials for capstone project development',
+            due_date: getRelativeDate(20),
+            status: 'not_started',
+            points_possible: 0,
+            reading_details: {
+              source: 'Supplementary Materials',
+              pages: '345-365',
+              estimated_time: 45,
+              type: 'article'
+            }
+          },
+          {
+            id: 805,
+            title: 'Capstone Project Programming Project',
+            type: 'assignment',
+            content: 'Complete this programming project demonstrating understanding of all course concepts. Requirements: Apply course concepts correctly, Show detailed work and analysis, Follow academic standards, Submit by due date',
+            due_date: getRelativeDate(23),
+            status: 'not_started',
+            points_possible: 140,
+            max_attempts: 3,
+            submissions: 0,
+            attempts: 0
+          },
+          {
+            id: 806,
+            title: 'Capstone Project Assessment',
+            type: 'quiz',
+            content: 'Comprehensive assessment covering the entire course through capstone demonstration',
+            due_date: getRelativeDate(26),
+            status: 'not_started',
+            points_possible: 50,
+            max_attempts: 2,
+            attempts: 0
           }
         ]
       }
@@ -445,67 +1001,648 @@ Assessment:
     modules: [
       {
         id: 1,
-        name: 'Limits and Continuity',
-        description: 'Foundation concepts of calculus',
+        name: 'Module 1: Limits and Continuity',
+        description: 'Introduction to limits, limit laws, and continuity of functions',
         is_completed: true,
+        due_date: getRelativeDate(-85),
         items: [
           {
-            id: 31,
-            title: 'Limits and Continuity - Required Reading',
+            id: 301,
+            title: 'Introduction to Limits and Continuity',
+            type: 'page',
+            content: '<h2>Welcome to Limits and Continuity</h2><p>Introduction to limits, limit laws, and continuity of functions - the foundation of calculus.</p><h3>Learning Objectives</h3><ul><li>Master fundamental limit concepts</li><li>Apply limit laws and techniques</li><li>Understand continuity and discontinuity</li><li>Solve real-world limit problems</li></ul>',
+            due_date: getRelativeDate(-85),
+            status: 'graded',
+            points_possible: 0
+          },
+          {
+            id: 302,
+            title: 'Limits and Continuity - Essential Reading',
             type: 'reading',
-            content: 'Required reading covering limits and continuity with emphasis on theorem understanding, proof techniques, and problem-solving strategies. Includes worked examples and step-by-step explanations.',
-            due_date: getRelativeDate(-14),
+            content: 'Read foundational materials covering limits and continuity concepts',
+            due_date: getRelativeDate(-83),
             status: 'graded',
             points_possible: 0,
             reading_details: {
               source: 'Calculus: Early Transcendentals',
-              pages: '67-102, 115-128',
-              estimated_time: 75,
+              pages: '65-85',
+              estimated_time: 60,
               type: 'textbook'
             }
           },
           {
-            id: 32,
-            title: 'Limits and Continuity Quiz',
+            id: 303,
+            title: 'Discussion: Mathematical Concepts in Limits',
+            type: 'discussion',
+            content: 'Discuss limits and continuity concepts and share your insights. Requirements: Initial post: 250+ words with examples, Respond to 2 classmates substantively, Reference course materials',
+            due_date: getRelativeDate(-81),
+            status: 'graded',
+            points_possible: 25
+          },
+          {
+            id: 304,
+            title: 'Advanced Limit Techniques - Advanced Reading',
+            type: 'reading',
+            content: 'Advanced materials for limits and continuity',
+            due_date: getRelativeDate(-78),
+            status: 'graded',
+            points_possible: 0,
+            reading_details: {
+              source: 'Supplementary Materials',
+              pages: '85-105',
+              estimated_time: 45,
+              type: 'article'
+            }
+          },
+          {
+            id: 305,
+            title: 'Limits and Continuity Problem Set',
+            type: 'assignment',
+            content: 'Complete this problem set demonstrating understanding of limits and continuity. Requirements: Apply course concepts correctly, Show detailed work and analysis, Follow academic standards, Submit by due date',
+            due_date: getRelativeDate(-75),
+            status: 'graded',
+            grade: 88,
+            feedback: 'Excellent work on limit calculations. Strong understanding of continuity concepts.',
+            points_possible: 80,
+            max_attempts: 3,
+            submissions: 1,
+            attempts: 1
+          },
+          {
+            id: 306,
+            title: 'Limits and Continuity Assessment',
             type: 'quiz',
-            content: 'Evaluate limits and determine continuity of functions.',
-            due_date: getRelativeDate(-12),
+            content: 'Comprehensive assessment covering limits and continuity',
+            due_date: getRelativeDate(-72),
             status: 'graded',
             grade: 85,
-            feedback: 'Good understanding of limit concepts. Review indeterminate forms.',
-            points_possible: 60
+            points_possible: 50,
+            max_attempts: 2,
+            attempts: 1
           }
         ]
       },
       {
         id: 2,
-        name: 'Derivatives',
-        description: 'Definition and computation of derivatives',
-        is_completed: false,
+        name: 'Module 2: Derivatives and Rules',
+        description: 'Definition of derivatives and fundamental differentiation rules',
+        is_completed: true,
+        due_date: getRelativeDate(-71),
         items: [
           {
-            id: 32.5,
-            title: 'Derivative Rules - Required Reading',
+            id: 401,
+            title: 'Introduction to Derivatives and Rules',
+            type: 'page',
+            content: '<h2>Welcome to Derivatives and Rules</h2><p>Definition of derivatives and fundamental differentiation rules for polynomial, exponential, and trigonometric functions.</p><h3>Learning Objectives</h3><ul><li>Master fundamental concepts</li><li>Apply knowledge practically</li><li>Develop critical thinking</li><li>Engage in collaborative learning</li></ul>',
+            due_date: getRelativeDate(-71),
+            status: 'graded',
+            points_possible: 0
+          },
+          {
+            id: 402,
+            title: 'Derivatives and Rules - Essential Reading',
             type: 'reading',
-            content: 'Required reading covering derivatives with emphasis on theorem understanding, proof techniques, and problem-solving strategies. Includes worked examples and step-by-step explanations of differentiation rules.',
-            due_date: getRelativeDate(5),
-            status: 'not_started',
+            content: 'Read foundational materials covering derivatives and rules',
+            due_date: getRelativeDate(-69),
+            status: 'graded',
             points_possible: 0,
             reading_details: {
-              source: 'Calculus: Early Transcendentals',
-              pages: '145-182, 195-210',
-              estimated_time: 80,
+              source: 'Course Textbook',
+              pages: '85-105',
+              estimated_time: 60,
               type: 'textbook'
             }
           },
           {
-            id: 33,
-            title: 'Derivative Rules Assignment',
+            id: 403,
+            title: 'Discussion: Real-world Applications of Derivatives',
+            type: 'discussion',
+            content: 'Discuss derivatives and rules and share your insights. Requirements: Initial post: 250+ words with examples, Respond to 2 classmates substantively, Reference course materials',
+            due_date: getRelativeDate(-67),
+            status: 'graded',
+            points_possible: 25
+          },
+          {
+            id: 404,
+            title: 'Advanced Differentiation Techniques - Advanced Reading',
+            type: 'reading',
+            content: 'Advanced materials for derivatives and rules',
+            due_date: getRelativeDate(-64),
+            status: 'graded',
+            points_possible: 0,
+            reading_details: {
+              source: 'Supplementary Materials',
+              pages: '105-125',
+              estimated_time: 45,
+              type: 'article'
+            }
+          },
+          {
+            id: 405,
+            title: 'Derivatives and Rules Proof Assignment',
             type: 'assignment',
-            content: 'Apply power rule, product rule, quotient rule, and chain rule to find derivatives.',
-            due_date: getRelativeDate(7),
+            content: 'Complete this proof assignment demonstrating understanding of derivatives and rules. Requirements: Apply course concepts correctly, Show detailed work and analysis, Follow academic standards, Submit by due date',
+            due_date: getRelativeDate(-61),
+            status: 'graded',
+            grade: 82,
+            points_possible: 85,
+            max_attempts: 3,
+            submissions: 1,
+            attempts: 1
+          },
+          {
+            id: 406,
+            title: 'Derivatives and Rules Assessment',
+            type: 'quiz',
+            content: 'Comprehensive assessment covering derivatives and rules',
+            due_date: getRelativeDate(-58),
+            status: 'graded',
+            grade: 90,
+            points_possible: 50,
+            max_attempts: 2,
+            attempts: 1
+          }
+        ]
+      },
+      {
+        id: 3,
+        name: 'Module 3: Applications of Derivatives',
+        description: 'Related rates, optimization, and curve sketching',
+        is_completed: true,
+        due_date: getRelativeDate(-57),
+        items: [
+          {
+            id: 501,
+            title: 'Introduction to Applications of Derivatives',
+            type: 'page',
+            content: '<h2>Welcome to Applications of Derivatives</h2><p>Related rates, optimization, and curve sketching using derivative techniques.</p><h3>Learning Objectives</h3><ul><li>Master fundamental concepts</li><li>Apply knowledge practically</li><li>Develop critical thinking</li><li>Engage in collaborative learning</li></ul>',
+            due_date: getRelativeDate(-57),
+            status: 'graded',
+            points_possible: 0
+          },
+          {
+            id: 502,
+            title: 'Applications of Derivatives - Essential Reading',
+            type: 'reading',
+            content: 'Read foundational materials covering applications of derivatives',
+            due_date: getRelativeDate(-55),
+            status: 'graded',
+            points_possible: 0,
+            reading_details: {
+              source: 'Course Textbook',
+              pages: '125-145',
+              estimated_time: 60,
+              type: 'textbook'
+            }
+          },
+          {
+            id: 503,
+            title: 'Discussion: Problem Solving Strategies with Derivatives',
+            type: 'discussion',
+            content: 'Discuss applications of derivatives and share your insights. Requirements: Initial post: 250+ words with examples, Respond to 2 classmates substantively, Reference course materials',
+            due_date: getRelativeDate(-53),
+            status: 'graded',
+            points_possible: 25
+          },
+          {
+            id: 504,
+            title: 'Optimization and Related Rates - Advanced Reading',
+            type: 'reading',
+            content: 'Advanced materials for applications of derivatives',
+            due_date: getRelativeDate(-50),
+            status: 'graded',
+            points_possible: 0,
+            reading_details: {
+              source: 'Supplementary Materials',
+              pages: '145-165',
+              estimated_time: 45,
+              type: 'article'
+            }
+          },
+          {
+            id: 505,
+            title: 'Applications of Derivatives Mathematical Modeling',
+            type: 'assignment',
+            content: 'Complete this mathematical modeling demonstrating understanding of applications of derivatives. Requirements: Apply course concepts correctly, Show detailed work and analysis, Follow academic standards, Submit by due date',
+            due_date: getRelativeDate(-47),
+            status: 'graded',
+            grade: 91,
+            points_possible: 90,
+            max_attempts: 3,
+            submissions: 1,
+            attempts: 1
+          },
+          {
+            id: 506,
+            title: 'Applications of Derivatives Assessment',
+            type: 'quiz',
+            content: 'Comprehensive assessment covering applications of derivatives',
+            due_date: getRelativeDate(-44),
+            status: 'graded',
+            grade: 87,
+            points_possible: 50,
+            max_attempts: 2,
+            attempts: 1
+          }
+        ]
+      },
+      {
+        id: 4,
+        name: 'Module 4: The Integral',
+        description: 'Antiderivatives and the fundamental theorem of calculus',
+        is_completed: false,
+        due_date: getRelativeDate(-43),
+        items: [
+          {
+            id: 601,
+            title: 'Introduction to The Integral',
+            type: 'page',
+            content: '<h2>Welcome to The Integral</h2><p>Antiderivatives and the fundamental theorem of calculus - connecting differentiation and integration.</p><h3>Learning Objectives</h3><ul><li>Master fundamental concepts</li><li>Apply knowledge practically</li><li>Develop critical thinking</li><li>Engage in collaborative learning</li></ul>',
+            due_date: getRelativeDate(-43),
+            status: 'graded',
+            points_possible: 0
+          },
+          {
+            id: 602,
+            title: 'The Integral - Essential Reading',
+            type: 'reading',
+            content: 'Read foundational materials covering the integral',
+            due_date: getRelativeDate(-41),
+            status: 'graded',
+            points_possible: 0,
+            reading_details: {
+              source: 'Course Textbook',
+              pages: '165-185',
+              estimated_time: 60,
+              type: 'textbook'
+            }
+          },
+          {
+            id: 603,
+            title: 'Discussion: Mathematical Concepts in Integration',
+            type: 'discussion',
+            content: 'Discuss the integral and share your insights. Requirements: Initial post: 250+ words with examples, Respond to 2 classmates substantively, Reference course materials',
+            due_date: getRelativeDate(-39),
+            status: 'submitted',
+            points_possible: 25
+          },
+          {
+            id: 604,
+            title: 'Fundamental Theorem of Calculus - Advanced Reading',
+            type: 'reading',
+            content: 'Advanced materials for the integral',
+            due_date: getRelativeDate(-36),
             status: 'in_progress',
-            points_possible: 80
+            points_possible: 0,
+            reading_details: {
+              source: 'Supplementary Materials',
+              pages: '185-205',
+              estimated_time: 45,
+              type: 'article'
+            }
+          },
+          {
+            id: 605,
+            title: 'The Integral Problem Set',
+            type: 'assignment',
+            content: 'Complete this problem set demonstrating understanding of the integral. Requirements: Apply course concepts correctly, Show detailed work and analysis, Follow academic standards, Submit by due date',
+            due_date: getRelativeDate(-33),
+            status: 'not_started',
+            points_possible: 95,
+            max_attempts: 3,
+            submissions: 0,
+            attempts: 0
+          },
+          {
+            id: 606,
+            title: 'The Integral Assessment',
+            type: 'quiz',
+            content: 'Comprehensive assessment covering the integral',
+            due_date: getRelativeDate(-30),
+            status: 'not_started',
+            points_possible: 50,
+            max_attempts: 2,
+            attempts: 0
+          }
+        ]
+      },
+      {
+        id: 5,
+        name: 'Module 5: Integration Techniques',
+        description: 'Substitution, integration by parts, and special techniques',
+        is_completed: false,
+        due_date: getRelativeDate(-29),
+        items: [
+          {
+            id: 701,
+            title: 'Introduction to Integration Techniques',
+            type: 'page',
+            content: '<h2>Welcome to Integration Techniques</h2><p>Substitution, integration by parts, and special techniques for complex integrals.</p><h3>Learning Objectives</h3><ul><li>Master fundamental concepts</li><li>Apply knowledge practically</li><li>Develop critical thinking</li><li>Engage in collaborative learning</li></ul>',
+            due_date: getRelativeDate(-29),
+            status: 'not_started',
+            points_possible: 0
+          },
+          {
+            id: 702,
+            title: 'Integration Techniques - Essential Reading',
+            type: 'reading',
+            content: 'Read foundational materials covering integration techniques',
+            due_date: getRelativeDate(-27),
+            status: 'not_started',
+            points_possible: 0,
+            reading_details: {
+              source: 'Course Textbook',
+              pages: '205-225',
+              estimated_time: 60,
+              type: 'textbook'
+            }
+          },
+          {
+            id: 703,
+            title: 'Discussion: Problem Solving Strategies in Integration',
+            type: 'discussion',
+            content: 'Discuss integration techniques and share your insights. Requirements: Initial post: 250+ words with examples, Respond to 2 classmates substantively, Reference course materials',
+            due_date: getRelativeDate(-25),
+            status: 'not_started',
+            points_possible: 25
+          },
+          {
+            id: 704,
+            title: 'Advanced Integration Methods - Advanced Reading',
+            type: 'reading',
+            content: 'Advanced materials for integration techniques',
+            due_date: getRelativeDate(-22),
+            status: 'not_started',
+            points_possible: 0,
+            reading_details: {
+              source: 'Supplementary Materials',
+              pages: '225-245',
+              estimated_time: 45,
+              type: 'article'
+            }
+          },
+          {
+            id: 705,
+            title: 'Integration Techniques Proof Assignment',
+            type: 'assignment',
+            content: 'Complete this proof assignment demonstrating understanding of integration techniques. Requirements: Apply course concepts correctly, Show detailed work and analysis, Follow academic standards, Submit by due date',
+            due_date: getRelativeDate(-19),
+            status: 'not_started',
+            points_possible: 100,
+            max_attempts: 3,
+            submissions: 0,
+            attempts: 0
+          },
+          {
+            id: 706,
+            title: 'Integration Techniques Assessment',
+            type: 'quiz',
+            content: 'Comprehensive assessment covering integration techniques',
+            due_date: getRelativeDate(-16),
+            status: 'not_started',
+            points_possible: 50,
+            max_attempts: 2,
+            attempts: 0
+          }
+        ]
+      },
+      {
+        id: 6,
+        name: 'Module 6: Applications of Integration',
+        description: 'Area, volume, and physical applications of integrals',
+        is_completed: false,
+        due_date: getRelativeDate(-15),
+        items: [
+          {
+            id: 801,
+            title: 'Introduction to Applications of Integration',
+            type: 'page',
+            content: '<h2>Welcome to Applications of Integration</h2><p>Area, volume, and physical applications of integrals in real-world contexts.</p><h3>Learning Objectives</h3><ul><li>Master fundamental concepts</li><li>Apply knowledge practically</li><li>Develop critical thinking</li><li>Engage in collaborative learning</li></ul>',
+            due_date: getRelativeDate(-15),
+            status: 'not_started',
+            points_possible: 0
+          },
+          {
+            id: 802,
+            title: 'Applications of Integration - Essential Reading',
+            type: 'reading',
+            content: 'Read foundational materials covering applications of integration',
+            due_date: getRelativeDate(-13),
+            status: 'not_started',
+            points_possible: 0,
+            reading_details: {
+              source: 'Course Textbook',
+              pages: '245-265',
+              estimated_time: 60,
+              type: 'textbook'
+            }
+          },
+          {
+            id: 803,
+            title: 'Discussion: Real-world Applications of Integration',
+            type: 'discussion',
+            content: 'Discuss applications of integration and share your insights. Requirements: Initial post: 250+ words with examples, Respond to 2 classmates substantively, Reference course materials',
+            due_date: getRelativeDate(-11),
+            status: 'not_started',
+            points_possible: 25
+          },
+          {
+            id: 804,
+            title: 'Physics and Engineering Applications - Advanced Reading',
+            type: 'reading',
+            content: 'Advanced materials for applications of integration',
+            due_date: getRelativeDate(-8),
+            status: 'not_started',
+            points_possible: 0,
+            reading_details: {
+              source: 'Supplementary Materials',
+              pages: '265-285',
+              estimated_time: 45,
+              type: 'article'
+            }
+          },
+          {
+            id: 805,
+            title: 'Applications of Integration Mathematical Modeling',
+            type: 'assignment',
+            content: 'Complete this mathematical modeling demonstrating understanding of applications of integration. Requirements: Apply course concepts correctly, Show detailed work and analysis, Follow academic standards, Submit by due date',
+            due_date: getRelativeDate(-5),
+            status: 'not_started',
+            points_possible: 105,
+            max_attempts: 3,
+            submissions: 0,
+            attempts: 0
+          },
+          {
+            id: 806,
+            title: 'Applications of Integration Assessment',
+            type: 'quiz',
+            content: 'Comprehensive assessment covering applications of integration',
+            due_date: getRelativeDate(-2),
+            status: 'not_started',
+            points_possible: 50,
+            max_attempts: 2,
+            attempts: 0
+          }
+        ]
+      },
+      {
+        id: 7,
+        name: 'Module 7: Differential Equations',
+        description: 'Basic differential equations and their applications',
+        is_completed: false,
+        due_date: getRelativeDate(-1),
+        items: [
+          {
+            id: 901,
+            title: 'Introduction to Differential Equations',
+            type: 'page',
+            content: '<h2>Welcome to Differential Equations</h2><p>Basic differential equations and their applications in science and engineering.</p><h3>Learning Objectives</h3><ul><li>Master fundamental concepts</li><li>Apply knowledge practically</li><li>Develop critical thinking</li><li>Engage in collaborative learning</li></ul>',
+            due_date: getRelativeDate(-1),
+            status: 'not_started',
+            points_possible: 0
+          },
+          {
+            id: 902,
+            title: 'Differential Equations - Essential Reading',
+            type: 'reading',
+            content: 'Read foundational materials covering differential equations',
+            due_date: getRelativeDate(1),
+            status: 'not_started',
+            points_possible: 0,
+            reading_details: {
+              source: 'Course Textbook',
+              pages: '285-305',
+              estimated_time: 60,
+              type: 'textbook'
+            }
+          },
+          {
+            id: 903,
+            title: 'Discussion: Mathematical Concepts in Differential Equations',
+            type: 'discussion',
+            content: 'Discuss differential equations and share your insights. Requirements: Initial post: 250+ words with examples, Respond to 2 classmates substantively, Reference course materials',
+            due_date: getRelativeDate(3),
+            status: 'not_started',
+            points_possible: 25
+          },
+          {
+            id: 904,
+            title: 'Solving Differential Equations - Advanced Reading',
+            type: 'reading',
+            content: 'Advanced materials for differential equations',
+            due_date: getRelativeDate(6),
+            status: 'not_started',
+            points_possible: 0,
+            reading_details: {
+              source: 'Supplementary Materials',
+              pages: '305-325',
+              estimated_time: 45,
+              type: 'article'
+            }
+          },
+          {
+            id: 905,
+            title: 'Differential Equations Problem Set',
+            type: 'assignment',
+            content: 'Complete this problem set demonstrating understanding of differential equations. Requirements: Apply course concepts correctly, Show detailed work and analysis, Follow academic standards, Submit by due date',
+            due_date: getRelativeDate(9),
+            status: 'not_started',
+            points_possible: 110,
+            max_attempts: 3,
+            submissions: 0,
+            attempts: 0
+          },
+          {
+            id: 906,
+            title: 'Differential Equations Assessment',
+            type: 'quiz',
+            content: 'Comprehensive assessment covering differential equations',
+            due_date: getRelativeDate(12),
+            status: 'not_started',
+            points_possible: 50,
+            max_attempts: 2,
+            attempts: 0
+          }
+        ]
+      },
+      {
+        id: 8,
+        name: 'Module 8: Sequences and Series',
+        description: 'Infinite sequences, series, and convergence tests',
+        is_completed: false,
+        due_date: getRelativeDate(13),
+        items: [
+          {
+            id: 1001,
+            title: 'Introduction to Sequences and Series',
+            type: 'page',
+            content: '<h2>Welcome to Sequences and Series</h2><p>Infinite sequences, series, and convergence tests for advanced calculus applications.</p><h3>Learning Objectives</h3><ul><li>Master fundamental concepts</li><li>Apply knowledge practically</li><li>Develop critical thinking</li><li>Engage in collaborative learning</li></ul>',
+            due_date: getRelativeDate(13),
+            status: 'not_started',
+            points_possible: 0
+          },
+          {
+            id: 1002,
+            title: 'Sequences and Series - Essential Reading',
+            type: 'reading',
+            content: 'Read foundational materials covering sequences and series',
+            due_date: getRelativeDate(15),
+            status: 'not_started',
+            points_possible: 0,
+            reading_details: {
+              source: 'Course Textbook',
+              pages: '325-345',
+              estimated_time: 60,
+              type: 'textbook'
+            }
+          },
+          {
+            id: 1003,
+            title: 'Discussion: Problem Solving Strategies with Series',
+            type: 'discussion',
+            content: 'Discuss sequences and series and share your insights. Requirements: Initial post: 250+ words with examples, Respond to 2 classmates substantively, Reference course materials',
+            due_date: getRelativeDate(17),
+            status: 'not_started',
+            points_possible: 25
+          },
+          {
+            id: 1004,
+            title: 'Convergence Tests and Applications - Advanced Reading',
+            type: 'reading',
+            content: 'Advanced materials for sequences and series',
+            due_date: getRelativeDate(20),
+            status: 'not_started',
+            points_possible: 0,
+            reading_details: {
+              source: 'Supplementary Materials',
+              pages: '345-365',
+              estimated_time: 45,
+              type: 'article'
+            }
+          },
+          {
+            id: 1005,
+            title: 'Sequences and Series Proof Assignment',
+            type: 'assignment',
+            content: 'Complete this proof assignment demonstrating understanding of sequences and series. Requirements: Apply course concepts correctly, Show detailed work and analysis, Follow academic standards, Submit by due date',
+            due_date: getRelativeDate(23),
+            status: 'not_started',
+            points_possible: 115,
+            max_attempts: 3,
+            submissions: 0,
+            attempts: 0
+          },
+          {
+            id: 1006,
+            title: 'Sequences and Series Assessment',
+            type: 'quiz',
+            content: 'Comprehensive assessment covering sequences and series',
+            due_date: getRelativeDate(26),
+            status: 'not_started',
+            points_possible: 50,
+            max_attempts: 2,
+            attempts: 0
           }
         ]
       }
@@ -1398,7 +2535,10 @@ Note: Fulfills CS requirement for Education majors`,
         ]
       }
     ]
-  }
+  },
+
+  // Add the popular music piano course
+  generatePopularMusicPianoCourse()
 ];
 
 // Comprehensive assignment data with proper course connections
@@ -2506,6 +3646,24 @@ export const mockCanvasApi = {
     
     courses.splice(courseIndex, 1);
     return { success: true };
+  },
+
+  async addCourse(courseData: Course): Promise<{ success: boolean; course?: Course; error?: string }> {
+    await new Promise(resolve => setTimeout(resolve, 200));
+    
+    try {
+      // Generate unique ID
+      const maxId = Math.max(...courses.map(c => c.id), 0);
+      const newCourse: Course = {
+        ...courseData,
+        id: maxId + 1
+      };
+      
+      courses.push(newCourse);
+      return { success: true, course: newCourse };
+    } catch (error) {
+      return { success: false, error: 'Failed to add course' };
+    }
   },
 
   // Assignment operations

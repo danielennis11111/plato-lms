@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable, DropResult, DroppableProvided, DraggableProvided } from 'react-beautiful-dnd';
-import { mockCanvasApi } from '../lib/mockCanvasApi';
+import { mockCanvasApi, Assignment as CanvasAssignment } from '../../lib/mockCanvasApi';
 
 interface Assignment {
   id: number;
@@ -26,15 +26,20 @@ const KanbanBoard: React.FC = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const coursesData = await mockCanvasApi.courses.list();
+        const coursesData = await mockCanvasApi.getCourses();
         setCourses(coursesData);
         
         const allAssignments: Assignment[] = [];
         for (const course of coursesData) {
-          const courseAssignments = await mockCanvasApi.assignments.list(course.id);
+          const courseAssignments = await mockCanvasApi.getCourseAssignments(course.id);
           // Add status to each assignment
-          const assignmentsWithStatus = courseAssignments.map(assignment => ({
-            ...assignment,
+          const assignmentsWithStatus = courseAssignments.map((assignment: CanvasAssignment): Assignment => ({
+            id: assignment.id,
+            name: assignment.name,
+            description: assignment.description,
+            due_at: assignment.due_at,
+            points_possible: assignment.points_possible,
+            course_id: assignment.course_id,
             status: 'todo' as const
           }));
           allAssignments.push(...assignmentsWithStatus);

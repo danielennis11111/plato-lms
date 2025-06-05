@@ -194,6 +194,16 @@ export default function ProfileSwitcher() {
       description: 'Chinese Language Instructor - Comparative Culture & Language PhD',
       avatar: 'https://webapp4.asu.edu/photo-ws/directory_photo/fangzh10?size=medium&break=1749083549&blankImage2=1',
       category: 'Faculty'
+    },
+
+    // Real ASU Music Faculty - Beth Lederman
+    {
+      id: 'faculty_lederman',
+      name: 'Beth Lederman',
+      email: 'blederma@asu.edu',
+      description: 'Music Faculty - Popular Piano & Jazz (40 years experience)',
+      avatar: 'https://isearch.asu.edu/profile/1644527/photo/1671558988.jpg',
+      category: 'Faculty'
     }
   ];
 

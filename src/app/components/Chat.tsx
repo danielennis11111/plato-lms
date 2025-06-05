@@ -1358,9 +1358,9 @@ Response: 1-2 sentences + question.`;
                   message.role === 'user' ? 'bg-blue-500' : 'bg-transparent'
                 }`}>
                   {message.role === 'user' ? (
-                    user?.profileImage ? (
+                    user?.profile?.avatar ? (
                       <img 
-                        src={user.profileImage} 
+                        src={user.profile.avatar} 
                         alt={user.name || 'User'} 
                         className="w-6 h-6 rounded-full object-cover"
                       />
@@ -1643,9 +1643,9 @@ Response: 1-2 sentences + question.`;
                 message.role === 'user' ? 'bg-blue-500' : 'bg-transparent'
               }`}>
                 {message.role === 'user' ? (
-                  user?.profileImage ? (
+                  user?.profile?.avatar ? (
                     <img 
-                      src={user.profileImage} 
+                      src={user.profile.avatar} 
                       alt={user.name || 'User'} 
                       className="w-10 h-10 rounded-full object-cover"
                     />

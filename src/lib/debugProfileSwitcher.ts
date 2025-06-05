@@ -122,6 +122,7 @@ export const debugProfileSwitcher = {
       { id: 'faculty_green', name: 'Dr. Rachel Green', email: 'r.green@plato.edu', category: 'Faculty' },
       { id: 'faculty_kumar', name: 'Prof. David Kumar', email: 'd.kumar@plato.edu', category: 'Faculty' },
       { id: 'faculty_werner', name: 'Jennifer Werner', email: 'jennifer.werner.2@asu.edu', category: 'Faculty' },
+      { id: 'faculty_lederman', name: 'Beth Lederman', email: 'blederma@asu.edu', category: 'Faculty' },
       { id: 'test_designer_1', name: 'Sarah Jarboe', email: 'sarah.jarboe@asu.edu', category: 'Staff' },
       { id: 'graduate_ta_ikediuwa', name: 'Ezinwanne Ikediuwa', email: 'ezinwanne.ikediuwa@asu.edu', category: 'Students' }
     ];

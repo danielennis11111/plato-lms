@@ -1,0 +1,1 @@
+const fs = require("fs"); console.log("Starting enhancement..."); const mockApiPath = "src/lib/mockCanvasApi.ts"; let content = fs.readFileSync(mockApiPath, "utf8"); content = content.replace(/(course_code: "ENG101",[\s\S]*?total_points: )\d+/, "$11400"); fs.writeFileSync(mockApiPath, content, "utf8"); console.log("Enhanced ENG101 total points to 1400");

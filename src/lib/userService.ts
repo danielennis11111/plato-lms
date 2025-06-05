@@ -964,6 +964,18 @@ export class UserService {
         profileImage: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face',
         office: 'ENGR 110',
         phone: '480-965-6789'
+      },
+      {
+        id: 'faculty_lederman',
+        email: 'blederma@asu.edu',
+        name: 'Beth Lederman',
+        department: 'HIDA School of Music, Dance and Theatre',
+        courses: [15], // MSC 131 - Popular Music Class Piano
+        specializations: ['Jazz Piano', 'Popular Music', 'Music Education', 'Performance Technique'],
+        bio: 'Faculty Associate at HIDA School of Music, Dance and Theatre. With 40 years of professional experience in the music industry and expertise in jazz piano, Beth brings real-world insights to popular music education. Bachelor of Arts in Music Cum Laude from ASU (1990).',
+        profileImage: 'https://isearch.asu.edu/profile/1644527/photo/1671558988.jpg',
+        office: 'MUSIC 150 - Piano Lab',
+        phone: 'Contact via email'
       }
     ];
 
