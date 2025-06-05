@@ -732,10 +732,36 @@ Choose how you'd like me to approach our conversation using the options below!`;
         return "Please log in to access the AI tutoring features.";
       }
 
-      // Minimal context to prevent API overload
-      const courseData = { type: enhancedContext?.type || 'general' };
+      // Get essential context for calendar/dashboard without overloading API
+      let courseData = { type: enhancedContext?.type || 'general' };
       
-      console.log('📊 Using minimal context to prevent rate limiting');
+      // Load page-specific context
+      if (enhancedContext?.type === 'calendar') {
+        try {
+          const calendarData = await mockCanvasApi.getCalendarEvents();
+          courseData = { 
+            type: 'calendar',
+            calendarEvents: calendarData?.slice(0, 8) || [],
+            currentDate: new Date().toLocaleDateString()
+          } as any;
+        } catch (error) {
+          console.log('⚠️ Could not load calendar data:', error);
+        }
+      } else if (enhancedContext?.type === 'dashboard') {
+        try {
+          const dashboardData = await mockCanvasApi.getDashboardData();
+          courseData = {
+            type: 'dashboard',
+            courses: dashboardData?.courses?.slice(0, 5) || [],
+            upcomingAssignments: dashboardData?.upcomingAssignments?.slice(0, 6) || [],
+            currentDate: new Date().toLocaleDateString()
+          } as any;
+        } catch (error) {
+          console.log('⚠️ Could not load dashboard data:', error);
+        }
+      }
+      
+      console.log('📊 Page context loaded:', courseData.type, (courseData as any).calendarEvents?.length || (courseData as any).upcomingAssignments?.length || 0, 'items');
       
       // Check for API key
       console.log('🔑 API Key check:', apiKey ? 'Found' : 'Missing');
@@ -1046,39 +1072,57 @@ Enrolled Courses: ${userEnrollments.length > 0 ? userEnrollments.join(', ') : 'N
     const keyInfo = extractKeyInformation(messages);
     const contextType = context?.type || 'general';
     
-    // Build optimized context sections
-    let roleContext = '';
-    switch (contextType) {
-      case 'assignment':
-        roleContext = 'FOCUS: Ask specific questions about assignment approach and understanding.';
-        break;
-      case 'discussion':
-        const storedContext = localStorage.getItem('currentDiscussionContext');
-        let personaInfo = '';
-        if (storedContext) {
-          try {
-            const data = JSON.parse(storedContext);
-            if (data.selectedPersona) {
-              personaInfo = ` As ${data.selectedPersona.name}, `;
-            }
-          } catch (e) {}
-        }
-        roleContext = `FOCUS:${personaInfo} Ask questions that encourage different perspectives.`;
-        break;
-      case 'quiz':
-        roleContext = context?.state === 'completed' 
-          ? 'FOCUS: Ask what they learned from the experience.' 
-          : 'FOCUS: Ask questions to clarify concepts without giving answers.';
-        break;
-      case 'dashboard':
-        roleContext = 'FOCUS: Help prioritize tasks and plan study schedules efficiently.';
-        break;
-      default:
-        roleContext = 'FOCUS: Listen and ask focused questions to guide learning.';
-    }
+         // Build page-aware context sections
+     let roleContext = '';
+     let pageInfo = '';
+     
+     switch (contextType) {
+       case 'calendar':
+         roleContext = 'FOCUS: Help prioritize upcoming deadlines and plan study time.';
+         if (courseData.calendarEvents?.length > 0) {
+           const urgentItems = courseData.calendarEvents
+             .filter((event: any) => new Date(event.start_date) <= new Date(Date.now() + 7 * 24 * 60 * 60 * 1000))
+             .slice(0, 3);
+           pageInfo = urgentItems.length > 0 
+             ? `CALENDAR: ${urgentItems.map((e: any) => `${e.title} (${e.type}) - ${new Date(e.start_date).toLocaleDateString()}`).join(', ')}`
+             : '';
+         }
+         break;
+       case 'dashboard':
+         roleContext = 'FOCUS: Help with course overview and task prioritization.';
+         if (courseData.upcomingAssignments?.length > 0) {
+           const nextAssignments = courseData.upcomingAssignments.slice(0, 3);
+           pageInfo = `DASHBOARD: Next up - ${nextAssignments.map((a: any) => `${a.name} (due ${new Date(a.due_date).toLocaleDateString()})`).join(', ')}`;
+         }
+         break;
+       case 'assignment':
+         roleContext = 'FOCUS: Ask specific questions about assignment approach.';
+         break;
+       case 'discussion':
+         const storedContext = localStorage.getItem('currentDiscussionContext');
+         let personaInfo = '';
+         if (storedContext) {
+           try {
+             const data = JSON.parse(storedContext);
+             if (data.selectedPersona) {
+               personaInfo = ` As ${data.selectedPersona.name}, `;
+             }
+           } catch (e) {}
+         }
+         roleContext = `FOCUS:${personaInfo} Ask questions that encourage different perspectives.`;
+         break;
+       case 'quiz':
+         roleContext = context?.state === 'completed' 
+           ? 'FOCUS: Ask what they learned from the experience.' 
+           : 'FOCUS: Ask questions to clarify concepts without giving answers.';
+         break;
+       default:
+         roleContext = 'FOCUS: Listen and ask focused questions to guide learning.';
+     }
 
-         // MINIMAL prompt to prevent rate limiting
+         // MINIMAL prompt with page context
      const minimalPrompt = `Socrates tutor. ${roleContext}
+${pageInfo ? `PAGE CONTEXT: ${pageInfo}` : ''}
 Student: "${userMessage.substring(0, 100)}"
 Response: 1-2 sentences + question.`;
 
