@@ -2008,24 +2008,24 @@ Required Materials:
     ]
   },
 
-  // Environmental Science Course (Dr. Rachel Green)
+  // Environmental Science Course (Nari Miller - Real ASU Faculty)
   {
     id: 8,
-    name: 'Introduction to Environmental Science',
-    course_code: 'BIO130',
-    description: 'Introduces the interconnected nature of Earth\'s hydrosphere, lithosphere, atmosphere, and biosphere. Focus on environmental problems, sustainability, and human impact on natural systems.',
-    instructor: 'Dr. Rachel Green',
-    instructor_email: 'r.green@plato.edu',
+    name: 'Environmental Science: Water Planet',
+    course_code: 'SOS 182',
+    description: 'Explore Earth\'s hydrological systems from hillslope processes to global patterns. Connect local geological processes to regional landscape evolution through hands-on investigation and real-world applications.',
+    instructor: 'Nari Miller',
+    instructor_email: 'nari.miller@asu.edu',
     term: 'Summer 2025',
-    total_points: 850,
+    total_points: 1200,
     current_grade: 0,
-    start_date: getRelativeDate(-23),
-    end_date: getRelativeDate(72),
-    department: 'Life Sciences',
-    credits: 4,
-    prerequisites: [],
-    room_location: 'LIFE 240',
-    meeting_times: 'TR 2:00-3:15 PM + Lab W 10:00-12:50 PM',
+    start_date: getRelativeDate(-10),
+    end_date: getRelativeDate(65),
+    department: 'School of Earth and Space Exploration',
+    credits: 3,
+    prerequisites: ['None - introductory course'],
+    room_location: 'ISTB4 164',
+    meeting_times: 'MW 2:10-3:25 PM',
     syllabus: `Course Description:
 This course examines environmental issues from scientific, social, and economic perspectives. Students will explore ecosystem structure and function, biodiversity, pollution, climate change, and sustainable resource management.
 

@@ -14,22 +14,6 @@ export default function ProfileSwitcher() {
   const profiles = [
     // Original Student Profiles
     {
-      id: 'test_student_1',
-      name: 'Alex Chen',
-      email: 'student@plato.edu',
-      description: 'CS Student with Progress',
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face',
-      category: 'Students'
-    },
-    {
-      id: 'test_student_2',
-      name: 'Jordan Smith',
-      email: 'newstudent@plato.edu',
-      description: 'New Student',
-      avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=40&h=40&fit=crop&crop=face',
-      category: 'Students'
-    },
-    {
       id: 'test_student_3',
       name: 'Taylor Johnson',
       email: 'english.freshman@plato.edu',
@@ -140,11 +124,11 @@ export default function ProfileSwitcher() {
       category: 'Faculty'
     },
     {
-      id: 'faculty_green',
-      name: 'Dr. Rachel Green',
-      email: 'r.green@plato.edu',
-      description: 'Environmental Science Professor',
-      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop&crop=face',
+      id: 'faculty_miller',
+      name: 'Nari Miller',
+      email: 'nari.miller@asu.edu',
+      description: 'Earth & Space Exploration Instructor - Water Planet',
+      avatar: 'https://webapp4.asu.edu/photo-ws/directory_photo/nvmille1?size=medium&break=1749086543&blankImage2=1',
       category: 'Faculty'
     },
     {
@@ -203,6 +187,16 @@ export default function ProfileSwitcher() {
       email: 'blederma@asu.edu',
       description: 'Music Faculty - Popular Piano & Jazz (40 years experience)',
       avatar: 'https://webapp4.asu.edu/photo-ws/directory_photo/blederma?size=medium&break=1749102084&blankImage2=1',
+      category: 'Faculty'
+    },
+
+    // Real ASU Earth & Space Exploration Faculty - Nari Miller
+    {
+      id: 'faculty_miller',
+      name: 'Nari Miller',
+      email: 'nari.miller@asu.edu',
+      description: 'Earth & Space Exploration Instructor - Water Planet',
+      avatar: 'https://webapp4.asu.edu/photo-ws/directory_photo/nvmille1?size=medium&break=1749086543&blankImage2=1',
       category: 'Faculty'
     }
   ];

@@ -415,204 +415,9 @@ export class UserService {
     const existingUsers = this.getUsers();
     console.log('👥 Existing users:', existingUsers.map(u => ({ id: u.id, email: u.email })));
     
-    // Test Account 1: Student with enrolled courses and progress
-    const testStudent1Id = 'test_student_1';
-    if (!existingUsers.find(u => u.id === testStudent1Id)) {
-      console.log('🆕 Creating test student 1 (student@plato.edu)...');
-      const testStudent1: User = {
-        id: testStudent1Id,
-        email: 'student@plato.edu',
-        name: 'Alex Chen',
-        profile: {
-          firstName: 'Alex',
-          lastName: 'Chen',
-          bio: 'Computer Science student passionate about web development and machine learning.',
-          avatar: '',
-          learningGoals: ['Master React and Next.js', 'Learn machine learning fundamentals', 'Build full-stack applications'],
-          academicLevel: 'undergraduate',
-          subjectInterests: ['Web Development', 'Machine Learning', 'Database Systems'],
-          preferredLearningStyle: 'visual'
-        },
-        preferences: {
-          theme: 'light',
-          language: 'en',
-          timezone: 'America/New_York',
-          notifications: {
-            email: true,
-            browser: true,
-            assignments: true,
-            discussions: true,
-            grades: true
-          },
-          accessibility: {
-            highContrast: false,
-            fontSize: 'medium',
-            reducedMotion: false
-          },
-          privacy: {
-            profileVisibility: 'public',
-            shareProgress: true,
-            allowAnalytics: true
-          }
-        },
-        createdAt: new Date().toISOString(),
-        lastLoginAt: new Date().toISOString()
-      };
 
-      // Add password hash (store as property on the object, not in type)
-      (testStudent1 as any).passwordHash = hashPassword('Student123!');
-      console.log('🔐 Password hash for student@plato.edu:', (testStudent1 as any).passwordHash);
-      existingUsers.push(testStudent1);
 
-      // Create user data with course progress
-      const testStudent1Data: UserData = {
-        chatHistories: {},
-        settings: testStudent1.preferences,
-        apiKeys: [],
-        personalNotes: {
-          'course-1': 'Need to focus more on React hooks and state management patterns.',
-          'course-2': 'Great progress on ML algorithms. Consider exploring deep learning next.',
-          'assignment-5': 'REST API project - remember to implement proper error handling'
-        },
-        bookmarks: [
-          {
-            id: 'bookmark_1',
-            userId: testStudent1Id,
-            title: 'React Hooks Documentation',
-            url: '/courses/1/modules/1/items/1',
-            type: 'page',
-            itemId: '1',
-            createdAt: new Date().toISOString(),
-            tags: ['react', 'hooks', 'documentation']
-          },
-          {
-            id: 'bookmark_2',
-            userId: testStudent1Id,
-            title: 'Machine Learning Cheat Sheet',
-            url: '/courses/2/modules/2',
-            type: 'course',
-            itemId: '2',
-            createdAt: new Date().toISOString(),
-            tags: ['machine-learning', 'reference']
-          }
-        ],
-        courseProgress: {
-          '1': { // Advanced Web Development
-            courseId: '1',
-            enrolledAt: new Date().toISOString(),
-            lastAccessedAt: new Date().toISOString(),
-            completedModules: ['1', '2'],
-            assignmentSubmissions: {
-              '2': { grade: 92, submittedAt: new Date().toISOString() },
-              '3': { grade: 88, submittedAt: new Date().toISOString() }
-            },
-            quizAttempts: {
-              '2': [{ score: 92, attemptedAt: new Date().toISOString() }]
-            },
-            discussionParticipation: {},
-            currentGrade: 90,
-            timeSpent: 450
-          },
-          '2': { // Machine Learning Fundamentals  
-            courseId: '2',
-            enrolledAt: new Date().toISOString(),
-            lastAccessedAt: new Date().toISOString(),
-            completedModules: ['1'],
-            assignmentSubmissions: {
-              '11': { grade: 95, submittedAt: new Date().toISOString() },
-              '12': { grade: 89, submittedAt: new Date().toISOString() }
-            },
-            quizAttempts: {},
-            discussionParticipation: {},
-            currentGrade: 92,
-            timeSpent: 380
-          },
-          '3': { // Database Systems Architecture
-            courseId: '3',
-            enrolledAt: new Date().toISOString(),
-            lastAccessedAt: new Date().toISOString(),
-            completedModules: ['1'],
-            assignmentSubmissions: {},
-            quizAttempts: {
-              '19': [{ score: 78, attemptedAt: new Date().toISOString() }]
-            },
-            discussionParticipation: {},
-            currentGrade: 78,
-            timeSpent: 120
-          }
-        }
-      };
 
-      this.saveUserData(testStudent1Id, testStudent1Data);
-      console.log('✅ Test student 1 created and data saved');
-    } else {
-      console.log('ℹ️ Test student 1 already exists');
-    }
-
-    // Test Account 2: New student with blank slate
-    const testStudent2Id = 'test_student_2';
-    if (!existingUsers.find(u => u.id === testStudent2Id)) {
-      console.log('🆕 Creating test student 2 (newstudent@plato.edu)...');
-      const testStudent2: User = {
-        id: testStudent2Id,
-        email: 'newstudent@plato.edu',
-        name: 'Jordan Smith',
-        profile: {
-          firstName: 'Jordan',
-          lastName: 'Smith', 
-          bio: 'New to programming, excited to learn!',
-          avatar: '',
-          learningGoals: ['Learn programming fundamentals', 'Build my first web app'],
-          academicLevel: 'undergraduate',
-          subjectInterests: ['Programming', 'Web Development'],
-          preferredLearningStyle: 'kinesthetic'
-        },
-        preferences: {
-          theme: 'light',
-          language: 'en',
-          timezone: 'America/Los_Angeles',
-          notifications: {
-            email: true,
-            browser: false,
-            assignments: true,
-            discussions: false,
-            grades: true
-          },
-          accessibility: {
-            highContrast: false,
-            fontSize: 'medium',
-            reducedMotion: false
-          },
-          privacy: {
-            profileVisibility: 'private',
-            shareProgress: false,
-            allowAnalytics: true
-          }
-        },
-        createdAt: new Date().toISOString(),
-        lastLoginAt: new Date().toISOString()
-      };
-
-      // Add password hash (store as property on the object, not in type)
-      (testStudent2 as any).passwordHash = hashPassword('NewStudent123!');
-      console.log('🔐 Password hash for newstudent@plato.edu:', (testStudent2 as any).passwordHash);
-      existingUsers.push(testStudent2);
-
-      // Create user data with minimal progress (blank slate)
-      const testStudent2Data: UserData = {
-        chatHistories: {},
-        settings: testStudent2.preferences,
-        apiKeys: [],
-        personalNotes: {},
-        bookmarks: [],
-        courseProgress: {}
-      };
-
-      this.saveUserData(testStudent2Id, testStudent2Data);
-      console.log('✅ Test student 2 created and data saved');
-    } else {
-      console.log('ℹ️ Test student 2 already exists');
-    }
 
     // Test Account 3: English Freshman
     const testStudent3Id = 'test_student_3';
@@ -942,16 +747,18 @@ export class UserService {
         phone: '480-965-4567'
       },
       {
-        id: 'faculty_green',
-        email: 'r.green@plato.edu',
-        name: 'Dr. Rachel Green',
-        department: 'Life Sciences',
-        courses: [8], // BIO130 - Environmental Science
-        specializations: ['Environmental Science', 'Ecology', 'Sustainability Studies'],
-        bio: 'Environmental scientist specializing in ecosystem dynamics, conservation biology, and environmental policy. Research focuses on climate change impacts and sustainable resource management practices.',
-        profileImage: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
-        office: 'LSC 425',
-        phone: '480-965-5678'
+        id: 'faculty_miller',
+        email: 'nari.miller@asu.edu',
+        name: 'Nari Miller',
+        department: 'School Of Earth and Space Exploration',
+        courses: [8], // BIO130 - Environmental Science (GLG 108, SOS 182 - Water Planet)
+        specializations: ['Geological Processes', 'Environmental Science', 'Environmental Geochemistry'],
+        bio: 'Instructor at the School of Earth and Space Exploration. Enjoys connecting local and regional processes; from hillslope topography and sediment production to landscape evolution. Teaches GLG 108 and SOS 182 (Water Planet).',
+        profileImage: 'https://webapp4.asu.edu/photo-ws/directory_photo/nvmille1?size=medium&break=1749086543&blankImage2=1',
+        office: 'Contact via email',
+        phone: 'Nari.Miller@asu.edu',
+        mailCode: '6004',
+        campus: 'Other'
       },
       {
         id: 'faculty_kumar',
@@ -976,6 +783,20 @@ export class UserService {
         profileImage: 'https://webapp4.asu.edu/photo-ws/directory_photo/blederma?size=medium&break=1749102084&blankImage2=1',
         office: 'MUSIC 150 - Piano Lab',
         phone: 'Contact via email'
+      },
+      {
+        id: 'faculty_miller',
+        email: 'nari.miller@asu.edu',
+        name: 'Nari Miller',
+        department: 'School of Earth and Space Exploration',
+        courses: [8], // Environmental Science (GLG 108, SOS 182 - Water Planet)
+        specializations: ['Geological Processes', 'Environmental Science', 'Environmental Geochemistry'],
+        bio: 'Instructor at the School of Earth and Space Exploration. Enjoys connecting local and regional processes; from hillslope topography and sediment production to landscape evolution. Teaches GLG 108 and SOS 182 (Water Planet).',
+        profileImage: 'https://webapp4.asu.edu/photo-ws/directory_photo/nvmille1?size=medium&break=1749086543&blankImage2=1',
+        office: 'Contact via email',
+        phone: 'Nari.Miller@asu.edu',
+        mailCode: '6004',
+        campus: 'Other'
       }
     ];
 
@@ -1374,9 +1195,9 @@ export class UserService {
         description: 'Dr. Kristen Jaskie - Machine Learning Professor'
       },
       {
-        email: 'r.green@plato.edu',
+        email: 'nari.miller@asu.edu',
         password: 'Faculty123!',
-        description: 'Dr. Rachel Green - Environmental Science Professor'
+        description: 'Nari Miller - Earth & Space Exploration Instructor (ASU)'
       },
       {
         email: 'd.kumar@plato.edu',
