@@ -2497,6 +2497,17 @@ export const mockCanvasApi = {
     }
   },
 
+  async deleteCourse(courseId: number): Promise<{ success: boolean; error?: string }> {
+    await new Promise(resolve => setTimeout(resolve, 200));
+    const courseIndex = courses.findIndex(course => course.id === courseId);
+    if (courseIndex === -1) {
+      return { success: false, error: 'Course not found' };
+    }
+    
+    courses.splice(courseIndex, 1);
+    return { success: true };
+  },
+
   // Assignment operations
   async getAssignments(courseIds?: number[]): Promise<Assignment[]> {
     await new Promise(resolve => setTimeout(resolve, 250));
