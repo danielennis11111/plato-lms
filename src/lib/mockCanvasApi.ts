@@ -1591,6 +1591,141 @@ const assignments: Assignment[] = [
     ]
   },
 
+  // CHI 101 (Elementary Chinese I) Assignments
+  {
+    id: 141,
+    name: 'Tone Practice Audio Assignment',
+    description: 'Record yourself pronouncing the four basic Chinese tones with provided vocabulary words. Submit audio recording demonstrating accurate tone production.',
+    due_at: getRelativeDate(-10),
+    course_id: 14,
+    points_possible: 50,
+    submission_type: 'online_upload',
+    status: 'graded',
+    grade: 92,
+    feedback: 'Excellent tone accuracy! Pay attention to third tone dip.',
+    submissions: 1,
+    requirements: [
+      'Record 20 vocabulary words with all four tones',
+      'Demonstrate clear pronunciation of tone contours',
+      'Submit MP3 or WAV audio file',
+      'Include written Pinyin transcription',
+      'Practice with tone pair combinations'
+    ],
+    rubric: [
+      { criterion: 'Tone Accuracy', points: 20, description: 'Correct production of four basic tones' },
+      { criterion: 'Pronunciation Clarity', points: 15, description: 'Clear articulation of syllables' },
+      { criterion: 'Tone Contour', points: 10, description: 'Proper tone shape and pitch changes' },
+      { criterion: 'Audio Quality', points: 5, description: 'Clear recording without background noise' }
+    ]
+  },
+
+  {
+    id: 142,
+    name: 'Pinyin Recognition Quiz',
+    description: 'Test your ability to identify correct Pinyin spelling and tone marks for spoken Chinese syllables.',
+    due_at: getRelativeDate(-7),
+    course_id: 14,
+    points_possible: 25,
+    submission_type: 'online_quiz',
+    status: 'graded',
+    grade: 88,
+    attempts: 1,
+    max_attempts: 2,
+    quiz_details: {
+      time_limit: 30,
+      allowed_attempts: 2,
+      questions: [
+        {
+          id: 1,
+          question: 'Which Pinyin represents the first tone?',
+          type: 'multiple_choice',
+          options: ['mā', 'má', 'mǎ', 'mà'],
+          correct_answer: 0,
+          points: 5,
+          explanation: 'The first tone is marked with a macron (ā) indicating high level tone.'
+        }
+      ]
+    }
+  },
+
+  {
+    id: 143,
+    name: 'Greetings and Introductions Discussion',
+    description: 'Practice Chinese greetings and self-introductions. Post a video introducing yourself in Chinese and respond to classmates in Chinese.',
+    due_at: getRelativeDate(3),
+    course_id: 14,
+    points_possible: 30,
+    submission_type: 'discussion_topic',
+    status: 'in_progress',
+    submissions: 0,
+    requirements: [
+      'Record 2-3 minute video introduction in Chinese',
+      'Include basic greetings and personal information',
+      'Use vocabulary from Units 1-2',
+      'Respond to at least 2 classmates in Chinese',
+      'Practice natural conversation flow'
+    ],
+    rubric: [
+      { criterion: 'Vocabulary Usage', points: 10, description: 'Correct use of greeting vocabulary' },
+      { criterion: 'Pronunciation', points: 8, description: 'Clear pronunciation and tones' },
+      { criterion: 'Conversation Flow', points: 7, description: 'Natural pace and expression' },
+      { criterion: 'Peer Interaction', points: 5, description: 'Meaningful responses to classmates' }
+    ]
+  },
+
+  {
+    id: 144,
+    name: 'Character Stroke Order Practice',
+    description: 'Practice writing 20 basic Chinese characters following proper stroke order. Submit handwritten samples and digital practice sheets.',
+    due_at: getRelativeDate(5),
+    course_id: 14,
+    points_possible: 40,
+    submission_type: 'online_upload',
+    status: 'not_started',
+    submissions: 0,
+    max_attempts: 2,
+    requirements: [
+      'Practice 20 basic Chinese characters from Unit 2',
+      'Follow proper stroke order for each character',
+      'Submit handwritten practice sheets (scan/photo)',
+      'Complete digital stroke order exercises',
+      'Include character meaning and pronunciation'
+    ],
+    rubric: [
+      { criterion: 'Stroke Order Accuracy', points: 15, description: 'Correct sequence for all characters' },
+      { criterion: 'Character Formation', points: 10, description: 'Proper proportion and structure' },
+      { criterion: 'Completeness', points: 10, description: 'All 20 characters completed' },
+      { criterion: 'Digital Practice', points: 5, description: 'Online exercises completed' }
+    ]
+  },
+
+  {
+    id: 145,
+    name: 'Time and Date Listening Exercise',
+    description: 'Listen to Chinese audio clips about times and dates. Select correct answers for comprehension questions.',
+    due_at: getRelativeDate(8),
+    course_id: 14,
+    points_possible: 35,
+    submission_type: 'online_quiz',
+    status: 'not_started',
+    max_attempts: 2,
+    quiz_details: {
+      time_limit: 45,
+      allowed_attempts: 2,
+      questions: [
+        {
+          id: 1,
+          question: 'What time is mentioned in the audio clip?',
+          type: 'multiple_choice',
+          options: ['8:30', '9:30', '10:30', '11:30'],
+          correct_answer: 1,
+          points: 7,
+          explanation: 'The speaker says "jiǔ diǎn bàn" which means 9:30.'
+        }
+      ]
+    }
+  },
+
   // CSE205 (Computer Systems Engineering) Assignments
   {
     id: 13,
