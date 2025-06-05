@@ -51,7 +51,7 @@ export interface Module {
 export interface ModuleItem {
   id: number;
   title: string;
-  type: 'assignment' | 'discussion' | 'quiz' | 'page';
+  type: 'assignment' | 'discussion' | 'quiz' | 'page' | 'reading';
   content?: string;
   due_date?: string;
   status: 'not_started' | 'in_progress' | 'submitted' | 'graded';
@@ -61,6 +61,13 @@ export interface ModuleItem {
   submissions?: number;
   attempts?: number;
   max_attempts?: number;
+  reading_details?: {
+    source: string;
+    pages?: string;
+    url?: string;
+    estimated_time: number; // minutes
+    type: 'textbook' | 'article' | 'website' | 'video' | 'research_paper';
+  };
 }
 
 export interface Assignment {
@@ -153,25 +160,80 @@ const courses: Course[] = [
     prerequisites: ['CS250 Data Structures', 'CS270 Web Fundamentals'],
     room_location: 'ENGR 205',
     meeting_times: 'MWF 10:00-10:50 AM, Lab: T 2:00-4:50 PM',
-    syllabus: `Course Overview:
-Advanced Web Development provides comprehensive training in modern full-stack development. Students will master React 18, Next.js 14, TypeScript, Node.js, and cloud deployment strategies.
+    syllabus: `# Advanced Web Development (CS380)
+**Instructor:** Dr. Sarah Martinez
+**Email:** faculty@plato.edu  
+**Term:** Summer 2025
+**Credits:** 4
+**Meeting Times:** MWF 10:00-10:50 AM, Lab: T 2:00-4:50 PM
+**Location:** ENGR 205
 
-Learning Objectives:
-• Master React 18 features including hooks, context, and performance optimization
-• Build scalable applications using Next.js App Router and server components
-• Implement secure authentication and authorization systems
-• Design and develop RESTful APIs with Node.js and Express
-• Integrate databases (PostgreSQL, MongoDB) with proper ORM/ODM usage
-• Deploy applications using modern cloud platforms and CI/CD pipelines
+## Course Overview
+This advanced computer science course focuses on Master modern web development with React, Next.js, Node.js, and cloud deployment. Build full-stack applications using TypeScript, database integration, authentication, and real-time features.. Students will engage in hands-on programming projects, theoretical problem-solving, and collaborative software development practices that mirror industry standards.
 
-Assessment Breakdown:
-• Programming Assignments (40%): 6 major projects
-• Quizzes & Participation (20%): Weekly assessments and discussion forums
-• Midterm Project (20%): Full-stack application
-• Final Capstone Project (20%): Industry-sponsored project
+## Learning Objectives
+By the end of this course, students will be able to:
+• Apply computational thinking to solve complex problems
+• Implement efficient algorithms and data structures
+• Write clean, well-documented, and maintainable code
+• Use version control and collaborative development tools
+• Understand software engineering best practices
+• Debug and test software systematically
+• Analyze algorithmic complexity and performance
+• Design scalable software architectures
+• Apply advanced programming patterns and paradigms
 
-Course Schedule: MWF 10:00-10:50 AM, Lab: T 2:00-4:50 PM
-Office Hours: MW 2:00-4:00 PM or by appointment`,
+## Assessment Breakdown
+**Programming Assignments (40%):** 6-8 coding projects increasing in complexity
+**Quizzes & Labs (20%):** Weekly coding exercises and concept assessments
+**Midterm Project (20%):** Comprehensive application demonstrating course concepts
+**Final Project (20%):** Original software project with documentation and presentation
+
+## Course Schedule
+Classes meet MWF 10:00-10:50 AM, Lab: T 2:00-4:50 PM. Each session includes lecture, hands-on coding, and collaborative problem-solving.
+
+## Required Materials
+• Laptop with development environment setup
+• Course-specific IDE or text editor (instructions provided)
+• GitHub account for version control
+• Access to online coding platforms and resources
+
+## Course Policies
+
+### Attendance Policy
+Regular attendance is essential due to hands-on nature of coursework. Missing more than 3 classes may result in course withdrawal recommendation.
+
+### Late Work Policy  
+Programming assignments lose 10% per day late. Extensions granted for documented emergencies only.
+
+### Academic Integrity
+Collaboration encouraged on learning, but all submitted code must be your own work. Plagiarism detection software used.
+
+### Accessibility Statement
+Students with disabilities should contact Disability Resources Center. All course materials available in alternative formats upon request.
+
+## Weekly Course Schedule
+
+
+**Week 1: Course Introduction**
+- Learning Goals: Course overview, Tool setup
+- Activities: Environment setup, Initial coding
+- Assessments: Setup verification
+
+
+**Week 2: Fundamentals**
+- Learning Goals: Core concepts, Basic implementation
+- Activities: Practice exercises, Code review
+- Assessments: Fundamentals quiz
+
+
+**Week 3: Advanced Concepts**
+- Learning Goals: Complex topics, Real applications
+- Activities: Project work, Case studies
+- Assessments: Project milestone
+
+---
+*This syllabus is subject to change. Students will be notified of any modifications.*`,
     modules: [
       {
         id: 1,
@@ -181,6 +243,21 @@ Office Hours: MW 2:00-4:00 PM or by appointment`,
         items: [
           {
             id: 1,
+            title: 'React Hooks Deep Dive - Required Reading',
+            type: 'reading',
+            content: 'Essential reading on React Hooks covering theoretical foundations and practical implementations. Focus on understanding hook patterns, state management, and performance optimization in modern React applications.',
+            due_date: getRelativeDate(-15),
+            status: 'graded',
+            points_possible: 0,
+            reading_details: {
+              source: 'React Official Documentation and Advanced Patterns Guide',
+              url: 'https://react.dev/reference/react/hooks',
+              estimated_time: 45,
+              type: 'website'
+            }
+          },
+          {
+            id: 1.5,
             title: 'React Hooks Deep Dive',
             type: 'page',
             content: 'Comprehensive guide to React hooks including useState, useEffect, useContext, and custom hooks.',
@@ -210,6 +287,21 @@ Office Hours: MW 2:00-4:00 PM or by appointment`,
         description: 'Backend development with databases and RESTful APIs',
         is_completed: false,
         items: [
+          {
+            id: 3.5,
+            title: 'Database Design Fundamentals - Required Reading',
+            type: 'reading',
+            content: 'Comprehensive reading covering database design principles with emphasis on normalization, indexing strategies, and modern database architectures. Includes worked examples and comparative analysis of SQL vs NoSQL approaches.',
+            due_date: getRelativeDate(2),
+            status: 'not_started',
+            points_possible: 0,
+            reading_details: {
+              source: 'Database Systems: Design, Implementation, and Management',
+              pages: '45-78, 112-135',
+              estimated_time: 60,
+              type: 'textbook'
+            }
+          },
           {
             id: 4,
             title: 'Database Design Discussion Due',
@@ -358,6 +450,21 @@ Assessment:
         is_completed: true,
         items: [
           {
+            id: 31,
+            title: 'Limits and Continuity - Required Reading',
+            type: 'reading',
+            content: 'Required reading covering limits and continuity with emphasis on theorem understanding, proof techniques, and problem-solving strategies. Includes worked examples and step-by-step explanations.',
+            due_date: getRelativeDate(-14),
+            status: 'graded',
+            points_possible: 0,
+            reading_details: {
+              source: 'Calculus: Early Transcendentals',
+              pages: '67-102, 115-128',
+              estimated_time: 75,
+              type: 'textbook'
+            }
+          },
+          {
             id: 32,
             title: 'Limits and Continuity Quiz',
             type: 'quiz',
@@ -376,6 +483,21 @@ Assessment:
         description: 'Definition and computation of derivatives',
         is_completed: false,
         items: [
+          {
+            id: 32.5,
+            title: 'Derivative Rules - Required Reading',
+            type: 'reading',
+            content: 'Required reading covering derivatives with emphasis on theorem understanding, proof techniques, and problem-solving strategies. Includes worked examples and step-by-step explanations of differentiation rules.',
+            due_date: getRelativeDate(5),
+            status: 'not_started',
+            points_possible: 0,
+            reading_details: {
+              source: 'Calculus: Early Transcendentals',
+              pages: '145-182, 195-210',
+              estimated_time: 80,
+              type: 'textbook'
+            }
+          },
           {
             id: 33,
             title: 'Derivative Rules Assignment',
@@ -441,6 +563,21 @@ Required Texts:
         description: 'Introduction to poetry analysis and literary terminology',
         is_completed: false,
         items: [
+          {
+            id: 100.5,
+            title: 'Poetry Analysis Fundamentals - Required Reading',
+            type: 'reading',
+            content: 'Literary texts and critical essays exploring poetry analysis fundamentals. Students will analyze narrative techniques, thematic elements, and historical contexts while developing close reading skills.',
+            due_date: getRelativeDate(-7),
+            status: 'graded',
+            points_possible: 0,
+            reading_details: {
+              source: 'Literature: A Portable Anthology, 4th Edition',
+              pages: '15-45, 78-92',
+              estimated_time: 50,
+              type: 'textbook'
+            }
+          },
           {
             id: 101,
             title: 'Literary Terms and Devices',
