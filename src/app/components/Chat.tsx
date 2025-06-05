@@ -251,6 +251,19 @@ export default function Chat({ context, isFullScreen = false }: ChatProps) {
             return `Hi there, let's go through this quiz together, but I can't actually give you any answers. Is that okay?`;
           }
         } else if (enhancedContext.type === 'discussion') {
+          // Check for persona-specific context
+          const storedDiscussionContext = localStorage.getItem('currentDiscussionContext');
+          if (storedDiscussionContext) {
+            try {
+              const discussionData = JSON.parse(storedDiscussionContext);
+              if (discussionData.selectedPersona) {
+                const persona = discussionData.selectedPersona;
+                return `Greetings! I'm channeling ${persona.name} today. ${persona.approach} Ready to explore "${discussionData.title}" together?`;
+              }
+            } catch (error) {
+              console.error('Error parsing discussion context:', error);
+            }
+          }
           return `Hello there, how can I help you think through this discussion?`;
         } else if (enhancedContext.type === 'calendar') {
           return `Hello again, how can I help you organize your studies?`;
@@ -600,6 +613,41 @@ ${upcomingAssignments.map((a: any) => `- ${a.name} (Due: ${a.due_at})`).join('\n
       const discussion = courseData.discussion;
       const course = courseData.course;
       
+      // Check for enhanced discussion context with persona
+      const storedDiscussionContext = localStorage.getItem('currentDiscussionContext');
+      let enhancedDiscussionInfo = '';
+      let personaContext = '';
+      
+      if (storedDiscussionContext) {
+        try {
+          const discussionData = JSON.parse(storedDiscussionContext);
+          if (discussionData.selectedPersona) {
+            const persona = discussionData.selectedPersona;
+            personaContext = `\n\nPERSONA GUIDANCE:
+You are channeling the role of "${persona.name}": ${persona.description}
+Approach: ${persona.approach}
+Maintain this persona throughout the conversation while helping the student.
+`;
+          }
+          
+          if (discussionData.originalPost && discussionData.replies) {
+            enhancedDiscussionInfo = `\n\nDISCUSSION PARTICIPANTS & CONTENT:
+Original Post by ${discussionData.originalPost.author}:
+"${discussionData.originalPost.message}"
+
+Replies (${discussionData.replies.length}):
+${discussionData.replies.map((reply: any, index: number) => 
+  `${index + 1}. ${reply.author}: "${reply.message.substring(0, 200)}${reply.message.length > 200 ? '...' : ''}"`
+).join('\n')}
+
+Participants: ${discussionData.participants.join(', ')}
+`;
+          }
+        } catch (error) {
+          console.error('Error parsing stored discussion context:', error);
+        }
+      }
+      
       contextInfo = `\n\nCURRENT DISCUSSION CONTEXT:
 Discussion: "${discussion.title}"
 Course: ${course ? course.name : 'Unknown Course'}
@@ -607,6 +655,7 @@ Topic: ${discussion.topic || 'General discussion'}
 
 DISCUSSION PROMPT:
 ${discussion.description || 'No description available'}
+${enhancedDiscussionInfo}${personaContext}
 `;
     } else if (context?.type === 'dashboard' && courseData?.dashboard) {
       const dashboard = courseData.dashboard;
@@ -674,7 +723,18 @@ ASSIGNMENT HELP: You have full access to the assignment details above. Ask about
 ` : context?.type === 'quiz' ? `
 QUIZ HELP: ${context?.state === 'completed' ? 'Ask what they learned from the experience.' : 'Ask questions to clarify concepts without giving answers.'}
 ` : context?.type === 'discussion' ? `
-DISCUSSION HELP: Ask questions that encourage different perspectives and deeper thinking.
+DISCUSSION HELP: ${(() => {
+  const storedContext = localStorage.getItem('currentDiscussionContext');
+  if (storedContext) {
+    try {
+      const data = JSON.parse(storedContext);
+      if (data.selectedPersona) {
+        return `As ${data.selectedPersona.name}, engage according to your persona while asking questions that encourage different perspectives and deeper thinking about the discussion content.`;
+      }
+    } catch (e) {}
+  }
+  return 'Ask questions that encourage different perspectives and deeper thinking.';
+})()}
 ` : context?.type === 'dashboard' ? `
 PRIORITY PLANNING HELP: You have access to the student's complete academic overview above. Help them:
 - Prioritize assignments by due dates and point values

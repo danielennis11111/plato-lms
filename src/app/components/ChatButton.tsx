@@ -101,6 +101,44 @@ export default function ChatButton() {
           console.error('ChatButton: Error fetching quiz context:', error);
         }
       }
+      // Discussion page: /courses/[slug]/discussions/[discussionSlug]
+      else if (pathname?.match(/^\/courses\/[^\/]+\/discussions\/[^\/]+$/)) {
+        console.log('ChatButton: Detected discussion page');
+        const pathParts = pathname.split('/');
+        const courseSlug = pathParts[2];
+        const discussionSlug = pathParts[4];
+        
+        try {
+          // Check if there's a stored discussion context
+          const storedDiscussionContext = localStorage.getItem('currentDiscussionContext');
+          if (storedDiscussionContext) {
+            const parsedContext = JSON.parse(storedDiscussionContext);
+            context = {
+              type: 'discussion',
+              id: parsedContext.id,
+              title: parsedContext.selectedPersona 
+                ? `${parsedContext.selectedPersona.name}: ${parsedContext.title}`
+                : `Discussion: ${parsedContext.title}`,
+              topic: parsedContext.topic,
+              state: 'active'
+            };
+            console.log('ChatButton: Set discussion context from stored data:', context);
+          } else {
+            // Fallback to basic discussion context
+            context = {
+              type: 'discussion',
+              title: 'Socrates - Discussion Guide',
+              state: 'active'
+            };
+          }
+        } catch (error) {
+          console.error('ChatButton: Error setting discussion context:', error);
+          context = {
+            type: 'discussion',
+            title: 'Socrates - Discussion Guide'
+          };
+        }
+      }
       // Calendar page
       else if (pathname?.includes('/calendar')) {
         context = {
@@ -121,6 +159,19 @@ export default function ChatButton() {
     };
 
     getContextFromPath().then(setPageContext);
+
+    // Listen for discussion context updates
+    const handleDiscussionContextSet = (event: CustomEvent) => {
+      console.log('ChatButton: Discussion context updated', event.detail);
+      // Refresh the context when discussion persona is selected
+      getContextFromPath().then(setPageContext);
+    };
+
+    window.addEventListener('discussionContextSet', handleDiscussionContextSet as EventListener);
+    
+    return () => {
+      window.removeEventListener('discussionContextSet', handleDiscussionContextSet as EventListener);
+    };
   }, [pathname]);
 
   if (!mounted) return null;

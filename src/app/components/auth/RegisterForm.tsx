@@ -115,7 +115,7 @@ export default function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFor
           </div>
         </div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Create Account</h2>
-        <p className="text-gray-600">Join Plato LMS and start your learning journey</p>
+                  <p className="text-gray-600">Join Plato's Canvas and start your learning journey</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">

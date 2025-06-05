@@ -70,7 +70,7 @@ export default function Sidebar() {
                 <span className="font-bold">P</span>
               </div>
               {!isSidebarCollapsed && (
-                <h1 className="ml-2 text-xl font-bold text-gray-900 hidden md:block">Plato LMS</h1>
+                <h1 className="ml-2 text-xl font-bold text-gray-900 hidden md:block">Plato's Canvas</h1>
               )}
             </Link>
           </div>

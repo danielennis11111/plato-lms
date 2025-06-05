@@ -1,4 +1,4 @@
-# Changelog - Plato LMS 2.0
+# Changelog - Plato's Canvas 2.0
 
 ## [v2.1.0] - 2024-12-23 - Socrates Dialogues Release
 
@@ -113,7 +113,7 @@ src/app/components/CourseGenerator.tsx     - Fixed TypeScript errors
 
 ## Previous Versions
 
-### [v2.0.0] - 2024-12-20 - Initial Plato LMS Release
+### [v2.0.0] - 2024-12-20 - Initial Plato's Canvas Release
 - Basic LMS functionality with course management
 - Initial chat integration
 - Canvas API mockup system

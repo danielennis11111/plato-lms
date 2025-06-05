@@ -5,13 +5,24 @@
 @tailwind utilities;
 
 @layer utilities {
-  /* Custom margin overrides for layout positioning */
+  /* Custom margin overrides for layout positioning - responsive */
   .ml-16 {
     margin-left: 5rem !important;
   }
   
   .ml-64 {
     margin-left: 17.5rem !important;
+  }
+  
+  /* Mobile overrides - remove custom margins on small screens */
+  @media (max-width: 767px) {
+    .ml-16 {
+      margin-left: 0 !important;
+    }
+    
+    .ml-64 {
+      margin-left: 0 !important;
+    }
   }
   
   /* Remove underline from logo links */
@@ -95,10 +106,18 @@ main {
   @apply bg-white rounded-2xl shadow-md p-8 mx-auto max-w-7xl;
 }
 
-/* Chat sidebar styles */
+/* Chat sidebar styles - responsive */
 body.chat-expanded main {
   margin-right: var(--chat-width, 400px);
   width: calc(100% - var(--chat-width, 400px) - 256px);
+}
+
+/* Mobile chat adjustments */
+@media (max-width: 767px) {
+  body.chat-expanded main {
+    margin-right: 0;
+    width: 100%;
+  }
 }
 
 /* Chat container */

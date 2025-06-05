@@ -60,13 +60,13 @@ export default function MainLayout({ children }: MainLayoutProps) {
       spacing = "mx-auto my-6";
     } else if (isSidebarCollapsed && isChatOpen) {
       // Sidebar collapsed, chat open
-      spacing = "ml-16 mr-[520px] w-[calc(100vw-4rem-520px)]";
+      spacing = "ml-16 mr-[520px] w-[calc(100vw-4rem-520px)] min-w-0";
     } else if (!isSidebarCollapsed && !isChatOpen) {
       // Sidebar expanded, chat closed
-      spacing = "ml-64 mr-0 w-[calc(100vw-16rem)]";
+      spacing = "ml-64 mr-0 w-[calc(100vw-16rem)] min-w-0";
     } else {
       // Both expanded - sidebar expanded, chat open
-      spacing = "ml-64 mr-[520px] w-[calc(100vw-16rem-520px)]";
+      spacing = "ml-64 mr-[520px] w-[calc(100vw-16rem-520px)] min-w-0";
     }
     
     return `${baseClasses} ${spacing} p-6 md:p-8`;

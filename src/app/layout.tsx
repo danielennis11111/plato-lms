@@ -8,7 +8,7 @@ import LayoutWrapper from './components/LayoutWrapper';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
-  title: 'Plato - Modern Learning Management System',
+  title: "Plato's Canvas - Modern Learning Management System",
   description: 'AI-powered learning management system with calendar integration and progress tracking',
 };
 

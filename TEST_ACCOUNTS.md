@@ -1,6 +1,6 @@
-# Test Accounts for Plato LMS 2.0
+# Test Accounts for Plato's Canvas 2.0
 
-This document provides information about pre-configured test accounts in the Plato LMS demo system.
+This document provides information about pre-configured test accounts in the Plato's Canvas demo system.
 
 ## Available Test Accounts
 

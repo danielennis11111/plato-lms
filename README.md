@@ -1,4 +1,4 @@
-# Plato LMS 2.0 🎓
+# Plato's Canvas 2.0 🎓
 
 An AI-powered Learning Management System featuring Socratic dialogue-based tutoring, comprehensive course management, and intelligent discussion facilitation.
 
