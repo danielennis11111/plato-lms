@@ -123,7 +123,7 @@ export default function DashboardClient({ courses: initialCourses, assignments: 
 
   // Helper function to get event styling
   const getEventStyling = (event: any) => {
-    const baseClasses = "block text-xs p-1 rounded hover:opacity-80 transition-opacity truncate";
+    const baseClasses = "block text-xs p-1 rounded hover:opacity-80 transition-opacity";
     
     switch (event.type) {
       case 'assignment':
@@ -208,7 +208,7 @@ export default function DashboardClient({ courses: initialCourses, assignments: 
                         className={getEventStyling(event)}
                         title={`${event.title}${event.start_time ? ` at ${event.start_time}` : ''}${event.location ? ` (${event.location})` : ''}`}
                       >
-                        <span className="truncate">{event.title}</span>
+                        <span className="">{event.title}</span>
                         {event.start_time && (
                           <div className="text-xs opacity-75">
                             {event.start_time}
@@ -234,7 +234,7 @@ export default function DashboardClient({ courses: initialCourses, assignments: 
                         'bg-blue-100 text-blue-800'
                       }`}
                     >
-                      <span className="truncate">{assignment.name}</span>
+                      <span className="">{assignment.name}</span>
                     </Link>
                   ))}
               </div>
@@ -258,10 +258,7 @@ export default function DashboardClient({ courses: initialCourses, assignments: 
                   <h3 className="text-lg font-semibold text-gray-900">{course.name}</h3>
                   <p className="text-gray-600 mt-1">{course.course_code}</p>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <Book className="w-5 h-5 text-blue-500" />
-                  <span className="text-gray-600">{course.modules.length} modules</span>
-                </div>
+                
               </div>
               <div className="mt-4 flex items-center justify-between text-sm">
                 <div className="text-gray-600">

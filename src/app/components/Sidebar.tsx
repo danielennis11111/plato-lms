@@ -100,7 +100,7 @@ export default function Sidebar() {
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <Icon size={20} className={`flex-shrink-0 ${isActive ? 'text-primary-600' : 'text-gray-500'}`} />
-                      {!isSidebarCollapsed && <span className="ml-3 hidden md:block truncate">{item.name}</span>}
+                      {!isSidebarCollapsed && <span className="ml-3 hidden md:block">{item.name}</span>}
                       
                       {/* Tooltip for collapsed state */}
                       {isSidebarCollapsed && (

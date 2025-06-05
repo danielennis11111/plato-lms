@@ -61,10 +61,10 @@ export default function ProfileSwitcher() {
       >
         <div className="text-2xl">{currentProfile.avatar}</div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-gray-900 truncate">
+          <p className="text-sm font-medium text-gray-900 ">
             {currentProfile.name}
           </p>
-          <p className="text-xs text-gray-500 truncate">
+          <p className="text-xs text-gray-500 ">
             {currentProfile.description}
           </p>
         </div>
@@ -87,10 +87,10 @@ export default function ProfileSwitcher() {
             >
               <div className="text-2xl">{profile.avatar}</div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">
+                <p className="text-sm font-medium ">
                   {profile.name}
                 </p>
-                <p className="text-xs text-gray-500 truncate">
+                <p className="text-xs text-gray-500 ">
                   {profile.description}
                 </p>
               </div>

@@ -174,7 +174,7 @@ export default function Calendar() {
                 className={getEventStyling(event)}
                 title={`${event.title} - ${event.course_name}${event.start_time ? ` at ${event.start_time}` : ''}${event.location ? ` (${event.location})` : ''}`}
               >
-                <span className="truncate">{event.title}</span>
+                <span>{event.title}</span>
                 {event.start_time && (
                   <div className="text-xs opacity-75 mt-1">
                     {event.start_time}
@@ -231,8 +231,8 @@ export default function Calendar() {
               >
                 <div className="flex items-center gap-1">
                   <div className="flex-1 min-w-0">
-                    <div className="font-medium truncate">{event.title}</div>
-                    <div className="text-gray-500 text-xs truncate">{event.course_name}</div>
+                    <div className="font-medium">{event.title}</div>
+                    <div className="text-gray-500 text-xs">{event.course_name}</div>
                   </div>
                   {event.priority === 'high' && <span className="text-red-500 font-bold">!</span>}
                 </div>
@@ -242,7 +242,7 @@ export default function Calendar() {
                   </div>
                 )}
                 {event.location && (
-                  <div className="text-xs opacity-75 truncate">
+                  <div className="text-xs opacity-75">
                     {event.location}
                   </div>
                 )}
