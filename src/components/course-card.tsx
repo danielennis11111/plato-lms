@@ -26,19 +26,18 @@ export function CourseCard({ course, showEnrollButton = false, onEnroll }: Cours
   const userData = getUserData();
   const courseProgress = userData?.courseProgress?.[course.id.toString()];
   
-  // Calculate completion percentage from completed modules (cap at 100%)
+  // Calculate completion percentage from user's completed modules (cap at 100%)
   const completedModules = courseProgress?.completedModules?.length || 0;
   const totalModules = course.modules?.length || 1;
   const completionPercentage = Math.min((completedModules / totalModules) * 100, 100);
   
-  // Get current grade (cap at 100%)
-  const currentGrade = course.current_grade ? Math.min(course.current_grade, 100) : null;
-
-  // Calculate progress from modules
-  const moduleProgress = course.modules ? 
-    (course.modules.filter(m => m.is_completed).length / course.modules.length) * 100 : 0;
+  // Get current grade from user's course progress or course data (cap at 100%)
+  const userGrade = courseProgress?.currentGrade || 0;
+  const courseGrade = course.current_grade || 0;
+  const currentGrade = courseProgress ? Math.min(userGrade, 100) : Math.min(courseGrade, 100);
   
-  const displayProgress = Math.min(Math.max(completionPercentage, moduleProgress), 100);
+  // Use only user's individual progress (not course template completion status)
+  const displayProgress = completionPercentage;
 
   const handleDelete = async () => {
     if (confirm('Are you sure you want to delete this course?')) {
@@ -82,10 +81,10 @@ export function CourseCard({ course, showEnrollButton = false, onEnroll }: Cours
               {course.course_code}
             </CardDescription>
           </div>
-          {currentGrade !== null && (
+          {currentGrade > 0 && (
             <Badge variant="outline" className={`ml-2 ${getGradeColor(currentGrade)}`}>
               <Award className="w-3 h-3 mr-1" />
-              {currentGrade}%
+              {Math.round(currentGrade)}%
             </Badge>
           )}
         </div>

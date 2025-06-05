@@ -6,6 +6,7 @@ import { UserService } from '@/lib/userService';
 import { mockCanvasApi, type Course } from '@/lib/mockCanvasApi';
 import { CourseCard } from '@/components/course-card';
 import { CourseGeneratorForm } from '@/components/course-generator-form';
+import { ProgressDemo } from '@/components/progress-demo';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -31,6 +32,7 @@ export default function CoursesPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDepartment, setSelectedDepartment] = useState<string>('all');
   const [selectedLevel, setSelectedLevel] = useState<string>('all');
+  const [selectedCourseForDemo, setSelectedCourseForDemo] = useState<Course | null>(null);
 
   const fetchCourses = async () => {
     try {
@@ -106,6 +108,11 @@ export default function CoursesPage() {
     } catch (error) {
       console.error('Error enrolling in course:', error);
     }
+  };
+
+  const handleProgressUpdate = () => {
+    // Force refresh of course data when progress updates
+    fetchCourses();
   };
 
   // Filter available courses based on search and filters

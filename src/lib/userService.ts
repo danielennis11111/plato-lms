@@ -1403,4 +1403,127 @@ export class UserService {
       }
     ];
   }
+
+  // Course Progress Management Methods
+  static markModuleComplete(userId: string, courseId: string, moduleId: string): { success: boolean; error?: string } {
+    try {
+      const userData = this.getUserData(userId);
+      if (!userData) {
+        return { success: false, error: 'User data not found' };
+      }
+
+      const courseProgress = userData.courseProgress[courseId];
+      if (!courseProgress) {
+        return { success: false, error: 'Course not found in user progress' };
+      }
+
+      // Add module to completed modules if not already there
+      if (!courseProgress.completedModules.includes(moduleId)) {
+        courseProgress.completedModules.push(moduleId);
+        courseProgress.lastAccessedAt = new Date().toISOString();
+        
+        // Save updated data
+        this.saveUserData(userId, userData);
+        console.log(`✅ Module ${moduleId} marked complete for course ${courseId}`);
+      }
+
+      return { success: true };
+    } catch (error) {
+      console.error('Error marking module complete:', error);
+      return { success: false, error: 'Failed to update progress' };
+    }
+  }
+
+  static updateCourseGrade(userId: string, courseId: string, newGrade: number): { success: boolean; error?: string } {
+    try {
+      const userData = this.getUserData(userId);
+      if (!userData) {
+        return { success: false, error: 'User data not found' };
+      }
+
+      const courseProgress = userData.courseProgress[courseId];
+      if (!courseProgress) {
+        return { success: false, error: 'Course not found in user progress' };
+      }
+
+      // Update grade (ensure it doesn't exceed 100)
+      courseProgress.currentGrade = Math.min(newGrade, 100);
+      courseProgress.lastAccessedAt = new Date().toISOString();
+      
+      // Save updated data
+      this.saveUserData(userId, userData);
+      console.log(`✅ Grade updated to ${newGrade}% for course ${courseId}`);
+
+      return { success: true };
+    } catch (error) {
+      console.error('Error updating course grade:', error);
+      return { success: false, error: 'Failed to update grade' };
+    }
+  }
+
+  static recordAssignmentSubmission(userId: string, courseId: string, assignmentId: string, grade: number): { success: boolean; error?: string } {
+    try {
+      const userData = this.getUserData(userId);
+      if (!userData) {
+        return { success: false, error: 'User data not found' };
+      }
+
+      const courseProgress = userData.courseProgress[courseId];
+      if (!courseProgress) {
+        return { success: false, error: 'Course not found in user progress' };
+      }
+
+      // Record assignment submission
+      courseProgress.assignmentSubmissions[assignmentId] = {
+        grade: Math.min(grade, 100),
+        submittedAt: new Date().toISOString()
+      };
+      
+      courseProgress.lastAccessedAt = new Date().toISOString();
+      
+      // Recalculate overall course grade based on all submissions
+      const submissions = Object.values(courseProgress.assignmentSubmissions);
+      if (submissions.length > 0) {
+        const averageGrade = submissions.reduce((sum: number, sub: any) => sum + sub.grade, 0) / submissions.length;
+        courseProgress.currentGrade = Math.min(Math.round(averageGrade), 100);
+      }
+      
+      // Save updated data
+      this.saveUserData(userId, userData);
+      console.log(`✅ Assignment ${assignmentId} submitted with grade ${grade}% for course ${courseId}`);
+
+      return { success: true };
+    } catch (error) {
+      console.error('Error recording assignment submission:', error);
+      return { success: false, error: 'Failed to record submission' };
+    }
+  }
+
+  static getCourseProgress(userId: string, courseId: string): any | null {
+    const userData = this.getUserData(userId);
+    return userData?.courseProgress?.[courseId] || null;
+  }
+
+  static addStudyTime(userId: string, courseId: string, minutes: number): { success: boolean; error?: string } {
+    try {
+      const userData = this.getUserData(userId);
+      if (!userData) {
+        return { success: false, error: 'User data not found' };
+      }
+
+      const courseProgress = userData.courseProgress[courseId];
+      if (!courseProgress) {
+        return { success: false, error: 'Course not found in user progress' };
+      }
+
+      courseProgress.timeSpent = (courseProgress.timeSpent || 0) + minutes;
+      courseProgress.lastAccessedAt = new Date().toISOString();
+      
+      this.saveUserData(userId, userData);
+      return { success: true };
+    } catch (error) {
+      console.error('Error adding study time:', error);
+      return { success: false, error: 'Failed to update study time' };
+    }
+  }
 } 
