@@ -162,6 +162,14 @@ export default function Chat({ context, isFullScreen = false }: ChatProps) {
         };
       }
       
+      // Instructor dashboard
+      if (pathname.includes('/instructor')) {
+        return {
+          type: 'instructor_dashboard' as const,
+          state: 'active'
+        };
+      }
+      
       // Dashboard page
       if (pathname === '/' || pathname.includes('/dashboard')) {
         return {
@@ -1104,9 +1112,17 @@ Enrolled Courses: ${userEnrollments.length > 0 ? userEnrollments.join(', ') : 'N
     const keyInfo = extractKeyInformation(messages);
     const contextType = context?.type || 'general';
     
-         // Build page-aware context sections
+         // Build page-aware context sections with role-based guidance
+     const userRole = (user as any)?.role || 'student';
      let roleContext = '';
      let pageInfo = '';
+     
+     // Special handling for instructor and ID users
+     if (userRole === 'instructor' || userRole === 'instructional_designer') {
+       roleContext = userRole === 'instructor' 
+         ? 'FOCUS: Faculty guidance for course improvement, student engagement, and pedagogical strategies.'
+         : 'FOCUS: Instructional design consultation for learning analytics, course architecture, and educational effectiveness.';
+     }
      
      switch (contextType) {
        case 'calendar':
@@ -1125,6 +1141,21 @@ Enrolled Courses: ${userEnrollments.length > 0 ? userEnrollments.join(', ') : 'N
          if (courseData.upcomingAssignments?.length > 0) {
            const nextAssignments = courseData.upcomingAssignments.slice(0, 3);
            pageInfo = `DASHBOARD: Next up - ${nextAssignments.map((a: any) => `${a.name} (due ${new Date(a.due_date).toLocaleDateString()})`).join(', ')}`;
+         }
+         break;
+       case 'instructor_dashboard':
+         if (userRole === 'instructor') {
+           roleContext = 'FOCUS: Faculty guidance for course improvement, student engagement, and pedagogical strategies.';
+           const teachingCourses = (user as any)?.teaching_courses || [];
+           if (teachingCourses.length > 0) {
+             pageInfo = `INSTRUCTOR DASHBOARD: Teaching courses ${teachingCourses.map((id: number) => `Course ${id}`).join(', ')} - Course analytics and pedagogical insights available.`;
+           }
+         } else if (userRole === 'instructional_designer') {
+           roleContext = 'FOCUS: Instructional design consultation for learning analytics, course architecture, and educational effectiveness.';
+           const portfolioCourses = (user as any)?.portfolio_courses || [];
+           if (portfolioCourses.length > 0) {
+             pageInfo = `ID DASHBOARD: Portfolio courses ${portfolioCourses.map((id: number) => `Course ${id}`).join(', ')} - Course health metrics and improvement recommendations available.`;
+           }
          }
          break;
        case 'assignment':

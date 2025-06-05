@@ -12,7 +12,7 @@ type ViewMode = 'month' | 'week' | 'list';
 
 export default function Calendar() {
   const { user, getUserData } = useAuth();
-  const [currentDate, setCurrentDate] = useState(new Date('2025-06-03')); // Set to June 3, 2025
+  const [currentDate, setCurrentDate] = useState(new Date('2025-06-04')); // Set to June 4, 2025
   const [viewMode, setViewMode] = useState<ViewMode>('month');
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [courses, setCourses] = useState<any[]>([]);
@@ -443,7 +443,7 @@ export default function Calendar() {
           </div>
           
           <button
-            onClick={() => setCurrentDate(new Date())}
+            onClick={() => setCurrentDate(new Date('2025-06-04'))}
             className="px-4 py-2 text-sm font-medium text-primary-600 hover:text-primary-700 transition-colors"
           >
             Today

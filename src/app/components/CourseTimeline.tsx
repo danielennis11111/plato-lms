@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { mockCanvasApi } from '@/app/lib/mockCanvasApi';
+import { mockCanvasApi } from '@/lib/mockCanvasApi';
 
 interface Assignment {
   id: number;

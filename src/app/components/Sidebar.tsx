@@ -13,15 +13,19 @@ import {
   Menu,
   X,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  GraduationCap,
+  BarChart3
 } from 'lucide-react';
 import { useLayout } from '../contexts/LayoutContext';
+import { useAuth } from '@/contexts/AuthContext';
 import ProfileSwitcher from '../../components/ProfileSwitcher';
 
 export default function Sidebar() {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { isSidebarCollapsed, toggleSidebar } = useLayout();
+  const { user } = useAuth();
   const [mounted, setMounted] = useState(false);
 
   // Handle hydration mismatch
@@ -29,12 +33,27 @@ export default function Sidebar() {
     setMounted(true);
   }, []);
 
-  const navItems = [
+  // Role-based navigation
+  const isInstructor = (user as any)?.role === 'instructor';
+  const isDesigner = (user as any)?.role === 'instructional_designer';
+  const isStudent = !isInstructor && !isDesigner;
+
+  const baseNavItems = [
     { name: 'Dashboard', href: '/', icon: LayoutDashboard },
     { name: 'Courses', href: '/courses', icon: BookOpen },
     { name: 'Calendar', href: '/calendar', icon: Calendar },
     { name: 'Assignments', href: '/assignments', icon: ClipboardList },
     { name: 'Dialogues', href: '/chat', icon: MessageSquare },
+  ];
+
+  const instructorNavItems = [
+    { name: 'Faculty Dashboard', href: '/instructor', icon: GraduationCap },
+    { name: 'Course Analytics', href: '/instructor/analytics', icon: BarChart3 },
+  ];
+
+  const navItems = [
+    ...baseNavItems,
+    ...(isInstructor || isDesigner ? instructorNavItems : []),
     { name: 'Settings', href: '/settings', icon: Settings },
   ];
 

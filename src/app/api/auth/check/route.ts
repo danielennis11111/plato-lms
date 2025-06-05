@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { mockCanvasApi } from '@/app/lib/mockCanvasApi';
+import { mockCanvasApi } from '@/lib/mockCanvasApi';
 
 const USE_MOCK_API = process.env.NODE_ENV === 'development';
 

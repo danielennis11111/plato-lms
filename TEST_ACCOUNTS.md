@@ -122,6 +122,56 @@ Test account passwords are managed securely within the application and are not e
 - ✅ Portfolio and reflection projects
 - ✅ Humanities-focused AI assistance
 
+---
+
+### 4. Dr. Sarah Martinez (Computer Science Faculty)
+- **Email:** `faculty@plato.edu`
+- **Password:** *[Use "Show Test Accounts" button on login page]*
+- **Description:** CS Professor teaching multiple courses
+
+**Profile:**
+- Associate Professor of Computer Science
+- PhD in Software Engineering, 8 years teaching experience
+- Department: Computer Science & Engineering
+- Specializations: Web Development, Software Architecture, Database Systems
+
+**Teaching Responsibilities:**
+- **Advanced Web Development (CS380)** - 25 students, 6 modules
+- **Database Systems Architecture (CS455)** - 18 students, 4 modules
+- **Software Engineering Principles (CS350)** - 30 students, 8 modules
+
+**Features to Test:**
+- Course analytics and student performance tracking
+- Assignment difficulty analysis and optimization
+- Learning objective assessment
+- AI-assisted course improvement suggestions
+- Faculty-focused Socratic guidance for course design
+
+---
+
+### 5. Maria Rodriguez (Instructional Designer)
+- **Email:** `designer@plato.edu`  
+- **Password:** *[Use "Show Test Accounts" button on login page]*
+- **Description:** Senior Instructional Designer overseeing multiple departments
+
+**Profile:**
+- M.Ed. in Instructional Design & Technology
+- 12 years experience in higher education
+- Specializations: Learning Analytics, Course Architecture, Faculty Development
+
+**Portfolio Responsibilities:**
+- Computer Science Department (8 courses)
+- English Department (6 courses)
+- Mathematics Department (4 courses)
+- Cross-departmental course design consultation
+
+**Features to Test:**
+- Course health indicators and analytics dashboard
+- Learning objective alignment analysis
+- Aggregate problem area identification
+- Faculty training recommendations
+- Strategic course improvement planning
+
 ## Future Canvas Integration
 
 When Canvas API integration is complete, these test accounts will also support:

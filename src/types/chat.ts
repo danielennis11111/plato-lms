@@ -4,7 +4,7 @@ export interface Message {
   role: 'user' | 'assistant';
   timestamp: Date;
   context?: {
-    type: 'course' | 'assignment' | 'module' | 'dashboard' | 'calendar' | 'discussion' | 'quiz' | 'general';
+    type: 'course' | 'assignment' | 'module' | 'dashboard' | 'calendar' | 'discussion' | 'quiz' | 'general' | 'instructor_dashboard';
     id?: number;
     courseId?: number;
     title?: string;
@@ -14,7 +14,7 @@ export interface Message {
 }
 
 export interface ChatContext {
-  type: 'course' | 'assignment' | 'module' | 'dashboard' | 'calendar' | 'discussion' | 'quiz' | 'general';
+  type: 'course' | 'assignment' | 'module' | 'dashboard' | 'calendar' | 'discussion' | 'quiz' | 'general' | 'instructor_dashboard';
   id?: number;
   courseId?: number;
   title?: string;
