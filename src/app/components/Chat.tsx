@@ -71,6 +71,7 @@ export default function Chat({ context, isFullScreen = false }: ChatProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [throttleMessage, setThrottleMessage] = useState('');
   const [hasApiKey, setHasApiKey] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSimilarChats, setShowSimilarChats] = useState(false);
@@ -337,47 +338,54 @@ export default function Chat({ context, isFullScreen = false }: ChatProps) {
     return contextMetrics.currentTokens > contextMetrics.warningThreshold;
   };
 
-  // Calculate optimal response length based on remaining context
+  // Calculate optimal response length - keep it minimal
   const getOptimalResponseLength = (): number => {
-    const remainingTokens = contextMetrics.maxTokens - contextMetrics.currentTokens;
-    const percentageUsed = contextMetrics.currentTokens / contextMetrics.maxTokens;
-    
-    if (percentageUsed > 0.9) return 50; // Very short responses
-    if (percentageUsed > 0.75) return 100; // Short responses
-    if (percentageUsed > 0.5) return 200; // Medium responses
-    return 300; // Normal responses
+    // Always use very short responses to prevent rate limiting
+    return 50;
   };
 
-  // Compress conversation history intelligently
+  // Much more aggressive conversation compression
   const compressConversationHistory = (history: any[]): any[] => {
-    const percentageUsed = contextMetrics.currentTokens / contextMetrics.maxTokens;
+    // ALWAYS keep only the last 2 exchanges (4 messages) to minimize context
+    const maxMessages = 4;
+    const recentHistory = history.slice(-maxMessages);
     
-    // If under 50% context usage, return full history
-    if (percentageUsed < 0.5) return history;
-    
-    // If over 75%, keep only last 4 exchanges + compress older ones
-    if (percentageUsed > 0.75) {
-      const recentHistory = history.slice(-8); // Last 4 exchanges (user + assistant pairs)
-      const olderHistory = history.slice(0, -8);
+    // If we had older messages, create a very brief summary
+    if (history.length > maxMessages) {
+      const userMessages = history.slice(0, -maxMessages).filter(h => h.role === 'user');
+      const lastTopics = userMessages.slice(-2).map(h => 
+        h.parts[0].text.split(/[.!?]/)[0].substring(0, 30)
+      ).join(', ');
       
-      if (olderHistory.length > 0) {
-        const summary = `[Previous conversation: ${olderHistory.length} messages covering topics like ${
-          olderHistory.filter(h => h.role === 'user')
-            .map(h => h.parts[0].text.substring(0, 50))
-            .slice(-3)
-            .join(', ')
-        }...]`;
-        
-        return [
-          { role: 'user', parts: [{ text: summary }] },
-          ...recentHistory
-        ];
-      }
-      return recentHistory;
+      const summary = `[Earlier: ${lastTopics}]`;
+      return [
+        { role: 'user', parts: [{ text: summary }] },
+        ...recentHistory
+      ];
     }
     
-    // If 50-75%, keep last 6 exchanges
-    return history.slice(-12);
+    return recentHistory;
+  };
+
+  // Request throttling to prevent rate limiting
+  const [lastRequestTime, setLastRequestTime] = useState<number>(0);
+  const [requestQueue, setRequestQueue] = useState<string[]>([]);
+  const MIN_REQUEST_INTERVAL = 2000; // 2 seconds between requests
+
+  const throttleRequest = async (message: string): Promise<boolean> => {
+    const now = Date.now();
+    const timeSinceLastRequest = now - lastRequestTime;
+    
+    if (timeSinceLastRequest < MIN_REQUEST_INTERVAL) {
+      const waitTime = MIN_REQUEST_INTERVAL - timeSinceLastRequest;
+      setThrottleMessage(`⏳ Waiting ${Math.ceil(waitTime/1000)}s to prevent rate limiting...`);
+      console.log(`🕐 Throttling request, waiting ${waitTime}ms`);
+      await new Promise(resolve => setTimeout(resolve, waitTime));
+      setThrottleMessage('');
+    }
+    
+    setLastRequestTime(Date.now());
+    return true;
   };
 
   // Handle persona selection
@@ -715,24 +723,19 @@ Choose how you'd like me to approach our conversation using the options below!`;
     setIsLoading(true);
     
     try {
+      // Throttle requests to prevent rate limiting
+      await throttleRequest(userMessage);
+      
       // Check if user is authenticated
       if (!user) {
         console.log('❌ User not authenticated');
         return "Please log in to access the AI tutoring features.";
       }
 
-      // Get comprehensive context information
-      const courseData = await getComprehensiveContext(enhancedContext);
+      // Minimal context to prevent API overload
+      const courseData = { type: enhancedContext?.type || 'general' };
       
-      // Build search context for API
-      const searchContext = enhancedContext.id ? {
-        type: enhancedContext.type,
-        id: enhancedContext.id
-      } : undefined;
-      
-      const searchResults = await mockCanvasApi.searchContent(userMessage, searchContext);
-      
-      console.log('📊 Context data loaded:', { courseData, enhancedContext });
+      console.log('📊 Using minimal context to prevent rate limiting');
       
       // Check for API key
       console.log('🔑 API Key check:', apiKey ? 'Found' : 'Missing');
@@ -806,37 +809,61 @@ Choose how you'd like me to approach our conversation using the options below!`;
       ];
       
       console.log(`📊 Context optimization: ${conversationHistory.length} → ${compressedHistory.length} messages`);
-      console.log(`🎯 Using ${optimalLength} token limit (${Math.round(contextMetrics.currentTokens / contextMetrics.maxTokens * 100)}% context used)`);
+      console.log(`🎯 Using ${optimalLength} token limit`);
 
-      // Use the same API call format as the settings page
-      const result = await model.generateContent({
-        contents: fullConversation,
-        generationConfig: {
-          temperature: 0.7,
-          maxOutputTokens: optimalLength,
-        },
-        safetySettings: [
-          {
-            category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-            threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-          },
-          {
-            category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-            threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-          },
-          {
-            category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-            threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-          },
-          {
-            category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-            threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-          },
-        ],
-      });
-      
-      const response = result.response;
-      const text = response.text();
+      // Exponential backoff for rate limiting
+      let retryCount = 0;
+      const maxRetries = 3;
+      let result;
+
+             while (retryCount <= maxRetries) {
+         try {
+           result = await model.generateContent({
+             contents: fullConversation,
+             generationConfig: {
+               temperature: 0.7,
+               maxOutputTokens: optimalLength,
+             },
+             safetySettings: [
+               {
+                 category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+                 threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+               },
+               {
+                 category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+                 threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+               },
+               {
+                 category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+                 threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+               },
+               {
+                 category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+                 threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+               },
+             ],
+           });
+           break; // Success, exit retry loop
+         } catch (error: any) {
+           if (error?.message?.includes('quota') || error?.message?.includes('rate')) {
+             retryCount++;
+             if (retryCount <= maxRetries) {
+               const waitTime = Math.pow(2, retryCount) * 1000; // Exponential backoff
+               console.log(`🔄 Rate limited, retrying in ${waitTime}ms (attempt ${retryCount}/${maxRetries})`);
+               await new Promise(resolve => setTimeout(resolve, waitTime));
+               continue;
+             }
+           }
+           throw error; // Re-throw if not rate limit or max retries reached
+         }
+               }
+        
+        if (!result) {
+          throw new Error('Failed to get response after all retries');
+        }
+        
+        const response = result.response;
+        const text = response.text();
 
       console.log('✅ Gemini response received:', text.substring(0, 100) + '...');
       
@@ -1050,41 +1077,12 @@ Enrolled Courses: ${userEnrollments.length > 0 ? userEnrollments.join(', ') : 'N
         roleContext = 'FOCUS: Listen and ask focused questions to guide learning.';
     }
 
-         // Adjust prompt verbosity based on context usage
-     const percentageUsed = contextMetrics.currentTokens / contextMetrics.maxTokens;
-     const isHighUsage = percentageUsed > 0.75;
-     
-     // Ultra-compressed prompt for high context usage
-     if (isHighUsage) {
-       const ultraPrompt = `Socrates tutor. BE EXTREMELY BRIEF.
-${roleContext}
-${keyInfo ? `Context: ${keyInfo.substring(0, 100)}` : ''}
-Current: "${userMessage.substring(0, 100)}"
-Reply: 1 sentence + 1 question max.`;
-       return optimizeForTokenEfficiency(ultraPrompt);
-     }
-     
-     // Standard optimized prompt
-     const optimizedPrompt = `You are Socrates. Guide through questions. BE CONCISE.
+         // MINIMAL prompt to prevent rate limiting
+     const minimalPrompt = `Socrates tutor. ${roleContext}
+Student: "${userMessage.substring(0, 100)}"
+Response: 1-2 sentences + question.`;
 
-RULES:
-• Max 2 sentences + 1 question per response
-• Reference only last 2 exchanges unless asked
-• Use "What if..." "How about..." "Can you..."
-• Never lecture - only guide with questions
-
-${roleContext}
-
-CONTEXT: ${keyInfo}
-${branchContext ? `BRANCH: ${branchContext.trim()}` : ''}
-
-RECENT: ${messages.slice(-2).map(m => `${m.role}: "${m.content.substring(0, 150)}"`).join(' | ')}
-
-CURRENT: "${userMessage}"
-
-Response (concise + 1 question):`;
-
-     return optimizeForTokenEfficiency(optimizedPrompt);
+     return optimizeForTokenEfficiency(minimalPrompt);
   };
 
   // Get comprehensive context about the current course/assignment
@@ -1525,14 +1523,18 @@ Response (concise + 1 question):`;
             </div>
           </div>
         ))}
-        {isLoading && (
+        {(isLoading || throttleMessage) && (
           <div className="flex justify-start">
             <div className="bg-gray-100 rounded-lg px-6 py-4">
-              <div className="flex space-x-1">
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-              </div>
+              {throttleMessage ? (
+                <p className="text-xs text-gray-600">{throttleMessage}</p>
+              ) : (
+                <div className="flex space-x-1">
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                </div>
+              )}
             </div>
           </div>
         )}
