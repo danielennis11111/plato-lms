@@ -2648,6 +2648,97 @@ export const mockCanvasApi = {
     return discussions.find(d => slugify(d.title) === discussionSlug) || null;
   },
 
+  // Additional methods for Chat component compatibility
+  async getContextInfo(contextType: string, contextId?: number): Promise<any> {
+    await new Promise(resolve => setTimeout(resolve, 200));
+    
+    switch (contextType) {
+      case 'course':
+        if (contextId) {
+          const course = courses.find(c => c.id === contextId);
+          return course ? {
+            type: 'course',
+            course,
+            recent_announcements: [],
+            upcoming_assignments: assignments.filter(a => a.course_id === contextId).slice(0, 3)
+          } : null;
+        }
+        break;
+      case 'assignment':
+        if (contextId) {
+          const assignment = assignments.find(a => a.id === contextId);
+          return assignment ? {
+            type: 'assignment',
+            assignment,
+            course: courses.find(c => c.id === assignment.course_id)
+          } : null;
+        }
+        break;
+      case 'dashboard':
+        return {
+          type: 'dashboard',
+          total_courses: courses.length,
+          upcoming_assignments: assignments.slice(0, 5)
+        };
+      default:
+        return null;
+    }
+    return null;
+  },
+
+  async getDashboardData(userEnrollments?: string[]): Promise<any> {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    const enrollmentIds = userEnrollments ? userEnrollments.map(id => parseInt(id, 10)) : [];
+    const userCourses = enrollmentIds.length > 0 ? courses.filter(c => enrollmentIds.includes(c.id)) : courses;
+    const userAssignments = assignments.filter(a => userCourses.some(c => c.id === a.course_id));
+    
+    return {
+      courses: userCourses,
+      assignments: userAssignments,
+      upcoming_assignments: userAssignments.filter(a => {
+        const dueDate = new Date(a.due_at);
+        const now = new Date();
+        const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+        return dueDate > now && dueDate <= weekFromNow;
+      }),
+      recent_activity: [
+        { type: 'submission', title: 'Assignment submitted', time: '2 hours ago' },
+        { type: 'grade', title: 'Grade received', time: '1 day ago' },
+        { type: 'announcement', title: 'New announcement', time: '3 days ago' }
+      ]
+    };
+  },
+
+  async getCourseAssignments(courseId: number): Promise<Assignment[]> {
+    await new Promise(resolve => setTimeout(resolve, 200));
+    return assignments.filter(assignment => assignment.course_id === courseId);
+  },
+
+  async getDiscussion(discussionId: number): Promise<any | null> {
+    await new Promise(resolve => setTimeout(resolve, 200));
+    
+    // Find discussion in course modules
+    for (const course of courses) {
+      for (const module of course.modules) {
+        for (const item of module.items) {
+          if (item.type === 'discussion' && item.id === discussionId) {
+            return {
+              id: item.id,
+              title: item.title,
+              content: item.content,
+              course_id: course.id,
+              course_name: course.name,
+              replies: this.getDiscussionReplies(item.id)
+            };
+          }
+        }
+      }
+    }
+    
+    return null;
+  },
+
   // Get replies for a discussion (mock data)
   getDiscussionReplies(discussionId: number): any[] {
     // Return some mock replies based on discussion ID

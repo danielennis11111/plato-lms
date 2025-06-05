@@ -746,7 +746,12 @@ Choose how you'd like me to approach our conversation using the options below!`;
       // Load page-specific context
       if (enhancedContext?.type === 'calendar') {
         try {
-          const calendarData = await mockCanvasApi.getCalendarEvents();
+          const today = new Date();
+          const nextWeek = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
+          const calendarData = await mockCanvasApi.getCalendarEvents(
+            today.toISOString().split('T')[0],
+            nextWeek.toISOString().split('T')[0]
+          );
           courseData = { 
             type: 'calendar',
             calendarEvents: calendarData?.slice(0, 8) || [],
