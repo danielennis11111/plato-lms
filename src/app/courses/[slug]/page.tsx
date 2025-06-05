@@ -10,12 +10,14 @@ import { slugify } from '@/lib/utils';
 
 interface ModuleItem {
   id: number;
-  type: 'assignment' | 'discussion' | 'quiz' | 'page';
+  type: 'assignment' | 'discussion' | 'quiz' | 'page' | 'reading';
   title: string;
   content?: string;
   due_date?: string;
   points_possible?: number;
   status?: 'graded' | 'submitted' | 'not_started' | 'in_progress';
+  reading_details?: any;
+  quiz_details?: any;
 }
 
 interface Module {
@@ -103,6 +105,8 @@ export default function CoursePage({ params }: CoursePageProps) {
         return `/courses/${courseSlug}/discussions/${itemSlug}`;
       case 'quiz':
         return `/courses/${courseSlug}/quizzes/${itemSlug}`;
+      case 'reading':
+        return `/courses/${courseSlug}/readings/${itemSlug}`;
       default:
         return '#';
     }
@@ -281,6 +285,7 @@ export default function CoursePage({ params }: CoursePageProps) {
                         {item.type === 'discussion' && <MessageSquare className="w-5 h-5 text-green-500" />}
                         {item.type === 'quiz' && <Award className="w-5 h-5 text-purple-500" />}
                         {item.type === 'page' && <Book className="w-5 h-5 text-gray-500" />}
+                        {item.type === 'reading' && <Book className="w-5 h-5 text-orange-500" />}
                         <div>
                           <h3 className="font-medium text-gray-900">{item.title}</h3>
                           {item.due_date && (

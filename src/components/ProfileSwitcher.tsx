@@ -202,7 +202,7 @@ export default function ProfileSwitcher() {
       name: 'Beth Lederman',
       email: 'blederma@asu.edu',
       description: 'Music Faculty - Popular Piano & Jazz (40 years experience)',
-      avatar: 'https://isearch.asu.edu/profile/1644527/photo/1671558988.jpg',
+      avatar: 'https://webapp4.asu.edu/photo-ws/directory_photo/blederma?size=medium&break=1749102084&blankImage2=1',
       category: 'Faculty'
     }
   ];

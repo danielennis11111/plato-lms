@@ -973,7 +973,7 @@ export class UserService {
         courses: [15], // MSC 131 - Popular Music Class Piano
         specializations: ['Jazz Piano', 'Popular Music', 'Music Education', 'Performance Technique'],
         bio: 'Faculty Associate at HIDA School of Music, Dance and Theatre. With 40 years of professional experience in the music industry and expertise in jazz piano, Beth brings real-world insights to popular music education. Bachelor of Arts in Music Cum Laude from ASU (1990).',
-        profileImage: 'https://isearch.asu.edu/profile/1644527/photo/1671558988.jpg',
+        profileImage: 'https://webapp4.asu.edu/photo-ws/directory_photo/blederma?size=medium&break=1749102084&blankImage2=1',
         office: 'MUSIC 150 - Piano Lab',
         phone: 'Contact via email'
       }

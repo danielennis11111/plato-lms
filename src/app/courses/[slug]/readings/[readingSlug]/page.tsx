@@ -5,23 +5,23 @@ import { mockCanvasApi } from '@/lib/mockCanvasApi';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { slugify } from '@/lib/utils';
-import EnhancedQuizViewer from '@/components/EnhancedQuizViewer';
+import EnhancedReadingViewer from '@/components/EnhancedReadingViewer';
 
-interface QuizPageProps {
+interface ReadingPageProps {
   params: {
     slug: string;
-    quizSlug: string;
+    readingSlug: string;
   };
 }
 
-export default function QuizPage({ params }: QuizPageProps) {
-  const [quiz, setQuiz] = useState<any | null>(null);
+export default function ReadingPage({ params }: ReadingPageProps) {
+  const [reading, setReading] = useState<any | null>(null);
   const [course, setCourse] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchQuizAndCourse = async () => {
+    const fetchReadingAndCourse = async () => {
       try {
         // Get course first
         const courseData = await mockCanvasApi.getCourse(params.slug);
@@ -31,46 +31,33 @@ export default function QuizPage({ params }: QuizPageProps) {
         }
         setCourse(courseData);
 
-        // Find the quiz in the course modules
-        let foundQuiz = null;
+        // Find the reading in the course modules
+        let foundReading = null;
         for (const module of courseData.modules) {
           for (const item of module.items) {
-            if (item.type === 'quiz' && slugify(item.title) === params.quizSlug) {
-              foundQuiz = item;
+            if (item.type === 'reading' && slugify(item.title) === params.readingSlug) {
+              foundReading = item;
               break;
             }
           }
-          if (foundQuiz) break;
+          if (foundReading) break;
         }
 
-        if (foundQuiz) {
-          setQuiz(foundQuiz);
+        if (foundReading) {
+          setReading(foundReading);
         } else {
-          setError('Quiz not found');
+          setError('Reading not found');
         }
       } catch (error) {
-        console.error('Error fetching quiz:', error);
-        setError('Error loading quiz');
+        console.error('Error fetching reading:', error);
+        setError('Error loading reading');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchQuizAndCourse();
-  }, [params.slug, params.quizSlug]);
-
-  const handleQuizSubmit = async (answers: Record<number, any>, score: number) => {
-    console.log('Quiz submitted:', { answers, score });
-    
-    if (quiz) {
-      try {
-        await mockCanvasApi.submitQuiz(quiz.id, answers, score);
-        console.log('Quiz submission recorded');
-      } catch (error) {
-        console.error('Error submitting quiz:', error);
-      }
-    }
-  };
+    fetchReadingAndCourse();
+  }, [params.slug, params.readingSlug]);
 
   if (loading) {
     return (
@@ -95,10 +82,10 @@ export default function QuizPage({ params }: QuizPageProps) {
     );
   }
 
-  if (!quiz || !course) {
+  if (!reading || !course) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
-        <h1 className="text-2xl font-bold text-gray-900 mb-4">Quiz not found</h1>
+        <h1 className="text-2xl font-bold text-gray-900 mb-4">Reading not found</h1>
         <Link
           href={`/courses/${params.slug}`}
           className="text-blue-500 hover:text-blue-600 flex items-center space-x-2"
@@ -128,12 +115,12 @@ export default function QuizPage({ params }: QuizPageProps) {
         </div>
       </div>
 
-      {/* Quiz Content */}
+      {/* Reading Content */}
       <div className="py-8">
-        <EnhancedQuizViewer
-          title={quiz.title}
-          quiz_details={quiz.quiz_details}
-          onSubmit={handleQuizSubmit}
+        <EnhancedReadingViewer
+          title={reading.title}
+          content={reading.content}
+          reading_details={reading.reading_details}
         />
       </div>
     </div>
