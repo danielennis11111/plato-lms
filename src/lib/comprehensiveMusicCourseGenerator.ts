@@ -1,4 +1,5 @@
 import { Course, Module } from './mockCanvasApi';
+import { enhanceCourseContent } from './enhancedContentGenerator';
 
 // Helper function to generate realistic dates relative to June 4, 2025
 function getRelativeDate(daysFromToday: number): string {
@@ -184,7 +185,7 @@ export function generatePopularMusicPianoCourse(): Course {
     modules.push(module);
   }
 
-  return {
+  const baseCourse: Course = {
     id: 15,
     name: 'Popular Music Class Piano',
     course_code: 'MSC 131',
@@ -250,4 +251,7 @@ Prerequisites: None - course designed for beginners and those with limited piano
 Note: Students are expected to practice minimum 5 hours per week outside of class. Piano lab access available for students without home instruments.`,
     modules
   };
+  
+  // Apply enhanced content with quizzes, readings, and YouTube videos
+  return enhanceCourseContent(baseCourse);
 } 

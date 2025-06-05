@@ -67,7 +67,22 @@ export interface ModuleItem {
     pages?: string;
     url?: string;
     estimated_time: number; // minutes
-    type: 'textbook' | 'article' | 'website' | 'video' | 'research_paper';
+    type: 'textbook' | 'article' | 'website' | 'video' | 'research_paper' | 'enhanced_reading';
+    youtube_videos?: Array<{
+      title: string;
+      videoId: string;
+      description: string;
+      duration: string;
+    }>;
+    key_points?: string[];
+    further_reading?: string[];
+  };
+  quiz_details?: {
+    time_limit: number;
+    allowed_attempts: number;
+    questions: any[];
+    instructions?: string;
+    passing_score?: number;
   };
 }
 
