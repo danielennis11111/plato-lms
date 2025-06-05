@@ -4,6 +4,22 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  /* Custom margin overrides for layout positioning */
+  .ml-16 {
+    margin-left: 5rem !important;
+  }
+  
+  .ml-64 {
+    margin-left: 17.5rem !important;
+  }
+  
+  /* Remove underline from logo links */
+  .no-underline {
+    text-decoration: none !important;
+  }
+}
+
 @layer base {
   body {
     @apply bg-gray-50 text-gray-900 antialiased;

@@ -15,13 +15,13 @@ export default function MainLayout({ children }: MainLayoutProps) {
 
   // Handle hydration mismatch and initialize screen size
   useEffect(() => {
-    setMounted(true);
     const checkScreenSize = () => {
       setIsSmallScreen(window.innerWidth < 768);
     };
     
     // Check initial size
     checkScreenSize();
+    setMounted(true);
     
     // Add resize listener
     window.addEventListener('resize', checkScreenSize);
@@ -30,23 +30,52 @@ export default function MainLayout({ children }: MainLayoutProps) {
     return () => window.removeEventListener('resize', checkScreenSize);
   }, []);
 
-  if (!mounted) return null;
+  // Prevent hydration mismatch by rendering a basic layout initially
+  if (!mounted) {
+    return (
+      <AuthGuard>
+        <main className="flex-1 h-full overflow-auto p-4 sm:p-6 md:p-8">
+          <div className="opacity-0">
+            {children}
+          </div>
+        </main>
+      </AuthGuard>
+    );
+  }
   
-  // Calculate margins and width based on sidebar and chat states
-  const sidebarMargin = isSmallScreen ? 0 : (isSidebarCollapsed ? 64 : 256);
-  const chatMargin = isSmallScreen ? 0 : (isChatOpen ? 400 : 0);
+  // Generate CSS classes based on state
+  const getMainClasses = () => {
+    const baseClasses = "flex-1 h-full overflow-auto transition-all duration-300 ease-in-out";
+    
+    if (isSmallScreen) {
+      return `${baseClasses} p-4`;
+    }
+    
+    // Desktop layout with proper spacing for all combinations
+    let spacing = "";
+    
+    // Handle all sidebar + chat combinations
+    if (isSidebarCollapsed && !isChatOpen) {
+      // Both collapsed - centered with auto margins
+      spacing = "mx-auto my-6";
+    } else if (isSidebarCollapsed && isChatOpen) {
+      // Sidebar collapsed, chat open
+      spacing = "ml-16 mr-[520px] w-[calc(100vw-4rem-520px)]";
+    } else if (!isSidebarCollapsed && !isChatOpen) {
+      // Sidebar expanded, chat closed
+      spacing = "ml-64 mr-0 w-[calc(100vw-16rem)]";
+    } else {
+      // Both expanded - sidebar expanded, chat open
+      spacing = "ml-64 mr-[520px] w-[calc(100vw-16rem-520px)]";
+    }
+    
+    return `${baseClasses} ${spacing} p-6 md:p-8`;
+  };
   
   return (
     <AuthGuard>
-      <main 
-        className="flex-1 h-full overflow-auto transition-all duration-300 ease-in-out"
-        style={{
-          marginLeft: `${sidebarMargin}px`,
-          marginRight: `${chatMargin}px`,
-          width: `calc(100% - ${sidebarMargin}px - ${chatMargin}px)`
-        }}
-      >
-        <div className="p-4 sm:p-6 md:p-8 h-full">
+      <main className={getMainClasses()}>
+        <div className="h-full max-w-full">
           {children}
         </div>
       </main>

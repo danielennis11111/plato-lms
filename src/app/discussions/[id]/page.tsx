@@ -159,13 +159,7 @@ export default function DiscussionPage() {
             </div>
           </div>
           
-          <button
-            onClick={handleStartDiscussionChat}
-            className="flex items-center space-x-2 bg-green-100 text-green-700 hover:bg-green-200 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-          >
-            <MessageSquare className="w-4 h-4" />
-            <span>AI Discussion Helper</span>
-          </button>
+         
         </div>
       </div>
 

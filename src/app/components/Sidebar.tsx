@@ -65,12 +65,12 @@ export default function Sidebar() {
         <div className="flex flex-col h-full">
           {/* Logo */}
           <div className={`border-b border-gray-200 flex items-center ${isSidebarCollapsed ? 'justify-center p-4' : 'p-4 md:p-6 justify-center md:justify-start'}`}>
-            <Link href="/" className="flex items-center">
+            <Link href="/" className="flex items-center no-underline">
               <div className="w-8 h-8 bg-primary-600 text-white rounded-md flex items-center justify-center">
                 <span className="font-bold">P</span>
               </div>
               {!isSidebarCollapsed && (
-                <h1 className="ml-2 text-xl font-bold text-gray-900 hidden md:block">Plato</h1>
+                <h1 className="ml-2 text-xl font-bold text-gray-900 hidden md:block">Plato LMS</h1>
               )}
             </Link>
           </div>
