@@ -218,7 +218,7 @@ export default function InstructorDashboard() {
 
   return (
     <MainLayout>
-      <div className="max-w-7xl w-full">
+      <div className="space-y-6">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
