@@ -106,6 +106,33 @@ export interface CalendarEvent {
   reminder_set?: boolean;
 }
 
+export interface CourseAnalytics {
+  course_id: number;
+  course_name: string;
+  enrollment_count: number;
+  active_students: number;
+  average_grade: number;
+  completion_rate: number;
+  discussion_engagement: number;
+  assignment_submission_rate: number;
+  ai_detection_flags: number;
+  weekly_activity: number[];
+  grade_distribution: Array<{
+    range: string;
+    count: number;
+    percentage: number;
+  }>;
+  risk_factors: string[];
+  recommendations: string[];
+  student_performance: Array<{
+    id: number;
+    name: string;
+    current_grade: number;
+    at_risk: boolean;
+    last_activity: string;
+  }>;
+}
+
 // Comprehensive course catalog with proper faculty connections
 const courses: Course[] = [
   // Computer Science Courses (Dr. Sarah Martinez)
@@ -2301,6 +2328,27 @@ export const mockCanvasApi = {
     const activeStudents = Math.floor(enrollmentCount * 0.8);
     const averageGrade = 78 + Math.random() * 15;
     
+    // Generate realistic student performance data
+    const studentNames = [
+      'Emma Johnson', 'Liam Smith', 'Olivia Brown', 'Noah Davis', 'Ava Wilson',
+      'Ethan Moore', 'Sophia Taylor', 'Mason Anderson', 'Isabella Thomas', 'William Jackson',
+      'Mia White', 'James Harris', 'Charlotte Martin', 'Benjamin Thompson', 'Amelia Garcia',
+      'Lucas Martinez', 'Harper Robinson', 'Henry Clark', 'Evelyn Rodriguez', 'Alexander Lewis'
+    ];
+    
+    const studentPerformance = Array.from({ length: enrollmentCount }, (_, i) => {
+      const grade = Math.max(40, Math.min(100, averageGrade + (Math.random() - 0.5) * 30));
+      const isAtRisk = grade < 70 || Math.random() < 0.15;
+      
+      return {
+        id: i + 1,
+        name: studentNames[i % studentNames.length] + (i >= studentNames.length ? ` ${Math.floor(i / studentNames.length) + 1}` : ''),
+        current_grade: Math.round(grade),
+        at_risk: isAtRisk,
+        last_activity: `${Math.floor(Math.random() * 7) + 1} days ago`
+      };
+    });
+
     return {
       course_id: courseId,
       course_name: course.name,
@@ -2319,8 +2367,11 @@ export const mockCanvasApi = {
         { range: 'D (60-69)', count: Math.floor(enrollmentCount * 0.10), percentage: 10 },
         { range: 'F (0-59)', count: Math.floor(enrollmentCount * 0.05), percentage: 5 }
       ],
-      risk_factors: averageGrade < 75 ? ['Below-average class performance'] : [],
-      recommendations: averageGrade > 85 ? ['Excellent performance - consider enrichment activities'] : ['Consider additional support for struggling students']
+      risk_factors: averageGrade < 75 ? ['Below-average class performance', 'Low assignment submission rate'] : [],
+      recommendations: averageGrade > 85 ? 
+        ['Excellent performance - consider enrichment activities', 'Implement peer tutoring program'] : 
+        ['Consider additional support for struggling students', 'Increase engagement through interactive activities'],
+      student_performance: studentPerformance
     };
   },
 

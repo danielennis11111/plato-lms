@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { mockCanvasApi, Course, CourseAnalytics } from '@/lib/mockCanvasApi';
+import { mockCanvasApi, type Course, type CourseAnalytics } from '@/lib/mockCanvasApi';
 import MainLayout from '@/app/components/MainLayout';
 import { 
   TrendingUp, 
@@ -53,7 +53,9 @@ export default function InstructorAnalytics() {
       });
       
       const results = await Promise.all(dataPromises);
-      const validData = results.filter((item): item is CourseDisplayData => item !== null);
+      const validData = results.filter((item): item is CourseDisplayData => 
+        item !== null && item.analytics !== null
+      );
       
       setCourseData(validData);
       if (validData.length > 0) {
@@ -164,7 +166,7 @@ export default function InstructorAnalytics() {
                   <Award className="h-8 w-8 text-green-600" />
                 </div>
                 <p className="text-sm text-gray-600 mt-2">
-                  {selectedData.analytics.student_performance.filter(s => s.current_grade > 90).length} top performers
+                  {selectedData.analytics.student_performance?.filter(s => s.current_grade > 90).length || 0} top performers
                 </p>
               </div>
 
@@ -177,7 +179,7 @@ export default function InstructorAnalytics() {
                   <Target className="h-8 w-8 text-purple-600" />
                 </div>
                 <p className="text-sm text-gray-600 mt-2">
-                  {selectedData.analytics.student_performance.filter(s => s.at_risk).length} need support
+                  {selectedData.analytics.student_performance?.filter(s => s.at_risk).length || 0} need support
                 </p>
               </div>
 
@@ -241,17 +243,17 @@ export default function InstructorAnalytics() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center">
                       <MessageSquare className="h-5 w-5 text-blue-600 mr-2" />
-                      <span className="text-sm text-gray-600">Discussion Posts</span>
+                      <span className="text-sm text-gray-600">Discussion Engagement</span>
                     </div>
-                    <span className="font-medium">{selectedData.analytics.student_performance.reduce((sum, s) => sum + s.discussion_posts, 0)}</span>
+                    <span className="font-medium">{Math.round(selectedData.analytics.discussion_engagement)} posts/student</span>
                   </div>
                   
                   <div className="flex items-center justify-between">
                     <div className="flex items-center">
                       <FileText className="h-5 w-5 text-green-600 mr-2" />
-                      <span className="text-sm text-gray-600">Assignment Submissions</span>
+                      <span className="text-sm text-gray-600">Submission Rate</span>
                     </div>
-                    <span className="font-medium">{selectedData.analytics.student_performance.reduce((sum, s) => sum + s.assignment_submissions.length, 0)}</span>
+                    <span className="font-medium">{Math.round(selectedData.analytics.assignment_submission_rate * 100)}%</span>
                   </div>
                   
                   <div className="flex items-center justify-between">
