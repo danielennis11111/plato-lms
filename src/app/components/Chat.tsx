@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { MessageSquare, Send, X, ChevronLeft, ChevronRight, Bot, User, GitBranch, AlertTriangle, Info } from 'lucide-react';
-import { mockCanvasApi } from '@/lib/mockCanvasApi';
+import { mockCanvasApi, getASUPhotoUrl } from '@/lib/mockCanvasApi';
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
@@ -1353,7 +1353,15 @@ Response: 1-2 sentences + question.`;
                   message.role === 'user' ? 'bg-blue-500' : 'bg-transparent'
                 }`}>
                   {message.role === 'user' ? (
-                    <User className="w-3 h-3 text-white" />
+                    user?.profileImage ? (
+                      <img 
+                        src={user.profileImage} 
+                        alt={user.name || 'User'} 
+                        className="w-6 h-6 rounded-full object-cover"
+                      />
+                    ) : (
+                      <User className="w-3 h-3 text-white" />
+                    )
                   ) : (
                     <img 
                       src="/socrates-avatar.png" 
@@ -1630,7 +1638,15 @@ Response: 1-2 sentences + question.`;
                 message.role === 'user' ? 'bg-blue-500' : 'bg-transparent'
               }`}>
                 {message.role === 'user' ? (
-                  <User className="w-5 h-5 text-white" />
+                  user?.profileImage ? (
+                    <img 
+                      src={user.profileImage} 
+                      alt={user.name || 'User'} 
+                      className="w-10 h-10 rounded-full object-cover"
+                    />
+                  ) : (
+                    <User className="w-5 h-5 text-white" />
+                  )
                 ) : (
                   <img 
                     src="/socrates-avatar.png" 

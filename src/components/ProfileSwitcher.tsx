@@ -60,7 +60,7 @@ export default function ProfileSwitcher() {
       name: 'James Williams',
       email: 'james.bio@plato.edu',
       description: 'Biology Senior - Environmental Focus',
-      avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=40&h=40&fit=crop&crop=face',
+      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face',
       category: 'Students'
     },
     {
@@ -69,6 +69,38 @@ export default function ProfileSwitcher() {
       email: 'priya.ml@plato.edu',
       description: 'Graduate Student - Healthcare AI',
       avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop&crop=face',
+      category: 'Students'
+    },
+    {
+      id: 'student_physics_sophomore',
+      name: 'David Kim',
+      email: 'david.physics@plato.edu',
+      description: 'Physics Sophomore - Quantum Computing',
+      avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=40&h=40&fit=crop&crop=face',
+      category: 'Students'
+    },
+    {
+      id: 'student_art_junior',
+      name: 'Sophie Chen',
+      email: 'sophie.art@plato.edu',
+      description: 'Digital Arts Junior - Game Design',
+      avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=40&h=40&fit=crop&crop=face',
+      category: 'Students'
+    },
+    {
+      id: 'student_business_senior',
+      name: 'Marcus Johnson',
+      email: 'marcus.biz@plato.edu',
+      description: 'Business Senior - Entrepreneurship',
+      avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=40&h=40&fit=crop&crop=face',
+      category: 'Students'
+    },
+    {
+      id: 'student_psych_junior',
+      name: 'Aisha Patel',
+      email: 'aisha.psych@plato.edu',
+      description: 'Psychology Junior - Cognitive Science',
+      avatar: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=40&h=40&fit=crop&crop=face',
       category: 'Students'
     },
 
