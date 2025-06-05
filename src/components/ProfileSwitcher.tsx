@@ -41,8 +41,8 @@ export default function ProfileSwitcher() {
     // New Diverse Student Profiles
     {
       id: 'student_cs_sophomore',
-      name: 'Alex Chen',
-      email: 'alex.cs@plato.edu',
+      name: 'Jordan Rivera',
+      email: 'jordan.rivera@plato.edu',
       description: 'CS Sophomore - Software Dev & UX',
       avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face',
       category: 'Students'
@@ -152,6 +152,16 @@ export default function ProfileSwitcher() {
       description: 'Graduate TA - Chemistry PhD (Electrochemistry)',
       avatar: getASUPhotoUrl('ezinwanne.ikediuwa'),
       category: 'Students'
+    },
+
+    // Real ASU Chinese Language Instructor - Fangzhou Shi
+    {
+      id: 'faculty_shi',
+      name: 'Fangzhou Shi',
+      email: 'fangzh10@asu.edu',
+      description: 'Chinese Language Instructor - Comparative Culture & Language PhD',
+      avatar: 'https://webapp4.asu.edu/photo-ws/directory_photo/fangzh10?size=medium&break=1749083549&blankImage2=1',
+      category: 'Faculty'
     }
   ];
 

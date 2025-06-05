@@ -185,7 +185,7 @@ Office Hours: MW 2:00-4:00 PM or by appointment`,
         items: [
           {
             id: 4,
-            title: 'Database Design Discussion',
+            title: 'Database Design Discussion Due',
             type: 'discussion',
             content: 'Discuss normalization, relationships, and NoSQL vs SQL database choices for web applications.',
             due_date: getRelativeDate(4),
@@ -994,6 +994,133 @@ Required Materials:
             due_date: getRelativeDate(6),
             status: 'not_started',
             points_possible: 50
+          }
+        ]
+      }
+    ]
+  },
+
+  // Course 14: Elementary Chinese I (Fangzhou Shi - Real ASU Course)
+  {
+    id: 14,
+    name: 'Elementary Chinese I',
+    course_code: 'CHI 101',
+    description: 'Introduction to modern Chinese language with emphasis on pronunciation, basic sentence patterns, and character recognition. Development of elementary speaking, listening, reading and writing skills.',
+    instructor: 'Fangzhou Shi',
+    instructor_email: 'fangzh10@asu.edu',
+    term: 'Summer 2025',
+    total_points: 1000,
+    current_grade: 89,
+    start_date: getRelativeDate(-23),
+    end_date: getRelativeDate(72),
+    department: 'TCLAS School of International Letters and Cultures',
+    credits: 4,
+    prerequisites: [],
+    room_location: 'LL 102',
+    meeting_times: 'MTWRF 9:00-9:50 AM',
+    syllabus: `Course Description:
+CHI 101 Elementary Chinese I introduces students to modern Chinese language with emphasis on standard pronunciation, basic sentence patterns, and fundamental character recognition. The course develops elementary proficiency in all four language skills: speaking, listening, reading, and writing.
+
+Learning Objectives:
+• Master Pinyin romanization system and standard pronunciation
+• Learn approximately 300 high-frequency Chinese characters
+• Develop basic conversational skills for everyday situations
+• Understand fundamental Chinese grammar patterns
+• Gain cultural awareness of Chinese-speaking communities
+• Build foundation for intermediate Chinese study
+
+Course Components:
+• Daily oral practice and pronunciation drills
+• Character writing and recognition exercises
+• Listening comprehension activities
+• Cultural context discussions
+• Digital language learning tools integration
+
+Assessment:
+• Daily Participation (20%): Active engagement in class activities
+• Character Quizzes (25%): Weekly character recognition and writing
+• Oral Assessments (20%): Pronunciation and conversation skills
+• Listening Comprehension (15%): Audio-based exercises
+• Final Comprehensive Exam (20%): All four skills integration
+
+Cultural Immersion: Students will engage with authentic Chinese materials including simple texts, audio recordings, and cultural artifacts to develop real-world language application skills.`,
+    modules: [
+      {
+        id: 1,
+        name: 'Pinyin and Basic Pronunciation',
+        description: 'Master the Pinyin romanization system and Chinese tones',
+        is_completed: true,
+        items: [
+          {
+            id: 141,
+            title: 'Tone Practice Audio Assignment',
+            type: 'assignment',
+            content: 'Record yourself pronouncing the four basic Chinese tones with provided vocabulary words. Submit audio recording demonstrating accurate tone production.',
+            due_date: getRelativeDate(-10),
+            status: 'graded',
+            grade: 92,
+            points_possible: 50,
+            submissions: 1,
+            feedback: 'Excellent tone accuracy! Pay attention to third tone dip.'
+          },
+          {
+            id: 142,
+            title: 'Pinyin Recognition Quiz',
+            type: 'quiz',
+            content: 'Test your ability to identify correct Pinyin spelling and tone marks for spoken Chinese syllables.',
+            due_date: getRelativeDate(-7),
+            status: 'graded',
+            grade: 88,
+            points_possible: 25,
+            attempts: 1,
+            max_attempts: 2
+          }
+        ]
+      },
+      {
+        id: 2,
+        name: 'Basic Characters and Greetings',
+        description: 'Learn fundamental Chinese characters and greeting expressions',
+        is_completed: false,
+        items: [
+          {
+            id: 143,
+            title: 'Greetings and Introductions Discussion',
+            type: 'discussion',
+            content: 'Practice Chinese greetings and self-introductions. Post a video introducing yourself in Chinese and respond to classmates in Chinese.',
+            due_date: getRelativeDate(3),
+            status: 'in_progress',
+            points_possible: 30,
+            submissions: 0
+          },
+          {
+            id: 144,
+            title: 'Character Stroke Order Practice',
+            type: 'assignment',
+            content: 'Practice writing 20 basic Chinese characters following proper stroke order. Submit handwritten samples and digital practice sheets.',
+            due_date: getRelativeDate(5),
+            status: 'not_started',
+            points_possible: 40,
+            submissions: 0,
+            max_attempts: 2
+          }
+        ]
+      },
+      {
+        id: 3,
+        name: 'Numbers and Time Expressions',
+        description: 'Learn Chinese numbers, dates, and time expressions',
+        is_completed: false,
+        items: [
+          {
+            id: 145,
+            title: 'Time and Date Listening Exercise',
+            type: 'quiz',
+            content: 'Listen to Chinese audio clips about times and dates. Select correct answers for comprehension questions.',
+            due_date: getRelativeDate(8),
+            status: 'not_started',
+            points_possible: 35,
+            max_attempts: 2
           }
         ]
       }

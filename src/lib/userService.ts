@@ -904,6 +904,20 @@ export class UserService {
         campus: 'Tempe'
       },
       {
+        id: 'faculty_shi',
+        email: 'fangzh10@asu.edu',
+        name: 'Fangzhou Shi',
+        department: 'TCLAS School of International Letters and Cultures',
+        courses: [14], // CHI 101 - Elementary Chinese I
+        specializations: ['Chinese Language Teaching', 'Comparative Culture and Language', 'Second Language Acquisition'],
+        bio: 'Graduate Teaching Associate and PhD student in Comparative Culture and Language. Teaching experience in Elementary Chinese and cultural exploration courses. Research interests include cross-cultural communication and language pedagogy.',
+        profileImage: 'https://webapp4.asu.edu/photo-ws/directory_photo/fangzh10?size=medium&break=1749083549&blankImage2=1',
+        office: 'Contact via email',
+        phone: '480-852-9676',
+        mailCode: '0202',
+        campus: 'Tempe'
+      },
+      {
         id: 'faculty_chen',
         email: 'y.chen@plato.edu',
         name: 'Dr. Yinong Chen',
@@ -1042,9 +1056,9 @@ export class UserService {
     // Additional Diverse Student Accounts
     const studentAccounts = [
       {
-        id: 'student_cs_sophomore',
-        email: 'alex.cs@plato.edu',
-        name: 'Alex Chen',
+        id: 'student_cs_sophomore', 
+        email: 'jordan.rivera@plato.edu',
+        name: 'Jordan Rivera',
         major: 'Computer Science',
         year: 'sophomore',
         courses: [7, 10, 11], // CSE205, CSE463, CSE445
@@ -1358,9 +1372,9 @@ export class UserService {
         description: 'Prof. David Kumar - Engineering Design Professor'
       },
       {
-        email: 'alex.cs@plato.edu',
+        email: 'jordan.rivera@plato.edu',
         password: 'Student123!',
-        description: 'Alex Chen - CS Sophomore (Software Dev & UX)'
+        description: 'Jordan Rivera - CS Sophomore (Software Dev & UX)'
       },
       {
         email: 'maria.eng@plato.edu',
@@ -1381,6 +1395,11 @@ export class UserService {
         email: 'ezinwanne.ikediuwa@asu.edu',
         password: 'Student123!',
         description: 'Ezinwanne Ikediuwa - Graduate TA (Chemistry PhD)'
+      },
+      {
+        email: 'fangzh10@asu.edu',
+        password: 'Faculty123!',
+        description: 'Fangzhou Shi - Chinese Language Instructor (ASU)'
       }
     ];
   }
