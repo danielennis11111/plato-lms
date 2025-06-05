@@ -759,9 +759,41 @@ Choose how you'd like me to approach our conversation using the options below!`;
         } catch (error) {
           console.log('⚠️ Could not load dashboard data:', error);
         }
-      }
+             } else if (enhancedContext?.type === 'assignment' && enhancedContext?.id) {
+         try {
+           const assignment = await mockCanvasApi.getAssignment(enhancedContext.id);
+           const course = enhancedContext.courseId ? await mockCanvasApi.getCourse(enhancedContext.courseId) : null;
+           courseData = {
+             type: 'assignment',
+             assignment: assignment,
+             course: course,
+             currentDate: new Date().toLocaleDateString()
+           } as any;
+         } catch (error) {
+           console.log('⚠️ Could not load assignment data:', error);
+         }
+       } else if (enhancedContext?.type === 'quiz' && enhancedContext?.id && enhancedContext?.courseId) {
+         try {
+           const quiz = await mockCanvasApi.getQuizByName(enhancedContext.courseId, String(enhancedContext.id));
+           const course = await mockCanvasApi.getCourse(enhancedContext.courseId);
+           courseData = {
+             type: 'quiz',
+             quiz: quiz,
+             course: course,
+             currentDate: new Date().toLocaleDateString(),
+             state: enhancedContext.state
+           } as any;
+         } catch (error) {
+           console.log('⚠️ Could not load quiz data:', error);
+         }
+       }
       
-      console.log('📊 Page context loaded:', courseData.type, (courseData as any).calendarEvents?.length || (courseData as any).upcomingAssignments?.length || 0, 'items');
+      console.log('📊 Page context loaded:', courseData.type, 
+        (courseData as any).calendarEvents?.length || 
+        (courseData as any).upcomingAssignments?.length || 
+        (courseData as any).assignment?.name || 
+        (courseData as any).quiz?.name || 
+        'basic context');
       
       // Check for API key
       console.log('🔑 API Key check:', apiKey ? 'Found' : 'Missing');
@@ -1096,7 +1128,13 @@ Enrolled Courses: ${userEnrollments.length > 0 ? userEnrollments.join(', ') : 'N
          }
          break;
        case 'assignment':
-         roleContext = 'FOCUS: Ask specific questions about assignment approach.';
+         roleContext = 'FOCUS: Help with specific assignment requirements and approach.';
+         if (courseData.assignment) {
+           const assignment = courseData.assignment;
+           const course = courseData.course;
+           const dueDate = assignment.due_date ? new Date(assignment.due_date).toLocaleDateString() : 'No due date';
+           pageInfo = `ASSIGNMENT: "${assignment.name}" in ${course?.name || 'Unknown Course'} - Due: ${dueDate} - ${assignment.points_possible || 0} pts - Status: ${assignment.status || 'not started'}`;
+         }
          break;
        case 'discussion':
          const storedContext = localStorage.getItem('currentDiscussionContext');
@@ -1115,14 +1153,40 @@ Enrolled Courses: ${userEnrollments.length > 0 ? userEnrollments.join(', ') : 'N
          roleContext = context?.state === 'completed' 
            ? 'FOCUS: Ask what they learned from the experience.' 
            : 'FOCUS: Ask questions to clarify concepts without giving answers.';
+         if (courseData.quiz) {
+           const quiz = courseData.quiz;
+           const course = courseData.course;
+           const dueDate = quiz.due_date ? new Date(quiz.due_date).toLocaleDateString() : 'No due date';
+           pageInfo = `QUIZ: "${quiz.name}" in ${course?.name || 'Unknown Course'} - Due: ${dueDate} - ${quiz.points_possible || 0} pts - State: ${courseData.state || 'active'}`;
+         }
          break;
        default:
          roleContext = 'FOCUS: Listen and ask focused questions to guide learning.';
      }
 
          // MINIMAL prompt with page context
+     let additionalContext = '';
+     
+     // Add assignment/quiz details if user is asking about them
+     if (contextType === 'assignment' && courseData.assignment && 
+         (userMessage.toLowerCase().includes('assignment') || userMessage.toLowerCase().includes('help') || userMessage.toLowerCase().includes('what'))) {
+       const assignment = courseData.assignment;
+       const shortDescription = assignment.description ? assignment.description.substring(0, 200) + '...' : '';
+       if (shortDescription) {
+         additionalContext = `ASSIGNMENT DETAILS: ${shortDescription}`;
+       }
+     } else if (contextType === 'quiz' && courseData.quiz && 
+                (userMessage.toLowerCase().includes('quiz') || userMessage.toLowerCase().includes('study') || userMessage.toLowerCase().includes('what'))) {
+       const quiz = courseData.quiz;
+       const shortDescription = quiz.description ? quiz.description.substring(0, 200) + '...' : '';
+       if (shortDescription) {
+         additionalContext = `QUIZ DETAILS: ${shortDescription}`;
+       }
+     }
+     
      const minimalPrompt = `Socrates tutor. ${roleContext}
 ${pageInfo ? `PAGE CONTEXT: ${pageInfo}` : ''}
+${additionalContext ? `${additionalContext}` : ''}
 Student: "${userMessage.substring(0, 100)}"
 Response: 1-2 sentences + question.`;
 
