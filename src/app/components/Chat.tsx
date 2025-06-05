@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { MessageSquare, Send, X, ChevronLeft, ChevronRight, Bot, User } from 'lucide-react';
+import { MessageSquare, Send, X, ChevronLeft, ChevronRight, Bot, User, GitBranch, AlertTriangle, Info } from 'lucide-react';
 import { mockCanvasApi } from '@/lib/mockCanvasApi';
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
 import Link from 'next/link';
@@ -25,6 +25,23 @@ interface SocratesPersonaOption {
   name: string;
   description: string;
   approach: string;
+}
+
+interface ConversationBranch {
+  id: string;
+  name: string;
+  parentBranchId?: string;
+  messages: Message[];
+  createdAt: Date;
+  summary?: string;
+  tokenCount: number;
+}
+
+interface ContextMetrics {
+  currentTokens: number;
+  maxTokens: number;
+  warningThreshold: number;
+  criticalThreshold: number;
 }
 
 const components: Components = {
@@ -65,6 +82,15 @@ export default function Chat({ context, isFullScreen = false }: ChatProps) {
   const [showPersonaSelection, setShowPersonaSelection] = useState(false);
   const [selectedPersona, setSelectedPersona] = useState<SocratesPersonaOption | null>(null);
   const [discussionPersonas, setDiscussionPersonas] = useState<SocratesPersonaOption[]>([]);
+  const [currentBranch, setCurrentBranch] = useState<ConversationBranch | null>(null);
+  const [conversationBranches, setConversationBranches] = useState<ConversationBranch[]>([]);
+  const [contextMetrics, setContextMetrics] = useState<ContextMetrics>({
+    currentTokens: 0,
+    maxTokens: 32000, // Gemini 2.0 Flash context limit
+    warningThreshold: 24000, // 75%
+    criticalThreshold: 28000 // 87.5%
+  });
+  const [showBranchManager, setShowBranchManager] = useState(false);
 
   // Enhanced context detection for better page awareness
   const detectPageContext = (ctx?: ChatContext) => {
@@ -158,6 +184,23 @@ export default function Chat({ context, isFullScreen = false }: ChatProps) {
 
   const contextKey = getContextKey(enhancedContext);
 
+  // Token estimation function (rough approximation: 1 token ≈ 4 characters)
+  const estimateTokens = (text: string): number => {
+    return Math.ceil(text.length / 4);
+  };
+
+  // Calculate total tokens for messages
+  const calculateMessageTokens = (messages: Message[]): number => {
+    return messages.reduce((total, msg) => total + estimateTokens(msg.content), 0);
+  };
+
+  // Create context summary for branch compression
+  const createContextSummary = (messages: Message[]): string => {
+    const userMessages = messages.filter(m => m.role === 'user');
+    const topics = userMessages.map(m => m.content.substring(0, 100)).join('; ');
+    return `Previous conversation covered: ${topics}. Key insights and progress made available for reference.`;
+  };
+
   // Generate Socrates personas based on discussion content
   const generateDiscussionPersonas = (discussionData: any, courseData: any) => {
     const personas: SocratesPersonaOption[] = [
@@ -218,6 +261,61 @@ export default function Chat({ context, isFullScreen = false }: ChatProps) {
     }
 
     return personas;
+  };
+
+  // Create a new conversation branch
+  const createNewBranch = (branchName: string, fromMessage?: number) => {
+    const branchId = `${contextKey}-branch-${Date.now()}`;
+    const messagesToInclude = fromMessage !== undefined 
+      ? messages.slice(0, fromMessage + 1)
+      : messages;
+    
+    const newBranch: ConversationBranch = {
+      id: branchId,
+      name: branchName,
+      parentBranchId: currentBranch?.id,
+      messages: messagesToInclude,
+      createdAt: new Date(),
+      summary: messagesToInclude.length > 5 ? createContextSummary(messagesToInclude) : undefined,
+      tokenCount: calculateMessageTokens(messagesToInclude)
+    };
+
+    setConversationBranches(prev => [...prev, newBranch]);
+    setCurrentBranch(newBranch);
+    
+    // Create a compressed version of the conversation for the new branch
+    if (messagesToInclude.length > 5) {
+      const compressedMessages = [
+        {
+          id: `summary-${branchId}`,
+          content: `📚 **Context Summary**: ${newBranch.summary}\n\nContinuing our exploration...`,
+          role: 'assistant' as const,
+          timestamp: new Date(),
+          context: enhancedContext
+        },
+        ...messagesToInclude.slice(-3) // Keep last 3 messages for immediate context
+      ];
+      setMessages(compressedMessages);
+    } else {
+      setMessages(messagesToInclude);
+    }
+
+    // Save to localStorage
+    localStorage.setItem(`branches-${contextKey}`, JSON.stringify([...conversationBranches, newBranch]));
+  };
+
+  // Switch to an existing branch
+  const switchToBranch = (branchId: string) => {
+    const branch = conversationBranches.find(b => b.id === branchId);
+    if (branch) {
+      setCurrentBranch(branch);
+      setMessages(branch.messages);
+    }
+  };
+
+  // Suggest branching when context gets large
+  const shouldSuggestBranching = (): boolean => {
+    return contextMetrics.currentTokens > contextMetrics.warningThreshold;
   };
 
   // Handle persona selection
@@ -281,6 +379,30 @@ export default function Chat({ context, isFullScreen = false }: ChatProps) {
       });
     }
   }, [enhancedContext, messages.length]);
+
+  // Update context metrics when messages change
+  useEffect(() => {
+    const currentTokens = calculateMessageTokens(messages);
+    setContextMetrics(prev => ({
+      ...prev,
+      currentTokens
+    }));
+
+    // Update current branch if it exists
+    if (currentBranch) {
+      const updatedBranch = {
+        ...currentBranch,
+        messages,
+        tokenCount: currentTokens
+      };
+      setCurrentBranch(updatedBranch);
+      
+      // Update in the branches array
+      setConversationBranches(prev => 
+        prev.map(branch => branch.id === currentBranch.id ? updatedBranch : branch)
+      );
+    }
+  }, [messages, currentBranch?.id]);
 
   // Generate automatic discussion continuation based on recent comments
   const generateDiscussionContinuation = (discussionInfo: any) => {
@@ -687,6 +809,12 @@ Choose how you'd like me to approach our conversation using the options below!`;
 
   // Build intelligent educational prompt for Gemini
   const buildEducationalPrompt = (userMessage: string, courseData: any, context?: ChatContext, messages: Message[] = []) => {
+    // Include branch context if available
+    let branchContext = '';
+    if (currentBranch && currentBranch.summary) {
+      branchContext = `\n\nBRANCH CONTEXT:\nThis conversation is on branch "${currentBranch.name}". ${currentBranch.summary}\n`;
+    }
+
     // Analyze conversation history for better context
     const conversationSummary = messages.length > 1 ? 
       `\n\nCONVERSATION CONTEXT:\nThis is a continuing conversation. Previous topics discussed: ${messages.slice(0, -1).map(msg => 
@@ -867,7 +995,7 @@ CALENDAR HELP: Ask practical questions about time management and study schedulin
 GENERAL HELP: Listen to their needs and ask focused questions to guide learning.
 `}
 
-${contextInfo}
+${contextInfo}${branchContext}
 
 ${conversationSummary}
 
@@ -948,6 +1076,12 @@ Respond helpfully with 1-2 strategic questions:
     setShowSimilarChats(false);
     
     try {
+      // Check if we need to auto-branch due to context size
+      if (contextMetrics.currentTokens > contextMetrics.criticalThreshold && !currentBranch) {
+        const autoBranchName = `Auto-Branch ${conversationBranches.length + 1}`;
+        createNewBranch(autoBranchName);
+      }
+
       const response = await generateContextAwareResponse(input.trim());
       
       const assistantMessage: Message = {
@@ -1058,6 +1192,129 @@ Respond helpfully with 1-2 strategic questions:
           </div>
           <div ref={messagesEndRef} />
         </div>
+
+        {/* Context Window Indicator */}
+        <div className="border-t border-gray-200 px-3 py-2 bg-gray-50">
+          <div className="flex items-center justify-between text-xs">
+            <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-1">
+                <Info className="w-3 h-3 text-gray-500" />
+                <span className="text-gray-600">
+                  Context: {Math.round((contextMetrics.currentTokens / contextMetrics.maxTokens) * 100)}%
+                </span>
+              </div>
+              <div 
+                className="w-16 h-1.5 bg-gray-200 rounded-full overflow-hidden"
+                title={`${contextMetrics.currentTokens.toLocaleString()} / ${contextMetrics.maxTokens.toLocaleString()} tokens`}
+              >
+                <div 
+                  className={`h-full transition-all duration-300 ${
+                    contextMetrics.currentTokens > contextMetrics.criticalThreshold 
+                      ? 'bg-red-500' 
+                      : contextMetrics.currentTokens > contextMetrics.warningThreshold 
+                      ? 'bg-yellow-500' 
+                      : 'bg-green-500'
+                  }`}
+                  style={{ width: `${Math.min((contextMetrics.currentTokens / contextMetrics.maxTokens) * 100, 100)}%` }}
+                />
+              </div>
+            </div>
+            
+            {(conversationBranches.length > 0 || shouldSuggestBranching()) && (
+              <button
+                onClick={() => setShowBranchManager(!showBranchManager)}
+                className={`flex items-center space-x-1 px-2 py-1 rounded text-xs transition-colors ${
+                  shouldSuggestBranching() 
+                    ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200' 
+                    : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                }`}
+              >
+                <GitBranch className="w-3 h-3" />
+                <span>{shouldSuggestBranching() ? 'Branch Suggested' : 'Manage Branches'}</span>
+                {shouldSuggestBranching() && <AlertTriangle className="w-3 h-3" />}
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Branch Management Panel */}
+        {showBranchManager && (
+          <div className="border-t border-gray-200 bg-blue-50 p-3">
+            <div className="mb-3">
+              <h3 className="text-sm font-semibold text-gray-900 mb-1 flex items-center">
+                <GitBranch className="w-4 h-4 mr-1 text-blue-600" />
+                Conversation Branches
+              </h3>
+              {shouldSuggestBranching() && (
+                <div className="bg-yellow-100 border border-yellow-300 rounded p-2 mb-2">
+                  <p className="text-xs text-yellow-800 flex items-center">
+                    <AlertTriangle className="w-3 h-3 mr-1" />
+                    Context window getting large. Consider branching to explore new topics while preserving this conversation.
+                  </p>
+                </div>
+              )}
+              <p className="text-xs text-gray-600">
+                Create branches to explore different topics without losing your conversation history.
+              </p>
+            </div>
+            
+            <div className="space-y-2 mb-3 max-h-24 overflow-y-auto">
+              {conversationBranches.map((branch) => (
+                <div 
+                  key={branch.id} 
+                  className={`flex items-center justify-between p-2 rounded text-xs ${
+                    currentBranch?.id === branch.id 
+                      ? 'bg-blue-200 border border-blue-300' 
+                      : 'bg-white border border-gray-200 hover:bg-blue-50'
+                  }`}
+                >
+                  <div className="flex-1">
+                    <div className="font-medium text-gray-900">{branch.name}</div>
+                    <div className="text-gray-500">
+                      {branch.messages.length} messages • {Math.round((branch.tokenCount / contextMetrics.maxTokens) * 100)}% context
+                    </div>
+                  </div>
+                  {currentBranch?.id !== branch.id && (
+                    <button
+                      onClick={() => switchToBranch(branch.id)}
+                      className="ml-2 px-2 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700"
+                    >
+                      Switch
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+            
+            <div className="flex space-x-2">
+              <input
+                type="text"
+                placeholder="New branch name..."
+                className="flex-1 px-2 py-1 border border-gray-300 rounded text-xs"
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    const target = e.target as HTMLInputElement;
+                    if (target.value.trim()) {
+                      createNewBranch(target.value.trim());
+                      target.value = '';
+                      setShowBranchManager(false);
+                    }
+                  }
+                }}
+              />
+              <button
+                onClick={() => {
+                  const branchName = `Side Quest ${conversationBranches.length + 1}`;
+                  createNewBranch(branchName);
+                  setShowBranchManager(false);
+                }}
+                className="px-3 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700"
+              >
+                Quick Branch
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Persona Selection for Discussion Contexts */}
         {showPersonaSelection && enhancedContext?.type === 'discussion' && (
