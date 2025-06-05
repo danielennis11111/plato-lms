@@ -20,6 +20,13 @@ interface ChatProps {
   isFullScreen?: boolean;
 }
 
+interface SocratesPersonaOption {
+  id: string;
+  name: string;
+  description: string;
+  approach: string;
+}
+
 const components: Components = {
   code({inline, className, children, ...props}: any) {
     const match = /language-(\w+)/.exec(className || '');
@@ -55,6 +62,9 @@ export default function Chat({ context, isFullScreen = false }: ChatProps) {
   const [isInitialized, setIsInitialized] = useState(false);
   const [debugInfo, setDebugInfo] = useState<string | null>(null);
   const [contextInfo, setContextInfo] = useState<any>(null);
+  const [showPersonaSelection, setShowPersonaSelection] = useState(false);
+  const [selectedPersona, setSelectedPersona] = useState<SocratesPersonaOption | null>(null);
+  const [discussionPersonas, setDiscussionPersonas] = useState<SocratesPersonaOption[]>([]);
 
   // Enhanced context detection for better page awareness
   const detectPageContext = (ctx?: ChatContext) => {
@@ -148,27 +158,123 @@ export default function Chat({ context, isFullScreen = false }: ChatProps) {
 
   const contextKey = getContextKey(enhancedContext);
 
+  // Generate Socrates personas based on discussion content
+  const generateDiscussionPersonas = (discussionData: any, courseData: any) => {
+    const personas: SocratesPersonaOption[] = [
+      {
+        id: 'classic-socrates',
+        name: 'Classic Socrates',
+        description: 'The original philosopher using the Socratic method',
+        approach: 'Will ask probing questions to help you examine your assumptions and think more deeply about the topic.'
+      },
+      {
+        id: 'discussion-moderator',
+        name: 'Discussion Moderator',
+        description: 'A skilled facilitator who synthesizes different viewpoints',
+        approach: 'Will help connect ideas from different participants and guide the conversation forward.'
+      }
+    ];
+
+    // Add course-specific expert - handle different info types
+    const course = courseData?.course || (courseData?.course_code ? courseData : null);
+    if (course?.course_code) {
+      personas.push({
+        id: 'subject-expert',
+        name: `${course.course_code} Subject Expert`,
+        description: `An expert in ${course.name} with deep knowledge`,
+        approach: 'Will provide academic insights and connect discussion topics to course concepts.'
+      });
+    }
+
+    // Add persona based on participants
+    if (discussionData?.participants && discussionData.participants.length > 2) {
+      personas.push({
+        id: 'participant-simulator',
+        name: 'Discussion Participant',
+        description: 'Simulate continuing the conversation as one of the existing participants',
+        approach: 'Will engage from the perspective of someone already involved in this discussion.'
+      });
+    }
+
+    // Add topic-specific personas based on discussion content
+    const discussionText = `${discussionData?.title || ''} ${discussionData?.originalPost?.message || ''} ${discussionData?.replies?.map((r: any) => r.message).join(' ') || ''}`.toLowerCase();
+    
+    if (discussionText.includes('ethic') || discussionText.includes('moral') || discussionText.includes('right') || discussionText.includes('wrong')) {
+      personas.push({
+        id: 'ethics-philosopher',
+        name: 'Ethics Philosopher',
+        description: 'Focused on moral reasoning and ethical implications',
+        approach: 'Will explore the ethical dimensions and moral reasoning in your discussion.'
+      });
+    }
+
+    if (discussionText.includes('debate') || discussionText.includes('argue') || discussionText.includes('disagree')) {
+      personas.push({
+        id: 'devils-advocate',
+        name: "Devil's Advocate",
+        description: 'Challenges ideas to strengthen arguments',
+        approach: 'Will present counterarguments and alternative perspectives to test your reasoning.'
+      });
+    }
+
+    return personas;
+  };
+
+  // Handle persona selection
+  const handlePersonaSelection = (persona: SocratesPersonaOption) => {
+    setSelectedPersona(persona);
+    setShowPersonaSelection(false);
+    
+    // Update the stored discussion context with the selected persona
+    const storedContext = localStorage.getItem('currentDiscussionContext');
+    if (storedContext) {
+      try {
+        const discussionData = JSON.parse(storedContext);
+        discussionData.selectedPersona = persona;
+        localStorage.setItem('currentDiscussionContext', JSON.stringify(discussionData));
+        
+        // Add a persona introduction message
+        const introMessage: Message = {
+          id: (Date.now() + 1000).toString(),
+          content: `Perfect! I'm now channeling ${persona.name}. ${persona.approach} Let's explore "${discussionData.title}" together. What aspects of this discussion would you like to dive deeper into?`,
+          role: 'assistant',
+          timestamp: new Date(),
+          context: enhancedContext
+        };
+        setMessages(prev => [...prev, introMessage]);
+      } catch (error) {
+        console.error('Error updating discussion context with persona:', error);
+      }
+    }
+  };
+
   // Load context information for better assistance
   useEffect(() => {
     if (enhancedContext.id && enhancedContext.type) {
       mockCanvasApi.getContextInfo(enhancedContext.type, enhancedContext.id).then(info => {
         setContextInfo(info);
         
-        // Auto-suggest discussion continuation for discussion contexts
-        if (enhancedContext.type === 'discussion' && info && messages.length <= 1) {
-          setTimeout(() => {
-            const autoSuggestion = generateDiscussionContinuation(info);
-            if (autoSuggestion) {
-              const suggestionMessage: Message = {
-                id: (Date.now() + 999).toString(),
-                content: autoSuggestion,
-                role: 'assistant',
-                timestamp: new Date(),
-                context: enhancedContext
-              };
-              setMessages(prev => [...prev, suggestionMessage]);
+        // Handle discussion context with persona selection
+        if (enhancedContext.type === 'discussion') {
+          const storedDiscussionContext = localStorage.getItem('currentDiscussionContext');
+          if (storedDiscussionContext) {
+            try {
+              const discussionData = JSON.parse(storedDiscussionContext);
+              const personas = generateDiscussionPersonas(discussionData, info);
+              setDiscussionPersonas(personas);
+              
+              // Check if a persona was already selected
+              if (discussionData.selectedPersona) {
+                setSelectedPersona(discussionData.selectedPersona);
+                setShowPersonaSelection(false);
+              } else if (messages.length <= 1) {
+                // Show persona selection for new discussions
+                setShowPersonaSelection(true);
+              }
+            } catch (error) {
+              console.error('Error parsing discussion context:', error);
             }
-          }, 2000); // Delay to let welcome message appear first
+          }
         }
       }).catch(error => {
         console.error('Error loading context info:', error);
@@ -264,7 +370,7 @@ export default function Chat({ context, isFullScreen = false }: ChatProps) {
               console.error('Error parsing discussion context:', error);
             }
           }
-          return `Hello there, how can I help you think through this discussion?`;
+          return `Hello! I see you're working with this discussion. I can engage with you in different ways - please choose how you'd like me to approach our conversation using the options below.`;
         } else if (enhancedContext.type === 'calendar') {
           return `Hello again, how can I help you organize your studies?`;
         } else if (enhancedContext.type === 'dashboard') {
@@ -941,6 +1047,34 @@ Respond helpfully with 1-2 strategic questions:
           </div>
           <div ref={messagesEndRef} />
         </div>
+
+        {/* Persona Selection for Discussion Contexts */}
+        {showPersonaSelection && enhancedContext?.type === 'discussion' && (
+          <div className="border-t border-purple-200 bg-gradient-to-br from-purple-50 to-blue-50 p-3">
+            <div className="mb-3">
+              <h3 className="text-sm font-semibold text-gray-900 mb-1 flex items-center">
+                <Bot className="w-4 h-4 mr-1 text-purple-600" />
+                Choose Your Socratic Guide
+              </h3>
+              <p className="text-xs text-gray-600">
+                I can approach this discussion in different ways. How would you like me to engage?
+              </p>
+            </div>
+            <div className="grid gap-2 max-h-32 overflow-y-auto">
+              {discussionPersonas.map((persona) => (
+                <button
+                  key={persona.id}
+                  onClick={() => handlePersonaSelection(persona)}
+                  className="text-left bg-white rounded-lg p-2 border border-gray-200 hover:border-purple-300 hover:bg-purple-50 transition-colors"
+                >
+                  <div className="font-medium text-gray-900 text-xs mb-1">{persona.name}</div>
+                  <div className="text-xs text-gray-600 mb-1">{persona.description}</div>
+                  <div className="text-xs text-purple-600 italic">{persona.approach}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
         
         <div className="border-t border-gray-200 p-3">
           <div className="flex space-x-2">

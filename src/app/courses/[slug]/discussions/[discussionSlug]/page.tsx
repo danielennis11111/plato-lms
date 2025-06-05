@@ -2,11 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { ArrowLeft, MessageSquare, Clock, Reply, Send, Users, Bot, Sparkles } from 'lucide-react';
+import { ArrowLeft, MessageSquare, Clock, Reply, Send, Users } from 'lucide-react';
 import Link from 'next/link';
 import { mockCanvasApi } from '@/lib/mockCanvasApi';
 import { useAuth } from '@/contexts/AuthContext';
-import { useLayout } from '../../../../contexts/LayoutContext';
 import { slugify } from '@/lib/utils';
 
 interface Discussion {
@@ -34,25 +33,19 @@ interface Course {
   course_code: string;
 }
 
-interface SocratesPersonaOption {
-  id: string;
-  name: string;
-  description: string;
-  approach: string;
-}
+
 
 export default function CourseDiscussionPage() {
   const params = useParams();
   const router = useRouter();
   const { user, getUserData } = useAuth();
-  const { setChatOpen } = useLayout();
+
   const [discussion, setDiscussion] = useState<Discussion | null>(null);
   const [course, setCourse] = useState<Course | null>(null);
   const [loading, setLoading] = useState(true);
   const [newReply, setNewReply] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [showSocratesOptions, setShowSocratesOptions] = useState(false);
-  const [socratesPersonas, setSocratesPersonas] = useState<SocratesPersonaOption[]>([]);
+
 
   useEffect(() => {
     const loadDiscussion = async () => {
@@ -78,10 +71,7 @@ export default function CourseDiscussionPage() {
         try {
           const courseDiscussions = await mockCanvasApi.getDiscussions(foundCourse.id);
           const foundDiscussion = courseDiscussions.find(d => slugify(d.title) === params.discussionSlug);
-          if (foundDiscussion) {
-            setDiscussion(foundDiscussion);
-            generateSocratesPersonas(foundDiscussion, foundCourse);
-          }
+          setDiscussion(foundDiscussion || null);
         } catch (error) {
           console.error('Error loading discussion:', error);
         }
@@ -96,67 +86,37 @@ export default function CourseDiscussionPage() {
     if (params.slug && params.discussionSlug) {
       loadDiscussion();
     }
-  }, [params.slug, params.discussionSlug, getUserData]);
+      }, [params.slug, params.discussionSlug, getUserData]);
 
-  const generateSocratesPersonas = (discussion: Discussion, course: Course) => {
-    // Generate context-aware persona options based on the discussion topic and course
-    const personas: SocratesPersonaOption[] = [
-      {
-        id: 'classic-socrates',
-        name: 'Classic Socrates',
-        description: 'The original philosopher using the Socratic method',
-        approach: 'Will ask probing questions to help you examine your assumptions and think more deeply about the topic.'
-      },
-      {
-        id: 'discussion-moderator',
-        name: 'Discussion Moderator',
-        description: 'A skilled facilitator who synthesizes different viewpoints',
-        approach: 'Will help connect ideas from different participants and guide the conversation forward.'
-      },
-      {
-        id: 'subject-expert',
-        name: `${course.course_code} Subject Expert`,
-        description: `An expert in ${course.name} with deep knowledge`,
-        approach: 'Will provide academic insights and connect discussion topics to course concepts.'
-      }
-    ];
-
-    // Add persona based on existing participants
-    const participants = [discussion.author, ...discussion.replies.map(r => r.author)];
-    const uniqueParticipants = [...new Set(participants)];
-    
-    if (uniqueParticipants.length > 2) {
-      personas.push({
-        id: 'participant-simulator',
-        name: 'Discussion Participant',
-        description: 'Simulate continuing the conversation as one of the existing participants',
-        approach: 'Will engage from the perspective of someone already involved in this discussion.'
-      });
+  // Automatically store discussion context for sidebar chat
+  useEffect(() => {
+    if (discussion && course) {
+      const discussionContext = {
+        type: 'discussion' as const,
+        id: discussion.id,
+        title: discussion.title,
+        topic: discussion.topic || 'general',
+        course: course.name,
+        courseCode: course.course_code,
+        originalPost: {
+          author: discussion.author,
+          message: discussion.message,
+          timestamp: discussion.created_at
+        },
+        replies: discussion.replies.map(reply => ({
+          author: reply.author,
+          message: reply.message,
+          timestamp: reply.created_at
+        })),
+        participants: [...new Set([discussion.author, ...discussion.replies.map(r => r.author)])],
+        contextSummary: `Discussion about "${discussion.title}" in ${course.name} with ${discussion.replies.length + 1} participants.`
+      };
+      
+      localStorage.setItem('currentDiscussionContext', JSON.stringify(discussionContext));
     }
+  }, [discussion, course]);
 
-    // Add topic-specific personas based on discussion content
-    const discussionText = `${discussion.title} ${discussion.message} ${discussion.replies.map(r => r.message).join(' ')}`.toLowerCase();
-    
-    if (discussionText.includes('ethic') || discussionText.includes('moral') || discussionText.includes('right') || discussionText.includes('wrong')) {
-      personas.push({
-        id: 'ethics-philosopher',
-        name: 'Ethics Philosopher',
-        description: 'Focused on moral reasoning and ethical implications',
-        approach: 'Will explore the ethical dimensions and moral reasoning in your discussion.'
-      });
-    }
 
-    if (discussionText.includes('debate') || discussionText.includes('argue') || discussionText.includes('disagree')) {
-      personas.push({
-        id: 'devils-advocate',
-        name: "Devil's Advocate",
-        description: 'Challenges ideas to strengthen arguments',
-        approach: 'Will present counterarguments and alternative perspectives to test your reasoning.'
-      });
-    }
-
-    setSocratesPersonas(personas);
-  };
 
   const handleSubmitReply = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -185,52 +145,7 @@ export default function CourseDiscussionPage() {
     }
   };
 
-  const handleStartSocratesChat = (persona: SocratesPersonaOption) => {
-    if (!discussion) return;
-    
-    // Create comprehensive context including discussion content and participants
-    const discussionContext = {
-      type: 'discussion' as const,
-      id: discussion.id,
-      title: discussion.title,
-      topic: discussion.topic || 'general',
-      course: course?.name || '',
-      courseCode: course?.course_code || '',
-      originalPost: {
-        author: discussion.author,
-        message: discussion.message,
-        timestamp: discussion.created_at
-      },
-      replies: discussion.replies.map(reply => ({
-        author: reply.author,
-        message: reply.message,
-        timestamp: reply.created_at
-      })),
-      participants: [...new Set([discussion.author, ...discussion.replies.map(r => r.author)])],
-      selectedPersona: persona,
-      contextSummary: `Discussion about "${discussion.title}" in ${course?.name || 'course'} with ${discussion.replies.length + 1} participants.`
-    };
-    
-    // Store enhanced discussion context for the sidebar chat
-    localStorage.setItem('currentDiscussionContext', JSON.stringify(discussionContext));
-    localStorage.setItem(`chatContext-discussion-${discussion.id}`, JSON.stringify({
-      type: 'discussion',
-      id: discussion.id,
-      title: `${persona.name}: ${discussion.title}`,
-      topic: discussion.topic,
-      state: 'active',
-      discussionData: discussionContext
-    }));
-    
-    // Close the persona selection and open the sidebar chat
-    setShowSocratesOptions(false);
-    setChatOpen(true);
-    
-    // Force refresh the chat context by triggering a page context update
-    window.dispatchEvent(new CustomEvent('discussionContextSet', { 
-      detail: { discussionId: discussion.id, persona: persona.id } 
-    }));
-  };
+
 
   if (loading) {
     return (
@@ -304,50 +219,11 @@ export default function CourseDiscussionPage() {
             </div>
           </div>
           
-          {/* Socrates Chat Button */}
-          <div className="flex-shrink-0">
-            <button
-              onClick={() => setShowSocratesOptions(!showSocratesOptions)}
-              className="inline-flex items-center space-x-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 py-2 rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all duration-200 shadow-md"
-            >
-              <Bot className="w-5 h-5" />
-              <span>Chat with Socrates</span>
-              <Sparkles className="w-4 h-4" />
-            </button>
-          </div>
+
         </div>
       </div>
 
-      {/* Socrates Persona Selection */}
-      {showSocratesOptions && (
-        <div className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-xl p-6 mb-6 border border-purple-200">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-            <Bot className="w-5 h-5 mr-2 text-purple-600" />
-            Choose Your Socratic Dialogue Style
-          </h3>
-          <p className="text-gray-600 mb-4">
-            Socrates can engage with this discussion in different ways. Choose the approach that best fits what you're looking for:
-          </p>
-          <div className="grid gap-4 md:grid-cols-2">
-            {socratesPersonas.map((persona) => (
-              <div
-                key={persona.id}
-                className="bg-white rounded-lg p-4 border border-gray-200 hover:border-purple-300 transition-colors cursor-pointer"
-                onClick={() => handleStartSocratesChat(persona)}
-              >
-                <h4 className="font-medium text-gray-900 mb-2">{persona.name}</h4>
-                <p className="text-sm text-gray-600 mb-2">{persona.description}</p>
-                <p className="text-xs text-purple-600 italic">{persona.approach}</p>
-              </div>
-            ))}
-          </div>
-          <div className="mt-4 pt-4 border-t border-gray-200">
-            <p className="text-xs text-gray-500">
-              💡 Socrates will have full context of this discussion, including all posts and participants, to provide relevant guidance.
-            </p>
-          </div>
-        </div>
-      )}
+
 
       {/* Main Discussion */}
       <div className="bg-white rounded-lg shadow border border-gray-200 mb-6">
