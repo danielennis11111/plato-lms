@@ -370,7 +370,16 @@ export default function Chat({ context, isFullScreen = false }: ChatProps) {
               console.error('Error parsing discussion context:', error);
             }
           }
-          return `Hello! I see you're working with this discussion. I can engage with you in different ways - please choose how you'd like me to approach our conversation using the options below.`;
+          return `Hello! I see you're working with this discussion. I can engage with you in different ways:
+
+**Classic Socrates** - Traditional Socratic method questioning
+**Discussion Moderator** - Synthesizes viewpoints and guides conversation  
+**Subject Expert** - Course-specific academic insights
+**Participant Simulator** - Continues as if I'm another student (for active discussions)
+**Ethics Philosopher** - Explores moral reasoning and ethical implications
+**Devil's Advocate** - Challenges ideas to strengthen arguments
+
+Choose how you'd like me to approach our conversation using the options below!`;
         } else if (enhancedContext.type === 'calendar') {
           return `Hello again, how can I help you organize your studies?`;
         } else if (enhancedContext.type === 'dashboard') {
@@ -1057,7 +1066,7 @@ Respond helpfully with 1-2 strategic questions:
                 Choose Your Socratic Guide
               </h3>
               <p className="text-xs text-gray-600">
-                I can approach this discussion in different ways. How would you like me to engage?
+                Select your preferred approach:
               </p>
             </div>
             <div className="grid gap-2 max-h-32 overflow-y-auto">
