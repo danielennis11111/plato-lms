@@ -201,6 +201,25 @@ export default function Chat({ context, isFullScreen = false }: ChatProps) {
     return `Previous conversation covered: ${topics}. Key insights and progress made available for reference.`;
   };
 
+  // Extract key information from conversation for context optimization
+  const extractKeyInformation = (messages: Message[]): string => {
+    const recentMessages = messages.slice(-6); // Last 6 messages for immediate context
+    const userQuestions = recentMessages.filter(m => m.role === 'user').map(m => m.content);
+    const keyTopics = [...new Set(userQuestions.flatMap(q => 
+      q.split(/[.!?]/).filter(sentence => sentence.trim().length > 10)
+    ))].slice(0, 3);
+    
+    return keyTopics.length > 0 ? `Key discussion points: ${keyTopics.join('; ')}.` : '';
+  };
+
+  // Optimize prompt for token efficiency
+  const optimizeForTokenEfficiency = (basePrompt: string): string => {
+    return basePrompt
+      .replace(/\n\s*\n/g, '\n') // Remove multiple newlines
+      .replace(/\s+/g, ' ') // Normalize whitespace
+      .trim();
+  };
+
   // Generate Socrates personas based on discussion content
   const generateDiscussionPersonas = (discussionData: any, courseData: any) => {
     const personas: SocratesPersonaOption[] = [
@@ -316,6 +335,49 @@ export default function Chat({ context, isFullScreen = false }: ChatProps) {
   // Suggest branching when context gets large
   const shouldSuggestBranching = (): boolean => {
     return contextMetrics.currentTokens > contextMetrics.warningThreshold;
+  };
+
+  // Calculate optimal response length based on remaining context
+  const getOptimalResponseLength = (): number => {
+    const remainingTokens = contextMetrics.maxTokens - contextMetrics.currentTokens;
+    const percentageUsed = contextMetrics.currentTokens / contextMetrics.maxTokens;
+    
+    if (percentageUsed > 0.9) return 50; // Very short responses
+    if (percentageUsed > 0.75) return 100; // Short responses
+    if (percentageUsed > 0.5) return 200; // Medium responses
+    return 300; // Normal responses
+  };
+
+  // Compress conversation history intelligently
+  const compressConversationHistory = (history: any[]): any[] => {
+    const percentageUsed = contextMetrics.currentTokens / contextMetrics.maxTokens;
+    
+    // If under 50% context usage, return full history
+    if (percentageUsed < 0.5) return history;
+    
+    // If over 75%, keep only last 4 exchanges + compress older ones
+    if (percentageUsed > 0.75) {
+      const recentHistory = history.slice(-8); // Last 4 exchanges (user + assistant pairs)
+      const olderHistory = history.slice(0, -8);
+      
+      if (olderHistory.length > 0) {
+        const summary = `[Previous conversation: ${olderHistory.length} messages covering topics like ${
+          olderHistory.filter(h => h.role === 'user')
+            .map(h => h.parts[0].text.substring(0, 50))
+            .slice(-3)
+            .join(', ')
+        }...]`;
+        
+        return [
+          { role: 'user', parts: [{ text: summary }] },
+          ...recentHistory
+        ];
+      }
+      return recentHistory;
+    }
+    
+    // If 50-75%, keep last 6 exchanges
+    return history.slice(-12);
   };
 
   // Handle persona selection
@@ -683,13 +745,14 @@ Choose how you'd like me to approach our conversation using the options below!`;
       // Use Gemini 2.0 Flash for intelligent responses (same model as settings)
       console.log('🤖 Initializing Gemini...');
       const genAI = new GoogleGenerativeAI(apiKey);
+      const optimalLength = getOptimalResponseLength();
       const model = genAI.getGenerativeModel({ 
         model: "gemini-2.0-flash", // Changed from gemini-2.0-flash-exp to match settings
         generationConfig: {
           temperature: 0.7,
           topP: 0.8,
           topK: 40,
-          maxOutputTokens: 1024,
+          maxOutputTokens: optimalLength,
         },
         safetySettings: [
           {
@@ -730,21 +793,27 @@ Choose how you'd like me to approach our conversation using the options below!`;
       console.log('🎯 Calling Gemini API with conversation history...');
       console.log('💬 Conversation length:', conversationHistory.length, 'messages');
       
+      // Compress conversation history if needed
+      const compressedHistory = compressConversationHistory(conversationHistory);
+      
       // Create the full conversation with system instruction
       const fullConversation = [
         {
           role: 'user',
           parts: [{ text: systemPrompt }]
         },
-        ...conversationHistory
+        ...compressedHistory
       ];
+      
+      console.log(`📊 Context optimization: ${conversationHistory.length} → ${compressedHistory.length} messages`);
+      console.log(`🎯 Using ${optimalLength} token limit (${Math.round(contextMetrics.currentTokens / contextMetrics.maxTokens * 100)}% context used)`);
 
       // Use the same API call format as the settings page
       const result = await model.generateContent({
         contents: fullConversation,
         generationConfig: {
           temperature: 0.7,
-          maxOutputTokens: 1024,
+          maxOutputTokens: optimalLength,
         },
         safetySettings: [
           {
@@ -946,63 +1015,76 @@ Enrolled Courses: ${userEnrollments.length > 0 ? userEnrollments.join(', ') : 'N
 `;
     }
 
-    let prompt = `You are Socrates, a helpful AI tutor who uses strategic questions to guide learning. You're brilliant but act curious to encourage students to think deeper.
+    // Extract key context efficiently
+    const keyInfo = extractKeyInformation(messages);
+    const contextType = context?.type || 'general';
+    
+    // Build optimized context sections
+    let roleContext = '';
+    switch (contextType) {
+      case 'assignment':
+        roleContext = 'FOCUS: Ask specific questions about assignment approach and understanding.';
+        break;
+      case 'discussion':
+        const storedContext = localStorage.getItem('currentDiscussionContext');
+        let personaInfo = '';
+        if (storedContext) {
+          try {
+            const data = JSON.parse(storedContext);
+            if (data.selectedPersona) {
+              personaInfo = ` As ${data.selectedPersona.name}, `;
+            }
+          } catch (e) {}
+        }
+        roleContext = `FOCUS:${personaInfo} Ask questions that encourage different perspectives.`;
+        break;
+      case 'quiz':
+        roleContext = context?.state === 'completed' 
+          ? 'FOCUS: Ask what they learned from the experience.' 
+          : 'FOCUS: Ask questions to clarify concepts without giving answers.';
+        break;
+      case 'dashboard':
+        roleContext = 'FOCUS: Help prioritize tasks and plan study schedules efficiently.';
+        break;
+      default:
+        roleContext = 'FOCUS: Listen and ask focused questions to guide learning.';
+    }
 
-PERSONALITY:
-- Be concise and direct (2-3 sentences max)
-- Ask 1-2 focused questions per response
-- Use simple language, not flowery or verbose 
-- Act curious but practical: "How did you approach this?" not "I find myself wondering about the philosophical nature of..."
-- Shield your intelligence - sound helpful, not pretentious
-- Use exclamation points sparingly - only for genuine celebration or emphasis
+         // Adjust prompt verbosity based on context usage
+     const percentageUsed = contextMetrics.currentTokens / contextMetrics.maxTokens;
+     const isHighUsage = percentageUsed > 0.75;
+     
+     // Ultra-compressed prompt for high context usage
+     if (isHighUsage) {
+       const ultraPrompt = `Socrates tutor. BE EXTREMELY BRIEF.
+${roleContext}
+${keyInfo ? `Context: ${keyInfo.substring(0, 100)}` : ''}
+Current: "${userMessage.substring(0, 100)}"
+Reply: 1 sentence + 1 question max.`;
+       return optimizeForTokenEfficiency(ultraPrompt);
+     }
+     
+     // Standard optimized prompt
+     const optimizedPrompt = `You are Socrates. Guide through questions. BE CONCISE.
 
-APPROACH:
-- Ask simple questions that reveal gaps in understanding
-- When students struggle, break problems into smaller pieces
-- Celebrate insights: "Good thinking!" or "That's right!"
-- Use practical phrases: "What if..." "How about..." "Can you..." 
-- Never lecture - always guide through questions
+RULES:
+• Max 2 sentences + 1 question per response
+• Reference only last 2 exchanges unless asked
+• Use "What if..." "How about..." "Can you..."
+• Never lecture - only guide with questions
 
-${context?.type === 'assignment' ? `
-ASSIGNMENT HELP: You have full access to the assignment details above. Ask about their approach to specific parts, reference actual terms from the assignment, and guide with practical questions to improve their work.
-` : context?.type === 'quiz' ? `
-QUIZ HELP: ${context?.state === 'completed' ? 'Ask what they learned from the experience.' : 'Ask questions to clarify concepts without giving answers.'}
-` : context?.type === 'discussion' ? `
-DISCUSSION HELP: ${(() => {
-  const storedContext = localStorage.getItem('currentDiscussionContext');
-  if (storedContext) {
-    try {
-      const data = JSON.parse(storedContext);
-      if (data.selectedPersona) {
-        return `As ${data.selectedPersona.name}, engage according to your persona while asking questions that encourage different perspectives and deeper thinking about the discussion content.`;
-      }
-    } catch (e) {}
-  }
-  return 'Ask questions that encourage different perspectives and deeper thinking.';
-})()}
-` : context?.type === 'dashboard' ? `
-PRIORITY PLANNING HELP: You have access to the student's complete academic overview above. Help them:
-- Prioritize assignments by due dates and point values
-- Plan realistic study schedules around their workload
-- Balance multiple courses effectively
-- Identify potential scheduling conflicts
-- Suggest time management strategies
-- Break down overwhelming weeks into manageable tasks
-Ask practical questions about their study habits, available time, and preferences to create personalized plans.
-` : context?.type === 'calendar' ? `
-CALENDAR HELP: Ask practical questions about time management and study scheduling.
-` : `
-GENERAL HELP: Listen to their needs and ask focused questions to guide learning.
-`}
+${roleContext}
 
-${contextInfo}${branchContext}
+CONTEXT: ${keyInfo}
+${branchContext ? `BRANCH: ${branchContext.trim()}` : ''}
 
-${conversationSummary}
+RECENT: ${messages.slice(-2).map(m => `${m.role}: "${m.content.substring(0, 150)}"`).join(' | ')}
 
-Respond helpfully with 1-2 strategic questions:
-`;
+CURRENT: "${userMessage}"
 
-    return prompt;
+Response (concise + 1 question):`;
+
+     return optimizeForTokenEfficiency(optimizedPrompt);
   };
 
   // Get comprehensive context about the current course/assignment
