@@ -6,13 +6,13 @@ import { useAuth } from '@/contexts/AuthContext';
 import { LayoutProvider } from '../contexts/LayoutContext';
 import Sidebar from './Sidebar';
 import MainLayout from './MainLayout';
-import ChatButton from './ChatButton';
+import EmbeddedChatButton from './EmbeddedChatButton';
 
 interface LayoutWrapperProps {
   children: ReactNode;
 }
 
-const publicRoutes = ['/auth/login', '/auth/register', '/auth/forgot-password'];
+const publicRoutes = ['/auth/login', '/auth/register', '/auth/forgot-password', '/canvas-demo'];
 
 export default function LayoutWrapper({ children }: LayoutWrapperProps) {
   const { isAuthenticated, isLoading } = useAuth();
@@ -50,6 +50,18 @@ export default function LayoutWrapper({ children }: LayoutWrapperProps) {
 
   // For public routes (like login), show minimal layout
   if (isPublicRoute) {
+    // Special case for canvas-demo: include the chat component
+    if (pathname === '/canvas-demo') {
+      return (
+        <LayoutProvider>
+          <div className="min-h-screen bg-gray-50 relative">
+            {children}
+            <EmbeddedChatButton />
+          </div>
+        </LayoutProvider>
+      );
+    }
+    
     return (
       <div className="min-h-screen bg-gray-50">
         {children}
@@ -66,7 +78,7 @@ export default function LayoutWrapper({ children }: LayoutWrapperProps) {
           <MainLayout>
             {children}
           </MainLayout>
-          <ChatButton />
+          <EmbeddedChatButton />
         </div>
       </LayoutProvider>
     );
